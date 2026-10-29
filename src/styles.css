@@ -46,6 +46,10 @@
 
   /* Linha dos gráficos: validada (dataviz) contra o fundo do card, >= 3:1 */
   --nv-chart-line: #c2620a;
+  /* Macronutrientes (carboidrato, proteína, gordura): trio validado contra daltonismo, todos os pares */
+  --nv-macro-carb: #c2620a;
+  --nv-macro-protein: #2a78d6;
+  --nv-macro-fat: #199e70;
 
   --nv-success: #16a34a;
   --nv-success-ink: #15803d;
@@ -97,6 +101,9 @@
   --nv-divider: rgb(255 255 255 / 0.08);
 
   --nv-chart-line: #d9741c;
+  --nv-macro-carb: #d9741c;
+  --nv-macro-protein: #3987e5;
+  --nv-macro-fat: #199e70;
 
   --nv-success: #4ade80;
   --nv-success-ink: #4ade80;
@@ -153,6 +160,9 @@
   --color-line: var(--nv-line);
   --color-divider: var(--nv-divider);
   --color-chart-line: var(--nv-chart-line);
+  --color-macro-carb: var(--nv-macro-carb);
+  --color-macro-protein: var(--nv-macro-protein);
+  --color-macro-fat: var(--nv-macro-fat);
   --color-success: var(--nv-success);
   --color-success-ink: var(--nv-success-ink);
   --color-success-soft: var(--nv-success-soft);
