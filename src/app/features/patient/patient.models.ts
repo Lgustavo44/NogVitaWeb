@@ -53,3 +53,16 @@ export interface NutritionPlanDetail {
   plan: NutritionPlanSummary;
   meals: unknown[];
 }
+
+export interface NutritionistListItem {
+  userId: string;
+  name: string;
+  crnRegion: number;
+  crnNumber: string;
+  bio: string | null;
+}
+
+export interface RequestNutritionistRequest {
+  nutritionistId: string;
+  message: string | null;
+}

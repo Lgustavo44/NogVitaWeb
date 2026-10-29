@@ -11,4 +11,10 @@ export const PATIENT_ROUTES: Routes = [
     title: 'Meu perfil · NogVita',
     loadComponent: () => import('./profile/patient-profile').then((m) => m.PatientProfilePage),
   },
+  {
+    path: 'encontrar-nutricionista',
+    title: 'Encontrar nutricionista · NogVita',
+    loadComponent: () =>
+      import('./find-nutritionist/find-nutritionist').then((m) => m.FindNutritionistPage),
+  },
 ];

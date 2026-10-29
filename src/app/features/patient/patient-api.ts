@@ -1,11 +1,14 @@
 import { HttpClient, httpResource } from '@angular/common/http';
-import { Service, inject } from '@angular/core';
+import { Service, Signal, inject } from '@angular/core';
 import { Observable } from 'rxjs';
 import { apiUrl } from '../../core/http/api-url';
+import { PagedResponse } from '../../shared/domain/paged-response';
 import {
   MyCareRelationship,
   NutritionPlanDetail,
   PatientProfile,
+  RequestNutritionistRequest,
+  NutritionistListItem,
   UpdatePatientProfileRequest,
 } from './patient.models';
 
@@ -17,6 +20,10 @@ export class PatientApi {
   /** Envie sempre os três horários: horário omitido ou null apaga o valor salvo. */
   updateProfile(body: UpdatePatientProfileRequest): Observable<unknown> {
     return this.http.put(apiUrl('/patients/me'), body);
+  }
+
+  requestNutritionist(body: RequestNutritionistRequest): Observable<unknown> {
+    return this.http.post(apiUrl('/patients/me/nutritionist-requests'), body);
   }
 }
 
@@ -37,4 +44,21 @@ export function careRelationshipResource() {
 /** 404 "Você não tem um plano ativo." é estado normal. */
 export function currentPlanResource() {
   return httpResource<NutritionPlanDetail>(() => apiUrl('/patients/me/nutrition-plans/current'));
+}
+
+export function nutritionistsResource(
+  search: Signal<string>,
+  crnRegion: Signal<number | null>,
+  page: Signal<number>,
+  pageSize = 12,
+) {
+  return httpResource<PagedResponse<NutritionistListItem>>(() => ({
+    url: apiUrl('/nutritionists'),
+    params: {
+      page: page(),
+      pageSize,
+      ...(search().trim() ? { search: search().trim() } : {}),
+      ...(crnRegion() ? { crnRegion: crnRegion()! } : {}),
+    },
+  }));
 }

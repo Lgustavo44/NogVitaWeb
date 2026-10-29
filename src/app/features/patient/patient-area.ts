@@ -33,7 +33,11 @@ export class PatientArea {
     { label: 'Início', icon: LucideHouse, link: '/paciente', exact: true, bottom: true },
     { label: 'Plano alimentar', shortLabel: 'Plano', icon: LucideUtensils, bottom: true },
     { label: 'Peso', icon: LucideScale, bottom: true },
-    { label: 'Encontrar nutricionista', icon: LucideUserSearch },
+    {
+      label: 'Encontrar nutricionista',
+      icon: LucideUserSearch,
+      link: '/paciente/encontrar-nutricionista',
+    },
     { label: 'Minhas solicitações', icon: LucideClipboardList },
     { label: 'Meu nutricionista', shortLabel: 'Nutri', icon: LucideStethoscope, bottom: true },
     {
