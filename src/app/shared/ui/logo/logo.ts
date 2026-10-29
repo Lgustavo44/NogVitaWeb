@@ -15,15 +15,28 @@ export type LogoTone = 'auto' | 'on-light' | 'on-dark';
   imports: [NgOptimizedImage, NgTemplateOutlet, RouterLink],
   host: { class: 'inline-flex' },
   template: `
+    <!-- Duas imagens, e não uma só com tamanho trocado: o NgOptimizedImage não aceita
+         mudar width/height depois de criado (no menu que recolhe, a logo travava). -->
     <ng-template #image>
-      <img
-        [ngSrc]="src()"
-        [width]="compact() ? 170 : 496"
-        [height]="compact() ? 170 : 150"
-        alt="NogVita"
-        [priority]="priority()"
-        class="h-full w-auto"
-      />
+      @if (compact()) {
+        <img
+          [ngSrc]="src()"
+          width="170"
+          height="170"
+          alt="NogVita"
+          [priority]="priority()"
+          class="h-full w-auto"
+        />
+      } @else {
+        <img
+          [ngSrc]="src()"
+          width="496"
+          height="150"
+          alt="NogVita"
+          [priority]="priority()"
+          class="h-full w-auto"
+        />
+      }
     </ng-template>
     @if (link(); as link) {
       <a
