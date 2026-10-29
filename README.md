@@ -16,7 +16,8 @@ As telas estão sendo construídas uma por vez, de ponta a ponta (visual, integr
 | Nutricionista: solicitações, meus pacientes e detalhe do paciente (com o peso)                        | Prontas                          |
 | Nutricionista: alimentos (busca TACO/Open Food Facts, ficha e importação por código de barras)        | Prontas                          |
 | Nutricionista: planos alimentares (criar, refeições, alimentos, meta diária, ativar/finalizar, PDF)   | Prontas                          |
-| Plano alimentar do paciente e telas do admin                                                          | Aparecem no menu como "Em breve" |
+| Paciente: plano alimentar (atual e anteriores, baixar PDF, receber por e-mail)                        | Prontas                          |
+| Telas do admin                                                                                        | Aparecem no menu como "Em breve" |
 
 A sessão fica no `sessionStorage` (sobrevive ao recarregar, some ao fechar a aba) e o token é renovado automaticamente, uma renovação por vez.
 
