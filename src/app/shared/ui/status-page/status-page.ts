@@ -1,5 +1,5 @@
 import { Location } from '@angular/common';
-import { Component, inject } from '@angular/core';
+import { Component, computed, inject } from '@angular/core';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import {
   LucideArrowLeft,
@@ -13,7 +13,10 @@ import {
   LucideShieldAlert,
   LucideUserRound,
 } from '@lucide/angular';
+import { AREAS } from '../../../core/auth/areas';
 import { Auth } from '../../../core/auth/auth';
+import { CurrentUser } from '../../../core/auth/current-user';
+import { Session } from '../../../core/auth/session';
 import { Button } from '../button/button';
 import { Logo } from '../logo/logo';
 
@@ -169,6 +172,26 @@ type StatusKind = 'not-found' | 'forbidden' | 'session-expired' | 'unavailable';
         </div>
       </div>
     } @else if (kind === 'forbidden') {
+      @if (myAreas().length > 0) {
+        <div
+          class="flex w-full max-w-md flex-col gap-3 rounded-container bg-surface-muted p-4 text-left"
+        >
+          <p class="text-label-md text-ink-muted uppercase">Áreas da sua conta</p>
+          <ul class="flex flex-col gap-2">
+            @for (area of myAreas(); track area.role) {
+              <li>
+                <a
+                  [routerLink]="area.path"
+                  class="flex min-h-11 items-center justify-between gap-3 rounded-control bg-surface px-3 text-label-lg text-ink shadow-1 hover:text-link"
+                >
+                  {{ area.label }}
+                  <span class="text-body-sm text-link">Alternar</span>
+                </a>
+              </li>
+            }
+          </ul>
+        </div>
+      }
       <div class="flex flex-wrap justify-center gap-3">
         <a
           routerLink="/inicio"
@@ -218,15 +241,25 @@ type StatusKind = 'not-found' | 'forbidden' | 'session-expired' | 'unavailable';
 })
 export class StatusPage {
   private readonly auth = inject(Auth);
+  private readonly currentUser = inject(CurrentUser);
+  private readonly session = inject(Session);
   private readonly route = inject(ActivatedRoute);
   private readonly location = inject(Location);
 
   protected readonly kind =
     (this.route.snapshot.data['status'] as StatusKind | undefined) ?? 'not-found';
 
+  /** No 403, as áreas que a conta tem, para a pessoa alternar (a API diz quais em /auth/me). */
+  protected readonly myAreas = computed(() =>
+    this.kind === 'forbidden' ? this.currentUser.roles().map((role) => AREAS[role]) : [],
+  );
+
   constructor() {
     if (this.kind === 'session-expired') {
       this.auth.clearLocal();
+    }
+    if (this.kind === 'forbidden' && this.session.isAuthenticated()) {
+      this.currentUser.load().catch(() => undefined);
     }
   }
 
