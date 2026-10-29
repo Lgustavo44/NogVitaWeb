@@ -66,3 +66,15 @@ export interface RequestNutritionistRequest {
   nutritionistId: string;
   message: string | null;
 }
+
+export type NutritionistRequestStatus = 'Pending' | 'Accepted' | 'Rejected' | 'Cancelled';
+
+export interface PatientRequestItem {
+  id: string;
+  nutritionistId: string;
+  nutritionistName: string;
+  status: NutritionistRequestStatus;
+  message: string | null;
+  createdAt: string;
+  respondedAtUtc: string | null;
+}

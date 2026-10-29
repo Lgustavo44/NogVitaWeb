@@ -9,6 +9,8 @@ import {
   PatientProfile,
   RequestNutritionistRequest,
   NutritionistListItem,
+  NutritionistRequestStatus,
+  PatientRequestItem,
   UpdatePatientProfileRequest,
 } from './patient.models';
 
@@ -24,6 +26,14 @@ export class PatientApi {
 
   requestNutritionist(body: RequestNutritionistRequest): Observable<unknown> {
     return this.http.post(apiUrl('/patients/me/nutritionist-requests'), body);
+  }
+
+  endCareRelationship(): Observable<void> {
+    return this.http.post<void>(apiUrl('/patients/me/care-relationship/end'), {});
+  }
+
+  cancelNutritionistRequest(id: string): Observable<void> {
+    return this.http.post<void>(apiUrl(`/patients/me/nutritionist-requests/${id}/cancel`), {});
   }
 }
 
@@ -59,6 +69,20 @@ export function nutritionistsResource(
       pageSize,
       ...(search().trim() ? { search: search().trim() } : {}),
       ...(crnRegion() ? { crnRegion: crnRegion()! } : {}),
+    },
+  }));
+}
+
+export function patientRequestsResource(
+  status: Signal<NutritionistRequestStatus | null>,
+  pageSize = 50,
+) {
+  return httpResource<PagedResponse<PatientRequestItem>>(() => ({
+    url: apiUrl('/patients/me/nutritionist-requests'),
+    params: {
+      page: 1,
+      pageSize,
+      ...(status() ? { status: status()! } : {}),
     },
   }));
 }
