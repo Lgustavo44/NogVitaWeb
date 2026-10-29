@@ -40,7 +40,7 @@ export class PatientHome {
   protected readonly careMissing = computed(() => isNotFound(this.care.error()));
   protected readonly planMissing = computed(() => isNotFound(this.plan.error()));
 
-  /** Data sem hora: `| date` direto na string ISO mostraria o dia anterior no horário de Brasília. */
+  /** Data sem hora como Date local (o `| date` também aceita a string "AAAA-MM-DD" direto). */
   protected date(iso: string): Date {
     return parseIsoDate(iso);
   }

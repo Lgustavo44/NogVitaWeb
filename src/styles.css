@@ -87,8 +87,10 @@
   --nv-link: #f28c28;
   --nv-focus: #f28c28;
 
-  --nv-soft: #ffd08a;
+  /* Tom escuro: os fundos bg-soft/N ficam discretos e o texto âmbar mantém mais de 6,5:1 (WCAG AA) */
+  --nv-soft: #6b5230;
   --nv-soft-ink: #ffd08a;
+  --nv-on-soft: #ffd08a;
 
   /* O botão floresta some no fundo floresta: no escuro ele inverte */
   --nv-forest: #fffbf5;
@@ -112,7 +114,8 @@
   --nv-warning-ink: #fbbf24;
   --nv-warning-soft: rgb(251 191 36 / 0.12);
   --nv-danger: #f87171;
-  --nv-danger-ink: #f87171;
+  /* Mais claro que o danger: 5,8:1 sobre o danger-soft (o #f87171 dava 4:1) */
+  --nv-danger-ink: #fca5a5;
   --nv-danger-soft: rgb(248 113 113 / 0.12);
   --nv-info: #ffd08a;
   --nv-info-ink: #ffd08a;
