@@ -1,6 +1,9 @@
 /** Fonte do alimento. A atribuição de cada fonte tem que aparecer na tela (a licença ODbL exige). */
 export type FoodSource = 'Taco' | 'OpenFoodFacts';
 
+/** A busca de alimentos (comum e do admin) só funciona a partir de 2 caracteres. */
+export const FOOD_SEARCH_MIN = 2;
+
 export const FOOD_SOURCE_LABELS: Record<FoodSource, string> = {
   Taco: 'TACO',
   OpenFoodFacts: 'Open Food Facts',

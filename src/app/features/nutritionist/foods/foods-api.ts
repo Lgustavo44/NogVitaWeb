@@ -2,10 +2,16 @@ import { HttpClient, HttpResponse, httpResource } from '@angular/common/http';
 import { Service, Signal, inject } from '@angular/core';
 import { Observable, map } from 'rxjs';
 import { apiUrl } from '../../../core/http/api-url';
-import { Food, FoodSource, ProductPreview, normalizeNutrients } from '../../../shared/domain/food';
+import {
+  FOOD_SEARCH_MIN,
+  Food,
+  FoodSource,
+  ProductPreview,
+  normalizeNutrients,
+} from '../../../shared/domain/food';
 import { PagedResponse } from '../../../shared/domain/paged-response';
 
-export const FOOD_SEARCH_MIN = 2;
+export { FOOD_SEARCH_MIN };
 
 /** Leitura e importação por código de barras (prévia e importação dividem 10 chamadas por minuto). */
 @Service()
