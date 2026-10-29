@@ -1,59 +1,66 @@
-# NogvitaWeb
+# NogVita Web
 
-This project was generated using [Angular CLI](https://github.com/angular/angular-cli) version 22.2.5.
+Front-end em Angular do **NogVita**, uma plataforma de nutrição que conecta pacientes, nutricionistas e administradores. Consome a [NogVita API](https://github.com/Lgustavo44/NogVitaApi).
 
-## Development server
+## Status
 
-To start a local development server, run:
+**Fase 0: fundação.** O projeto, o lint, a formatação, os testes, o proxy para a API e a integração contínua estão configurados. Ainda não há telas.
 
-```bash
-ng serve
+## Stack
+
+- [Angular 22](https://angular.dev) (componentes standalone, zoneless, modo estrito)
+- [Vitest](https://vitest.dev) para os testes unitários
+- [ESLint](https://eslint.org) com [angular-eslint](https://github.com/angular-eslint/angular-eslint)
+- [Prettier](https://prettier.io)
+- GitHub Actions (lint, testes e build a cada push e pull request)
+
+## Pré-requisitos
+
+- Node.js `^22.22.3`, `^24.15.0` ou `>=26` (exigência do Angular 22)
+- npm 11
+
+## Como rodar
+
+```powershell
+npm ci
+npm start
 ```
 
-Once the server is running, open your browser and navigate to `http://localhost:4200/`. The application will automatically reload whenever you modify any of the source files.
+Abra `http://localhost:4200`.
 
-## Code scaffolding
+Em desenvolvimento, o `ng serve` usa um proxy (`proxy.conf.json`): as chamadas para `/api` e `/health` saem de `localhost:4200` e são encaminhadas para a API de staging (`https://nogvitaapi.onrender.com`). Assim, o CORS da API não precisa liberar a porta 4200.
 
-Angular CLI includes powerful code scaffolding tools. To generate a new component, run:
+> A API de staging roda no plano gratuito da Render e "dorme" depois de 15 minutos sem uso. A primeira requisição pode levar cerca de 1 minuto.
 
-```bash
-ng generate component component-name
+## Scripts
+
+| Comando                     | O que faz                                     |
+| --------------------------- | --------------------------------------------- |
+| `npm start`                 | Servidor de desenvolvimento com o proxy       |
+| `npm run build`             | Build de produção em `dist/`                  |
+| `npm test`                  | Testes unitários (Vitest), em modo observação |
+| `npx ng test --watch=false` | Testes unitários uma vez só (como na CI)      |
+| `npm run lint`              | ESLint                                        |
+| `npm run format`            | Formata o código com o Prettier               |
+| `npm run format:check`      | Confere a formatação sem alterar nada         |
+
+## Estrutura
+
+```text
+src/app/
+  core/                 serviços únicos do app (API, autenticação, interceptors, guards)
+  shared/               componentes, pipes e diretivas reutilizáveis, sem regra de negócio
+  features/
+    auth/               login, cadastro, confirmação de e-mail, senha, convite
+    patient/            área do paciente
+    nutritionist/       área do nutricionista
+    admin/              painel do administrador
+src/environments/       URL da API por ambiente (público: nada de segredos aqui)
 ```
 
-For a complete list of available schematics (such as `components`, `directives`, or `pipes`), run:
+Regras: uma feature não importa de outra; `shared` não importa de `features`.
 
-```bash
-ng generate --help
-```
+## API
 
-## Building
-
-To build the project run:
-
-```bash
-ng build
-```
-
-This will compile your project and store the build artifacts in the `dist/` directory. By default, the production build optimizes your application for performance and speed.
-
-## Running unit tests
-
-To execute unit tests with the [Vitest](https://vitest.dev/) test runner, use the following command:
-
-```bash
-ng test
-```
-
-## Running end-to-end tests
-
-For end-to-end (e2e) testing, run:
-
-```bash
-ng e2e
-```
-
-Angular CLI does not come with an end-to-end testing framework by default. You can choose one that suits your needs.
-
-## Additional Resources
-
-For more information on using the Angular CLI, including detailed command references, visit the [Angular CLI Overview and Command Reference](https://angular.dev/tools/cli) page.
+- [Guia de consumo da API](https://github.com/Lgustavo44/NogVitaApi/blob/main/docs/API.md)
+- [Swagger do staging](https://nogvitaapi.onrender.com/swagger/index.html)
