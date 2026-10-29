@@ -1,0 +1,258 @@
+<a
+  routerLink="/nutricionista/pacientes"
+  class="inline-flex items-center gap-2 text-label-lg text-link hover:underline"
+>
+  <svg lucideArrowLeft class="size-4"></svg>
+  Voltar para meus pacientes
+</a>
+
+@if (patient.isLoading() && !patient.hasValue()) {
+  <div
+    class="h-96 rounded-container bg-surface-muted motion-safe:animate-pulse"
+    aria-hidden="true"
+  ></div>
+  <span class="sr-only" role="status">Carregando paciente…</span>
+} @else if (patient.error()) {
+  <app-load-error [error]="patient.error()" (retry)="patient.reload()" />
+} @else if (patient.hasValue()) {
+  <app-page-header
+    badge="Paciente em acompanhamento"
+    [title]="patient.value().name"
+    subtitle="Dados essenciais para preparar o plano alimentar e acompanhar a evolução."
+  >
+    <button appButton variant="danger" type="button" (click)="openConfirm()">
+      <svg lucideUserX class="size-5"></svg>
+      Encerrar acompanhamento
+    </button>
+  </app-page-header>
+
+  <section
+    class="flex flex-col gap-5 rounded-container bg-surface p-5 shadow-2 sm:p-7"
+    aria-labelledby="perfil-paciente"
+  >
+    <div class="flex flex-col gap-4 sm:flex-row sm:items-center">
+      <span
+        class="flex size-20 shrink-0 items-center justify-center rounded-container bg-sidebar text-headline-lg font-bold text-on-sidebar"
+      >
+        {{ initials(patient.value().name) }}
+      </span>
+      <div>
+        <h2 id="perfil-paciente" class="text-headline-lg text-ink">{{ patient.value().name }}</h2>
+        <p class="mt-1 text-body-md text-ink-muted">
+          {{ patient.value().age }} anos · {{ sexLabels[patient.value().biologicalSex] }}
+        </p>
+      </div>
+    </div>
+
+    <dl class="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+      <div class="rounded-control bg-surface-muted p-4">
+        <dt class="text-label-sm text-ink-muted uppercase">Objetivo</dt>
+        <dd class="mt-1 text-label-lg font-semibold text-ink">
+          {{ goalLabels[patient.value().goal] }}
+        </dd>
+      </div>
+      <div class="rounded-control bg-surface-muted p-4">
+        <dt class="text-label-sm text-ink-muted uppercase">Altura</dt>
+        <dd class="mt-1 text-label-lg font-semibold text-ink">
+          {{ patient.value().heightInCm }} cm
+        </dd>
+      </div>
+      <div class="rounded-control bg-surface-muted p-4">
+        <dt class="text-label-sm text-ink-muted uppercase">IMC</dt>
+        <dd class="mt-1 text-label-lg font-semibold text-ink">
+          @if (patient.value().bodyMassIndex; as bmi) {
+            {{ bmi | number: '1.1-1' }}
+          } @else {
+            —
+          }
+        </dd>
+      </div>
+      <div class="rounded-control bg-surface-muted p-4">
+        <dt class="text-label-sm text-ink-muted uppercase">Último peso</dt>
+        <dd class="mt-1 text-label-lg font-semibold text-ink">
+          @if (patient.value().latestWeight; as weight) {
+            {{ weight.weightKg | number: '1.0-1' }} kg
+          } @else {
+            —
+          }
+        </dd>
+        @if (patient.value().latestWeight; as weight) {
+          <span class="text-body-sm text-ink-muted">{{
+            weight.recordedOn | date: 'dd/MM/yyyy'
+          }}</span>
+        }
+      </div>
+    </dl>
+  </section>
+
+  <div class="grid gap-6 lg:grid-cols-2">
+    <section class="rounded-container bg-surface p-5 shadow-1" aria-labelledby="rotina-titulo">
+      <h2 id="rotina-titulo" class="flex items-center gap-2 text-title-md text-ink">
+        <svg lucideClock3 class="size-5 text-link"></svg>
+        Rotina do paciente
+      </h2>
+      <dl class="mt-4 grid gap-3 sm:grid-cols-3">
+        <div class="rounded-control bg-surface-muted p-3">
+          <dt class="text-label-sm text-ink-muted">Acordar</dt>
+          <dd class="text-label-lg font-semibold text-ink">
+            {{ time(patient.value().wakeUpTime) }}
+          </dd>
+        </div>
+        <div class="rounded-control bg-surface-muted p-3">
+          <dt class="text-label-sm text-ink-muted">Dormir</dt>
+          <dd class="text-label-lg font-semibold text-ink">{{ time(patient.value().bedTime) }}</dd>
+        </div>
+        <div class="rounded-control bg-surface-muted p-3">
+          <dt class="text-label-sm text-ink-muted">Treino</dt>
+          <dd class="text-label-lg font-semibold text-ink">
+            {{ time(patient.value().trainingTime) }}
+          </dd>
+        </div>
+      </dl>
+    </section>
+
+    <section class="rounded-container bg-surface p-5 shadow-1" aria-labelledby="proximos-passos">
+      <h2 id="proximos-passos" class="flex items-center gap-2 text-title-md text-ink">
+        <svg lucideCalendarDays class="size-5 text-primary"></svg>
+        Próximos passos
+      </h2>
+      <p class="mt-3 text-body-md leading-relaxed text-ink-muted">
+        Use estes dados como base para montar o plano alimentar. Os planos e o registro de peso do
+        paciente chegam nas próximas telas.
+      </p>
+    </section>
+  </div>
+
+  <section class="flex flex-col gap-4 rounded-container bg-surface p-5 shadow-1" aria-labelledby="peso-titulo">
+    <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+      <div>
+        <h2 id="peso-titulo" class="flex items-center gap-2 text-title-md text-ink">
+          <svg lucideScale class="size-5 text-link"></svg>
+          Evolução do peso
+        </h2>
+        <p class="mt-1 text-body-sm text-ink-muted">
+          Registre o peso do paciente e acompanhe os lançamentos mais recentes.
+        </p>
+      </div>
+      <button appButton type="button" (click)="openWeightModal()">
+        <svg lucidePlus class="size-5"></svg>
+        Registrar peso
+      </button>
+    </div>
+
+    @if (weights.isLoading() && !weights.hasValue()) {
+      <div class="h-28 rounded-control bg-surface-muted motion-safe:animate-pulse" aria-hidden="true"></div>
+      <span class="sr-only" role="status">Carregando histórico de peso…</span>
+    } @else if (weights.error()) {
+      <app-load-error [error]="weights.error()" (retry)="weights.reload()" />
+    } @else if (weightItems().length === 0) {
+      <p class="rounded-control bg-surface-muted p-4 text-body-md text-ink-muted">
+        Ainda não há registros de peso para este paciente.
+      </p>
+    } @else {
+      <div class="overflow-x-auto rounded-control border border-divider">
+        <table class="w-full min-w-[42rem] text-left">
+          <thead class="bg-surface-muted text-label-md text-ink-muted">
+            <tr>
+              <th scope="col" class="px-4 py-3 font-semibold">Data</th>
+              <th scope="col" class="px-4 py-3 font-semibold">Peso</th>
+              <th scope="col" class="px-4 py-3 font-semibold">Registrado por</th>
+              <th scope="col" class="px-4 py-3 font-semibold">Observação</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-divider text-body-md">
+            @for (weight of weightItems(); track weight.id) {
+              <tr>
+                <td class="px-4 py-3 text-ink">{{ weight.recordedOn | date: 'dd/MM/yyyy' }}</td>
+                <td class="px-4 py-3 font-semibold text-ink">{{ weight.weightKg | number: '1.0-1' }} kg</td>
+                <td class="px-4 py-3 text-ink-muted">
+                  {{ weight.recordedByPatient ? 'Paciente' : weight.recordedByName }}
+                </td>
+                <td class="max-w-64 truncate px-4 py-3 text-ink-muted">{{ weight.notes || '—' }}</td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    }
+  </section>
+}
+
+@if (confirming() && patient.hasValue()) {
+  <app-modal
+    heading="Encerrar acompanhamento?"
+    [subtitle]="patient.value().name"
+    size="sm"
+    alert
+    [busy]="ending()"
+    (closed)="closeConfirm()"
+  >
+    <span
+      modalIcon
+      class="flex size-10 shrink-0 items-center justify-center rounded-full bg-danger-soft text-danger-ink"
+    >
+      <svg lucideTriangleAlert class="size-5"></svg>
+    </span>
+    <p class="text-body-md text-ink">
+      O paciente deixará de aparecer na sua lista e poderá pedir acompanhamento a outro
+      nutricionista.
+    </p>
+    @if (endError(); as error) {
+      <p class="text-body-sm text-danger-ink" role="alert">{{ error }}</p>
+    }
+
+    @if (weightModalOpen()) {
+      <app-modal
+        heading="Registrar peso"
+        subtitle="A data deve ser hoje ou estar dentro do último ano."
+        size="sm"
+        [busy]="savingWeight()"
+        (closed)="closeWeightModal()"
+      >
+        <div class="flex flex-col gap-4">
+          <label class="flex flex-col gap-1.5">
+            <span class="text-label-md text-ink">Peso em kg</span>
+            <input type="number" min="20" max="500" step="0.1" inputmode="decimal"
+              class="min-h-11 rounded-control border border-divider bg-surface px-3 text-label-lg text-ink outline-none focus:border-focus"
+              placeholder="Ex.: 75,5" [value]="weightKg()" (input)="setWeightKg($event)" />
+          </label>
+          <label class="flex flex-col gap-1.5">
+            <span class="text-label-md text-ink">Data do registro</span>
+            <input type="date" [max]="today"
+              class="min-h-11 rounded-control border border-divider bg-surface px-3 text-label-lg text-ink outline-none focus:border-focus"
+              [value]="recordedOn()" (input)="setRecordedOn($event)" />
+          </label>
+          <label class="flex flex-col gap-1.5">
+            <span class="text-label-md text-ink">Observação <span class="text-ink-muted">(opcional)</span></span>
+            <textarea rows="3" maxlength="500"
+              class="rounded-control border border-divider bg-surface px-3 py-2 text-body-md text-ink outline-none focus:border-focus"
+              placeholder="Ex.: avaliação após consulta" [value]="notes()" (input)="setNotes($event)"></textarea>
+            <span class="text-right text-body-sm text-ink-muted">{{ notes().length }}/500</span>
+          </label>
+          @if (weightError(); as error) {
+            <p class="flex items-center gap-2 text-body-sm text-danger-ink" role="alert">
+              <svg lucideTriangleAlert class="size-4"></svg>
+              {{ error }}
+            </p>
+          }
+        </div>
+        <div modalActions class="flex w-full gap-2 sm:w-auto">
+          <button appButton variant="soft" type="button" [disabled]="savingWeight()" (click)="closeWeightModal()">Cancelar</button>
+          <button appButton type="button" [loading]="savingWeight()" (click)="saveWeight()">
+            <svg lucideScale class="size-5"></svg>
+            Salvar peso
+          </button>
+        </div>
+      </app-modal>
+    }
+    <div modalActions class="flex w-full gap-2 sm:w-auto">
+      <button appButton variant="soft" type="button" [disabled]="ending()" (click)="closeConfirm()">
+        Manter acompanhamento
+      </button>
+      <button appButton variant="danger" type="button" [loading]="ending()" (click)="endCare()">
+        <svg lucideUserX class="size-5"></svg>
+        Encerrar
+      </button>
+    </div>
+  </app-modal>
+}

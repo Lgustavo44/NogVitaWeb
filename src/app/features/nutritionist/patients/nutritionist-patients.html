@@ -1,0 +1,122 @@
+<app-page-header
+  badge="Menu clínico"
+  title="Meus pacientes"
+  subtitle="Acompanhe as pessoas que estão em acompanhamento com você."
+>
+  <button
+    appButton
+    variant="soft"
+    type="button"
+    [loading]="patients.isLoading()"
+    (click)="patients.reload()"
+  >
+    <svg lucideRefreshCw class="size-5"></svg>
+    Atualizar
+  </button>
+</app-page-header>
+
+<div class="relative">
+  <label for="patient-search" class="sr-only">Buscar paciente</label>
+  <svg
+    lucideSearch
+    class="pointer-events-none absolute top-1/2 left-4 size-5 -translate-y-1/2 text-ink-muted"
+  ></svg>
+  <input
+    id="patient-search"
+    type="search"
+    class="min-h-12 w-full rounded-container border border-line bg-surface pr-4 pl-12 text-body-lg text-ink shadow-1 placeholder:text-ink-muted/70 focus:border-focus focus:ring-4 focus:ring-primary/20 focus:outline-none"
+    placeholder="Buscar por nome do paciente"
+    [value]="search()"
+    (input)="setSearch($event)"
+  />
+</div>
+
+@if (patients.isLoading() && !patients.hasValue()) {
+  <div class="grid gap-4 md:grid-cols-2" aria-hidden="true">
+    @for (item of [1, 2, 3, 4]; track item) {
+      <div class="h-40 rounded-container bg-surface-muted motion-safe:animate-pulse"></div>
+    }
+  </div>
+  <span class="sr-only" role="status">Carregando pacientes…</span>
+} @else if (patients.error()) {
+  <app-load-error [error]="patients.error()" (retry)="patients.reload()" />
+} @else if (patients.hasValue() && patients.value().items.length === 0) {
+  <section
+    class="flex flex-col items-center gap-3 rounded-container bg-surface p-10 text-center shadow-1"
+  >
+    <svg lucideUsers class="size-10 text-ink-muted"></svg>
+    <h2 class="text-title-md text-ink">Nenhum paciente encontrado</h2>
+    <p class="text-body-md text-ink-muted">
+      Ajuste a busca ou aceite uma solicitação para iniciar um acompanhamento.
+    </p>
+  </section>
+} @else if (patients.hasValue()) {
+  <section class="flex flex-col gap-4" aria-label="Lista de pacientes">
+    <div class="grid gap-4 md:grid-cols-2">
+      @for (patient of patients.value().items; track patient.patientId) {
+        <article
+          class="flex flex-col gap-4 rounded-container bg-surface p-5 shadow-1 transition-shadow hover:shadow-2"
+        >
+          <div class="flex items-start gap-4">
+            <span
+              class="flex size-14 shrink-0 items-center justify-center rounded-control bg-sidebar text-title-md font-bold text-on-sidebar"
+            >
+              {{ initials(patient.name) }}
+            </span>
+            <div class="min-w-0">
+              <h2 class="truncate text-title-md font-bold text-ink">{{ patient.name }}</h2>
+              <p class="mt-1 text-body-sm text-ink-muted">
+                Em acompanhamento desde {{ patient.startedAtUtc | date: 'dd/MM/yyyy' }}
+              </p>
+            </div>
+          </div>
+          <div class="flex items-center justify-between gap-3 border-t border-divider pt-3">
+            <span class="rounded-pill bg-soft/30 px-3 py-1 text-label-md text-soft-ink">
+              {{ goalLabel(patient.goal) }}
+            </span>
+            <a
+              [routerLink]="['/nutricionista/pacientes', patient.patientId]"
+              class="text-label-lg font-semibold text-link hover:underline"
+            >
+              Ver detalhes
+            </a>
+          </div>
+        </article>
+      }
+    </div>
+
+    @if (totalPages() > 1) {
+      <footer
+        class="flex flex-col items-center justify-between gap-3 rounded-container bg-surface p-4 shadow-1 sm:flex-row"
+      >
+        <p class="text-body-sm text-ink-muted">
+          Mostrando <strong class="text-ink">{{ firstItem() }}–{{ lastItem() }}</strong> de
+          <strong class="text-ink">{{ patients.value().totalItems }}</strong> pacientes
+        </p>
+        <div class="flex gap-2">
+          <button
+            appButton
+            variant="soft"
+            type="button"
+            [disabled]="page() === 1"
+            (click)="previousPage()"
+          >
+            Anterior
+          </button>
+          <span class="flex min-h-11 items-center px-2 text-label-md text-ink-muted">
+            Página {{ page() }} de {{ totalPages() }}
+          </span>
+          <button
+            appButton
+            variant="soft"
+            type="button"
+            [disabled]="page() >= totalPages()"
+            (click)="nextPage()"
+          >
+            Próxima
+          </button>
+        </div>
+      </footer>
+    }
+  </section>
+}
