@@ -40,6 +40,7 @@ import { Button } from '../../../shared/ui/button/button';
 import { Field } from '../../../shared/ui/field/field';
 import { FieldInput } from '../../../shared/ui/field/field-input';
 import { Logo } from '../../../shared/ui/logo/logo';
+import { formatCpf, isValidCpf } from '../../../shared/util/cpf';
 
 /** O formulário aceita altura vazia (null) enquanto a pessoa não preenche. */
 type RegisterModel = Omit<PatientRegistrationRequest, 'heightInCm'> & { heightInCm: number | null };
@@ -209,11 +210,7 @@ export class Register {
 
   protected formatCpf(event: Event): void {
     const input = event.target as HTMLInputElement;
-    const digits = input.value.replace(/\D/g, '').slice(0, 11);
-    const formatted = digits
-      .replace(/^(\d{3})(\d)/, '$1.$2')
-      .replace(/^(\d{3})\.(\d{3})(\d)/, '$1.$2.$3')
-      .replace(/\.(\d{3})(\d)/, '.$1-$2');
+    const formatted = formatCpf(input.value);
     input.value = formatted;
     this.model.update((current) => ({ ...current, cpf: formatted }));
   }
@@ -281,24 +278,6 @@ export class Register {
       });
     }
   }
-}
-
-function isValidCpf(value: string): boolean {
-  const digits = value.replace(/\D/g, '');
-  if (digits.length !== 11 || /^(\d)\1{10}$/.test(digits)) {
-    return false;
-  }
-
-  const calculateDigit = (length: number): number => {
-    let sum = 0;
-    for (let index = 0; index < length; index++) {
-      sum += Number(digits[index]) * (length + 1 - index);
-    }
-    const remainder = (sum * 10) % 11;
-    return remainder === 10 ? 0 : remainder;
-  };
-
-  return calculateDigit(9) === Number(digits[9]) && calculateDigit(10) === Number(digits[10]);
 }
 
 function toIsoDate(value: string): string {
