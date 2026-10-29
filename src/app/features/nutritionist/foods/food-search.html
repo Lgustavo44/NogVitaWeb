@@ -1,0 +1,218 @@
+<app-page-header
+  badge="Base de alimentos"
+  title="Alimentos"
+  subtitle="Composição por 100 g dos alimentos da TACO e de produtos importados do Open Food Facts."
+>
+  <a
+    routerLink="/nutricionista/alimentos/codigo-de-barras"
+    class="inline-flex min-h-11 items-center gap-2 rounded-control bg-soft/30 px-5 text-label-lg font-semibold text-soft-ink hover:bg-soft/50"
+  >
+    <svg lucideScanBarcode class="size-5"></svg>
+    Adicionar por código de barras
+  </a>
+</app-page-header>
+
+<section
+  class="flex flex-col gap-4 rounded-container bg-surface p-4 shadow-1 sm:p-5"
+  aria-label="Busca"
+>
+  <label class="relative flex items-center">
+    <span class="sr-only">Buscar alimento pelo nome</span>
+    <svg lucideSearch class="pointer-events-none absolute left-3 size-5 text-ink-muted"></svg>
+    <input
+      type="search"
+      placeholder="Buscar pelo nome, ex.: arroz integral"
+      class="h-12 w-full rounded-control border border-line bg-surface pr-12 pl-10 text-body-lg text-ink placeholder:text-ink-muted/70 focus:border-focus focus:ring-4 focus:ring-primary/20 focus:outline-none [&::-webkit-search-cancel-button]:hidden"
+      aria-describedby="dica-busca"
+      [value]="searchInput()"
+      (input)="onSearch($event)"
+    />
+    @if (searchInput()) {
+      <button
+        type="button"
+        class="absolute right-1 inline-flex size-10 cursor-pointer items-center justify-center rounded-control text-ink-muted hover:text-ink"
+        aria-label="Limpar busca"
+        (click)="clearSearch()"
+      >
+        <svg lucideX class="size-5"></svg>
+      </button>
+    }
+  </label>
+  <p id="dica-busca" class="flex items-start gap-1.5 text-body-sm text-ink-muted">
+    <svg lucideInfo class="mt-0.5 size-4 shrink-0"></svg>
+    Digite pelo menos {{ minLength }} letras. Cada palavra precisa estar no nome, em qualquer ordem
+    e sem acento: "acucar mascavo" encontra "Açúcar, mascavo".
+  </p>
+  <div class="flex flex-wrap gap-2" role="group" aria-label="Filtrar por fonte">
+    @for (option of sources; track option.label) {
+      <button
+        type="button"
+        class="min-h-10 cursor-pointer rounded-pill border border-divider px-4 text-label-lg text-ink-muted hover:text-ink aria-pressed:border-primary aria-pressed:bg-primary aria-pressed:text-on-primary"
+        [attr.aria-pressed]="source() === option.value"
+        (click)="selectSource(option.value)"
+      >
+        {{ option.label }}
+      </button>
+    }
+  </div>
+</section>
+
+@if (tooShort()) {
+  <section
+    class="flex flex-col items-center gap-3 rounded-container bg-surface p-8 text-center shadow-1"
+  >
+    <svg lucideSearch class="size-10 text-ink-muted"></svg>
+    <h2 class="text-title-md text-ink">Busque um alimento</h2>
+    <p class="max-w-md text-body-md text-ink-muted">
+      Digite o nome de um alimento para ver a composição por 100 g. Para um produto industrializado
+      que ainda não está na base, use o código de barras.
+    </p>
+  </section>
+} @else if (foods.isLoading() && !foods.hasValue()) {
+  <div class="flex flex-col gap-2 rounded-container bg-surface p-4 shadow-1" aria-hidden="true">
+    @for (row of [1, 2, 3, 4, 5]; track row) {
+      <div class="h-14 rounded-control bg-surface-muted motion-safe:animate-pulse"></div>
+    }
+  </div>
+  <span class="sr-only" role="status">Buscando alimentos…</span>
+} @else if (foods.error()) {
+  <app-load-error [error]="foods.error()" (retry)="foods.reload()" />
+} @else if (foods.hasValue()) {
+  @if (foods.value().items.length === 0) {
+    <section
+      class="flex flex-col items-center gap-3 rounded-container bg-surface p-8 text-center shadow-1"
+    >
+      <h2 class="text-title-md text-ink">Nenhum alimento encontrado</h2>
+      <p class="max-w-md text-body-md text-ink-muted">
+        Tente menos palavras ou outra grafia. Se for um produto industrializado, adicione pelo
+        código de barras.
+      </p>
+    </section>
+  } @else {
+    <section
+      class="flex flex-col gap-3 rounded-container bg-surface p-4 shadow-1 sm:p-5"
+      aria-labelledby="resultados-titulo"
+      [attr.aria-busy]="foods.isLoading()"
+      [class.opacity-60]="foods.isLoading()"
+    >
+      <div class="flex flex-wrap items-center justify-between gap-2">
+        <h2 id="resultados-titulo" class="text-title-md text-ink">Resultados</h2>
+        <p class="text-body-sm text-ink-muted" role="status">
+          {{ foods.value().totalItems }}
+          {{ foods.value().totalItems === 1 ? 'alimento' : 'alimentos' }} · valores por 100 g
+        </p>
+      </div>
+
+      <!-- Celular: cards -->
+      <ul class="flex flex-col divide-y divide-divider md:hidden">
+        @for (food of foods.value().items; track food.id) {
+          <li>
+            <a
+              [routerLink]="['/nutricionista/alimentos', food.id]"
+              class="flex flex-col gap-1.5 py-3 hover:bg-surface-muted"
+            >
+              <span class="flex items-start justify-between gap-2">
+                <span class="text-label-lg text-ink">{{ food.name }}</span>
+                <app-source-badge [source]="food.source" class="shrink-0" />
+              </span>
+              <span class="text-body-sm text-ink-muted">
+                {{ food.energyKcalPer100g | nutrient: 'kcal' }} · P
+                {{ food.proteinPer100g | nutrient: 'g' }} · C
+                {{ food.carbohydratePer100g | nutrient: 'g' }} · G
+                {{ food.fatPer100g | nutrient: 'g' }}
+              </span>
+              @if (!food.isComplete) {
+                <span class="text-body-sm text-warning-ink">Dados incompletos</span>
+              }
+            </a>
+          </li>
+        }
+      </ul>
+
+      <!-- Tablet e desktop: tabela -->
+      <div class="hidden overflow-x-auto md:block">
+        <table class="w-full text-left">
+          <thead>
+            <tr class="border-b border-divider text-label-md text-ink-muted">
+              <th scope="col" class="py-2 pr-4 font-semibold">Alimento</th>
+              <th scope="col" class="py-2 pr-4 font-semibold">Fonte</th>
+              <th scope="col" class="py-2 pr-4 text-right font-semibold">Energia</th>
+              <th scope="col" class="py-2 pr-4 text-right font-semibold">Proteínas</th>
+              <th scope="col" class="py-2 pr-4 text-right font-semibold">Carboidratos</th>
+              <th scope="col" class="py-2 text-right font-semibold">Gorduras</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-divider text-body-md">
+            @for (food of foods.value().items; track food.id) {
+              <tr class="hover:bg-surface-muted">
+                <td class="py-3 pr-4">
+                  <a
+                    [routerLink]="['/nutricionista/alimentos', food.id]"
+                    class="text-label-lg text-ink hover:text-link hover:underline"
+                  >
+                    {{ food.name }}
+                  </a>
+                  <p class="text-body-sm text-ink-muted">
+                    {{ food.category ?? food.brand ?? '' }}
+                    @if (!food.isComplete) {
+                      <span class="text-warning-ink">· Dados incompletos</span>
+                    }
+                  </p>
+                </td>
+                <td class="py-3 pr-4"><app-source-badge [source]="food.source" /></td>
+                <td class="py-3 pr-4 text-right text-ink tabular-nums">
+                  {{ food.energyKcalPer100g | nutrient: 'kcal' }}
+                </td>
+                <td class="py-3 pr-4 text-right text-ink tabular-nums">
+                  {{ food.proteinPer100g | nutrient: 'g' }}
+                </td>
+                <td class="py-3 pr-4 text-right text-ink tabular-nums">
+                  {{ food.carbohydratePer100g | nutrient: 'g' }}
+                </td>
+                <td class="py-3 text-right text-ink tabular-nums">
+                  {{ food.fatPer100g | nutrient: 'g' }}
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+      <p class="text-body-sm text-ink-muted">
+        "—" indica nutriente sem informação na fonte (não é zero).
+      </p>
+    </section>
+
+    @if (totalPages() > 1) {
+      <nav
+        class="flex flex-wrap items-center justify-between gap-3 rounded-container bg-surface p-3 shadow-1"
+        aria-label="Paginação"
+      >
+        <p class="text-body-sm text-ink-muted">Página {{ page() }} de {{ totalPages() }}</p>
+        <div class="flex gap-2">
+          <button
+            appButton
+            variant="ghost"
+            type="button"
+            [disabled]="page() === 1"
+            (click)="goToPage(page() - 1)"
+          >
+            <svg lucideChevronLeft class="size-4"></svg>
+            Anterior
+          </button>
+          <button
+            appButton
+            variant="ghost"
+            type="button"
+            [disabled]="page() >= totalPages()"
+            (click)="goToPage(page() + 1)"
+          >
+            Próxima
+            <svg lucideChevronRight class="size-4"></svg>
+          </button>
+        </div>
+      </nav>
+    }
+
+    <app-food-attribution [attributions]="attributions()" />
+  }
+}

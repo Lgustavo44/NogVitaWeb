@@ -1,0 +1,118 @@
+<a
+  routerLink="/nutricionista/alimentos"
+  class="inline-flex w-fit items-center gap-2 text-label-lg text-link hover:underline"
+>
+  <svg lucideArrowLeft class="size-4"></svg>
+  Voltar para a busca
+</a>
+
+@if (food.isLoading() && !food.hasValue()) {
+  <div
+    class="h-40 rounded-container bg-surface-muted motion-safe:animate-pulse"
+    aria-hidden="true"
+  ></div>
+  <div
+    class="h-64 rounded-container bg-surface-muted motion-safe:animate-pulse"
+    aria-hidden="true"
+  ></div>
+  <span class="sr-only" role="status">Carregando alimento…</span>
+} @else if (food.error()) {
+  <app-load-error [error]="food.error()" (retry)="food.reload()" />
+} @else if (food.hasValue()) {
+  <header class="flex flex-col gap-3 rounded-container bg-surface p-5 shadow-1 sm:p-6">
+    <div class="flex flex-wrap items-center gap-2">
+      <app-source-badge [source]="food.value().source" />
+      @if (food.value().category; as category) {
+        <span class="rounded-pill bg-surface-muted px-2.5 py-0.5 text-label-md text-ink-muted">{{
+          category
+        }}</span>
+      }
+      @if (food.value().barcode; as barcode) {
+        <span
+          class="inline-flex items-center gap-1 rounded-pill bg-surface-muted px-2.5 py-0.5 text-label-md text-ink-muted tabular-nums"
+        >
+          <svg lucideBarcode class="size-3.5"></svg>
+          {{ barcode }}
+        </span>
+      }
+    </div>
+    <h1 class="text-headline-xl text-ink sm:text-display-lg-mobile">{{ food.value().name }}</h1>
+    <p class="text-body-md text-ink-muted">
+      @if (food.value().brand; as brand) {
+        {{ brand }} ·
+      }
+      Referência na fonte: {{ food.value().sourceReference }} · valores por 100 g
+    </p>
+    @if (!food.value().isActive) {
+      <app-alert tone="warning" heading="Alimento desativado">
+        Este alimento foi desativado pela administração e não pode ser usado em planos novos.
+      </app-alert>
+    }
+    @if (!food.value().isComplete) {
+      <p class="flex items-center gap-1.5 text-body-sm text-warning-ink">
+        <svg lucideCircleAlert class="size-4 shrink-0"></svg>
+        Dados incompletos: a fonte não informa algum dos nutrientes ("—" na tabela).
+      </p>
+    }
+  </header>
+
+  <div class="grid gap-6 lg:grid-cols-[minmax(0,0.8fr)_minmax(0,1.2fr)]">
+    <section
+      class="flex flex-col justify-center gap-2 rounded-container bg-sidebar p-5 text-on-sidebar shadow-1 sm:p-6"
+      aria-labelledby="energia-titulo"
+    >
+      <h2 id="energia-titulo" class="text-label-md text-on-sidebar-muted uppercase">
+        Energia em 100 g
+      </h2>
+      <p class="text-display-lg tabular-nums">
+        {{ food.value().energyKcalPer100g | nutrient: 'kcal' }}
+      </p>
+      @if (energyKj(); as kj) {
+        <p class="text-body-md text-on-sidebar-muted tabular-nums">{{ kj | nutrient: 'kJ' }}</p>
+      }
+    </section>
+
+    <section
+      class="flex flex-col gap-4 rounded-container bg-surface p-5 shadow-1 sm:p-6"
+      aria-labelledby="macros-titulo"
+    >
+      <div>
+        <h2 id="macros-titulo" class="text-title-md text-ink">De onde vêm as calorias</h2>
+        <p class="text-body-sm text-ink-muted">
+          Carboidratos e proteínas: 4 kcal/g. Gorduras: 9 kcal/g.
+        </p>
+      </div>
+      <app-macro-split [nutrients]="food.value()" />
+    </section>
+  </div>
+
+  <section
+    class="flex flex-col gap-3 rounded-container bg-surface p-5 shadow-1 sm:p-6"
+    aria-labelledby="tabela-titulo"
+  >
+    <div class="flex flex-wrap items-baseline justify-between gap-2">
+      <h2 id="tabela-titulo" class="text-title-md text-ink">Composição por 100 g</h2>
+      <p class="text-body-sm text-ink-muted">"—" = sem informação na fonte (não é zero)</p>
+    </div>
+    <table class="w-full text-left">
+      <thead>
+        <tr class="border-b border-divider text-label-md text-ink-muted">
+          <th scope="col" class="py-2 pr-4 font-semibold">Nutriente</th>
+          <th scope="col" class="py-2 text-right font-semibold">Quantidade em 100 g</th>
+        </tr>
+      </thead>
+      <tbody class="divide-y divide-divider text-body-md">
+        @for (nutrient of nutrients; track nutrient.key) {
+          <tr>
+            <th scope="row" class="py-3 pr-4 font-normal text-ink">{{ nutrient.label }}</th>
+            <td class="py-3 text-right font-semibold text-ink tabular-nums">
+              {{ food.value()[nutrient.key] | nutrient: nutrient.unit }}
+            </td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  </section>
+
+  <app-food-attribution [attributions]="[food.value().attribution]" />
+}

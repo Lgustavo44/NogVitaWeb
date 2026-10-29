@@ -44,7 +44,7 @@ export class NutritionistArea {
     { label: 'Solicitações', icon: LucideInbox, link: '/nutricionista/solicitacoes' },
     { label: 'Pacientes', icon: LucideUsers, link: '/nutricionista/pacientes' },
     { label: 'Planos alimentares', icon: LucideClipboardList },
-    { label: 'Alimentos', icon: LucideUtensils },
+    { label: 'Alimentos', icon: LucideUtensils, link: '/nutricionista/alimentos' },
     { label: 'Meu perfil', icon: LucideUserRound, link: '/nutricionista/perfil' },
   ];
 }
