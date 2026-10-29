@@ -33,6 +33,7 @@ import { ConfirmDialog } from '../../../shared/ui/confirm-dialog/confirm-dialog'
 import { LoadError } from '../../../shared/ui/load-error/load-error';
 import { Toaster } from '../../../shared/ui/toast/toaster';
 import { parseIsoDate } from '../../../shared/util/dates';
+import { saveBlob, slugify } from '../../../shared/util/download';
 import { FoodPickerModal, FoodPortion } from './food-picker-modal';
 import { MealFormModal } from './meal-form-modal';
 import { PlanFormModal } from './plan-form-modal';
@@ -176,12 +177,7 @@ export class PlanEditorPage {
     this.downloading.set(true);
     try {
       const blob = await firstValueFrom(this.api.pdf(this.planId));
-      const url = URL.createObjectURL(blob);
-      const link = document.createElement('a');
-      link.href = url;
-      link.download = `${fileName(plan.name)}.pdf`;
-      link.click();
-      URL.revokeObjectURL(url);
+      saveBlob(blob, `${slugify(plan.name, 'plano-alimentar')}.pdf`);
     } catch (error) {
       this.toaster.show(toApiError(error).message, 'danger');
     } finally {
@@ -309,16 +305,4 @@ export class PlanEditorPage {
     const plan = this.plan();
     return plan ? ['/nutricionista/pacientes', plan.patientId] : ['/nutricionista/planos'];
   }
-}
-
-/** "Plano de hipertrofia" → "plano-de-hipertrofia". */
-function fileName(name: string): string {
-  return (
-    name
-      .normalize('NFD')
-      .replace(/[̀-ͯ]/g, '')
-      .toLowerCase()
-      .replace(/[^a-z0-9]+/g, '-')
-      .replace(/^-|-$/g, '') || 'plano-alimentar'
-  );
 }
