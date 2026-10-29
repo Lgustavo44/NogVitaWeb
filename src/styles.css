@@ -29,6 +29,8 @@
 
   --nv-soft: #ffd08a;
   --nv-soft-ink: #1d2a24;
+  /* Texto sobre o fundo soft sólido (avatar, selos): escuro nos dois temas */
+  --nv-on-soft: #1d2a24;
 
   --nv-forest: #1d2a24;
   --nv-on-forest: #ffffff;
@@ -127,6 +129,7 @@
   --color-focus: var(--nv-focus);
   --color-soft: var(--nv-soft);
   --color-soft-ink: var(--nv-soft-ink);
+  --color-on-soft: var(--nv-on-soft);
   --color-forest: var(--nv-forest);
   --color-on-forest: var(--nv-on-forest);
   --color-line: var(--nv-line);

@@ -1,8 +1,13 @@
-import { Component } from '@angular/core';
-import { RouterOutlet } from '@angular/router';
+import { Component, inject } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
+import { NavigationEnd, Router, RouterOutlet } from '@angular/router';
+import { filter, map } from 'rxjs';
 import { ThemeToggle } from '../../ui/theme-toggle/theme-toggle';
 
-/** Telas sem login: um card centralizado. No celular, o card ocupa a largura toda. */
+/**
+ * Telas sem login: um card centralizado. No celular, o card ocupa a largura toda.
+ * Uma rota pode pedir um card mais largo com `data: { layout: 'wide' }` (ex.: cadastro).
+ */
 @Component({
   selector: 'app-public-layout',
   imports: [RouterOutlet, ThemeToggle],
@@ -13,7 +18,9 @@ import { ThemeToggle } from '../../ui/theme-toggle/theme-toggle';
     </header>
     <main class="flex flex-1 items-start justify-center px-4 pb-8 sm:items-center sm:px-6">
       <div
-        class="relative w-full max-w-md overflow-hidden rounded-container bg-surface p-6 shadow-1 sm:p-8"
+        class="relative w-full overflow-hidden rounded-container bg-surface p-6 shadow-1 sm:p-8"
+        [class.max-w-md]="!wide()"
+        [class.max-w-xl]="wide()"
       >
         <div
           aria-hidden="true"
@@ -33,4 +40,22 @@ import { ThemeToggle } from '../../ui/theme-toggle/theme-toggle';
     </footer>
   `,
 })
-export class PublicLayout {}
+export class PublicLayout {
+  private readonly router = inject(Router);
+
+  protected readonly wide = toSignal(
+    this.router.events.pipe(
+      filter((event) => event instanceof NavigationEnd),
+      map(() => this.currentLayoutIsWide()),
+    ),
+    { initialValue: this.currentLayoutIsWide() },
+  );
+
+  private currentLayoutIsWide(): boolean {
+    let route = this.router.routerState.snapshot.root;
+    while (route.firstChild) {
+      route = route.firstChild;
+    }
+    return route.data['layout'] === 'wide';
+  }
+}

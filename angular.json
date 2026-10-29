@@ -26,7 +26,11 @@
                 "input": "public"
               }
             ],
-            "styles": ["node_modules/@fontsource-variable/inter/index.css", "src/styles.css"]
+            "styles": [
+              "node_modules/@fontsource-variable/inter/index.css",
+              "node_modules/@angular/cdk/overlay-prebuilt.css",
+              "src/styles.css"
+            ]
           },
           "configurations": {
             "production": {

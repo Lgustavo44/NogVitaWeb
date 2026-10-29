@@ -1,0 +1,235 @@
+<a
+  href="#conteudo"
+  class="sr-only rounded-control bg-surface-raised px-4 py-2 text-label-lg text-ink shadow-3 focus:not-sr-only focus:fixed focus:top-3 focus:left-3 focus:z-50"
+>
+  Pular para o conteúdo
+</a>
+
+<div class="flex h-dvh overflow-hidden bg-canvas">
+  @if (drawerOpen()) {
+    <div
+      class="fixed inset-0 z-30 bg-forest/40 lg:hidden"
+      aria-hidden="true"
+      (click)="closeDrawer()"
+    ></div>
+  }
+
+  <aside
+    id="menu-da-area"
+    class="fixed inset-y-0 left-0 z-40 flex w-72 flex-col border-r border-divider bg-surface shadow-3 transition-transform duration-200 motion-reduce:transition-none lg:static lg:z-auto lg:translate-x-0 lg:shadow-none"
+    [class.-translate-x-full]="!drawerOpen()"
+    [class.max-lg:invisible]="!drawerOpen()"
+    [class.lg:w-20]="compactSidebar()"
+    [class.lg:w-64]="!compactSidebar()"
+    [cdkTrapFocus]="drawerOpen()"
+    [attr.aria-label]="'Menu da área: ' + currentArea().label"
+  >
+    <div
+      class="flex h-16 shrink-0 items-center gap-2 border-b border-divider px-4"
+      [class.lg:justify-center]="compactSidebar()"
+      [class.lg:px-2]="compactSidebar()"
+    >
+      <app-logo class="h-8" [compact]="compactSidebar()" [link]="homeLink()" />
+      <button
+        #closeButton
+        type="button"
+        class="ml-auto inline-flex size-10 cursor-pointer items-center justify-center rounded-control text-ink-muted hover:bg-surface-muted hover:text-ink lg:hidden"
+        aria-label="Fechar menu"
+        (click)="closeDrawer()"
+      >
+        <svg lucideX class="size-5"></svg>
+      </button>
+    </div>
+
+    <nav class="flex-1 overflow-y-auto p-3" [attr.aria-label]="'Navegação: ' + currentArea().label">
+      <ul class="flex flex-col gap-1">
+        @for (item of navigation(); track item.label) {
+          <li>
+            @if (item.link) {
+              <a
+                [routerLink]="item.link"
+                routerLinkActive="is-active"
+                [routerLinkActiveOptions]="{ exact: item.exact ?? false }"
+                ariaCurrentWhenActive="page"
+                class="flex min-h-11 items-center gap-3 rounded-control px-3 text-label-lg text-ink-muted transition-colors hover:bg-surface-muted hover:text-ink aria-[current=page]:bg-primary aria-[current=page]:font-semibold aria-[current=page]:text-on-primary aria-[current=page]:hover:bg-primary-hover"
+                [class.lg:justify-center]="compactSidebar()"
+                [attr.title]="compactSidebar() ? item.label : null"
+              >
+                <svg [lucideIcon]="item.icon" class="size-5 shrink-0"></svg>
+                <span [class.lg:sr-only]="compactSidebar()">{{ item.label }}</span>
+              </a>
+            } @else {
+              <span
+                class="flex min-h-11 cursor-not-allowed items-center gap-3 rounded-control px-3 text-label-lg text-ink-muted/70"
+                [class.lg:justify-center]="compactSidebar()"
+                [attr.title]="compactSidebar() ? item.label + ' (em breve)' : null"
+                aria-disabled="true"
+              >
+                <svg [lucideIcon]="item.icon" class="size-5 shrink-0"></svg>
+                <span [class.lg:sr-only]="compactSidebar()">{{ item.label }}</span>
+                <span
+                  class="ml-auto rounded-pill bg-surface-muted px-2 py-0.5 text-label-sm"
+                  [class.lg:sr-only]="compactSidebar()"
+                >
+                  Em breve
+                </span>
+              </span>
+            }
+          </li>
+        }
+      </ul>
+    </nav>
+
+    <div class="hidden border-t border-divider p-3 lg:block">
+      <button
+        type="button"
+        class="flex min-h-11 w-full cursor-pointer items-center gap-3 rounded-control px-3 text-label-lg text-ink-muted hover:bg-surface-muted hover:text-ink"
+        [class.justify-center]="compactSidebar()"
+        [attr.aria-label]="compactSidebar() ? 'Expandir menu lateral' : 'Recolher menu lateral'"
+        [attr.aria-expanded]="!compactSidebar()"
+        (click)="toggleCollapsed()"
+      >
+        @if (compactSidebar()) {
+          <svg lucidePanelLeftOpen class="size-5"></svg>
+        } @else {
+          <svg lucidePanelLeftClose class="size-5"></svg>
+          <span>Recolher menu</span>
+        }
+      </button>
+    </div>
+  </aside>
+
+  <div class="flex min-w-0 flex-1 flex-col">
+    <header
+      class="flex h-16 shrink-0 items-center gap-2 border-b border-divider bg-surface px-3 sm:px-6"
+    >
+      <button
+        #menuButton
+        type="button"
+        class="size-10 cursor-pointer items-center justify-center rounded-control text-ink-muted hover:bg-surface-muted hover:text-ink lg:hidden"
+        [class.inline-flex]="mobileNav() === 'drawer'"
+        [class.hidden]="mobileNav() === 'bottom'"
+        [class.md:inline-flex]="mobileNav() === 'bottom'"
+        aria-label="Abrir menu"
+        aria-controls="menu-da-area"
+        [attr.aria-expanded]="drawerOpen()"
+        (click)="openDrawer()"
+      >
+        <svg lucideMenu class="size-6"></svg>
+      </button>
+      <app-logo class="size-8 lg:hidden" compact [link]="homeLink()" />
+      <p class="truncate text-label-lg text-ink-muted">{{ currentArea().label }}</p>
+
+      <div class="ml-auto flex items-center gap-1">
+        <app-theme-toggle />
+        <button
+          type="button"
+          class="flex min-h-11 cursor-pointer items-center gap-2 rounded-pill p-1 text-left hover:bg-surface-muted md:pr-3"
+          [cdkMenuTriggerFor]="accountMenu"
+          [attr.aria-label]="'Conta de ' + displayName()"
+        >
+          <span
+            class="flex size-9 items-center justify-center rounded-full bg-soft text-label-lg font-semibold text-on-soft"
+            aria-hidden="true"
+          >
+            {{ initials() }}
+          </span>
+          <span class="hidden min-w-0 md:block" aria-hidden="true">
+            <span class="block max-w-40 truncate text-label-lg text-ink">{{ displayName() }}</span>
+            <span class="block text-body-sm text-ink-muted">{{ currentArea().label }}</span>
+          </span>
+          <svg lucideChevronDown class="hidden size-4 text-ink-muted md:block"></svg>
+        </button>
+      </div>
+    </header>
+
+    <main
+      #main
+      id="conteudo"
+      tabindex="-1"
+      class="min-h-0 flex-1 overflow-y-auto px-4 py-6 focus:outline-none sm:px-6 lg:px-8"
+      [class.max-md:pb-24]="mobileNav() === 'bottom'"
+    >
+      <div class="mx-auto w-full max-w-6xl">
+        <ng-content />
+      </div>
+    </main>
+  </div>
+</div>
+
+@if (mobileNav() === 'bottom') {
+  <nav
+    class="fixed inset-x-0 bottom-0 z-20 border-t border-divider bg-surface pb-[env(safe-area-inset-bottom)] md:hidden"
+    [attr.aria-label]="'Navegação: ' + currentArea().label"
+  >
+    <ul
+      class="grid"
+      [style.grid-template-columns]="'repeat(' + bottomItems().length + ', minmax(0, 1fr))'"
+    >
+      @for (item of bottomItems(); track item.label) {
+        <li>
+          @if (item.link) {
+            <a
+              [routerLink]="item.link"
+              routerLinkActive="is-active"
+              [routerLinkActiveOptions]="{ exact: item.exact ?? false }"
+              ariaCurrentWhenActive="page"
+              class="flex min-h-14 flex-col items-center justify-center gap-0.5 px-1 text-label-sm text-ink-muted aria-[current=page]:text-link"
+            >
+              <svg [lucideIcon]="item.icon" class="size-5"></svg>
+              <span class="max-w-full truncate">{{ item.shortLabel ?? item.label }}</span>
+            </a>
+          } @else {
+            <span
+              class="flex min-h-14 flex-col items-center justify-center gap-0.5 px-1 text-label-sm text-ink-muted/60"
+              aria-disabled="true"
+            >
+              <svg [lucideIcon]="item.icon" class="size-5"></svg>
+              <span class="max-w-full truncate">{{ item.shortLabel ?? item.label }}</span>
+              <span class="sr-only">(em breve)</span>
+            </span>
+          }
+        </li>
+      }
+    </ul>
+  </nav>
+}
+
+<ng-template #accountMenu>
+  <div
+    cdkMenu
+    class="mt-2 flex min-w-64 flex-col rounded-container border border-divider bg-surface-raised p-1.5 shadow-3"
+  >
+    <div class="px-3 py-2">
+      <p class="truncate text-label-lg text-ink">{{ displayName() }}</p>
+      <p class="text-body-sm text-ink-muted">Área: {{ currentArea().label }}</p>
+    </div>
+
+    @if (otherAreas().length > 0) {
+      <div class="my-1 border-t border-divider" role="separator"></div>
+      <p class="px-3 pt-1 pb-1 text-label-sm text-ink-muted uppercase">Trocar de área</p>
+      @for (other of otherAreas(); track other.role) {
+        <button
+          cdkMenuItem
+          type="button"
+          class="flex min-h-11 cursor-pointer items-center gap-3 rounded-control px-3 text-left text-label-lg text-ink outline-none hover:bg-surface-muted focus:bg-surface-muted"
+          (cdkMenuItemTriggered)="goTo(other)"
+        >
+          <svg [lucideIcon]="other.icon" class="size-5 text-ink-muted"></svg>
+          {{ other.label }}
+        </button>
+      }
+    }
+
+    <div class="my-1 border-t border-divider" role="separator"></div>
+    <button
+      cdkMenuItem
+      type="button"
+      class="flex min-h-11 cursor-pointer items-center gap-3 rounded-control px-3 text-left text-label-lg text-danger-ink outline-none hover:bg-danger-soft focus:bg-danger-soft"
+      (cdkMenuItemTriggered)="logout()"
+    >
+      <svg lucideLogOut class="size-5"></svg>
+      Sair
+    </button>
+  </div>
+</ng-template>
