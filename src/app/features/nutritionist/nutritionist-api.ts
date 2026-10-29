@@ -1,9 +1,17 @@
 import { HttpClient, httpResource } from '@angular/common/http';
-import { Service, inject } from '@angular/core';
+import { Service, Signal, inject, signal } from '@angular/core';
 import { Observable } from 'rxjs';
 import { apiUrl } from '../../core/http/api-url';
 import { PagedResponse } from '../../shared/domain/paged-response';
-import { MyPatientItem, NutritionistProfile, NutritionistRequestItem } from './nutritionist.models';
+import {
+  MyPatientItem,
+  FollowedPatient,
+  NutritionistProfile,
+  NutritionistRequestItem,
+  RecordWeightRequest,
+  RequestStatus,
+  WeightRecord,
+} from './nutritionist.models';
 
 /** Escritas da área do nutricionista. As leituras são os httpResource abaixo. */
 @Service()
@@ -14,6 +22,25 @@ export class NutritionistApi {
   updateBio(bio: string | null): Observable<unknown> {
     return this.http.put(apiUrl('/nutritionists/me'), { bio });
   }
+
+  endPatientCare(patientId: string): Observable<void> {
+    return this.http.post<void>(apiUrl(`/nutritionists/me/patients/${patientId}/end`), {});
+  }
+
+  recordPatientWeight(patientId: string, body: RecordWeightRequest): Observable<unknown> {
+    return this.http.post(
+      apiUrl(`/nutritionists/me/patients/${patientId}/weight-records`),
+      body,
+    );
+  }
+
+  acceptRequest(id: string): Observable<void> {
+    return this.http.post<void>(apiUrl(`/nutritionists/me/requests/${id}/accept`), {});
+  }
+
+  rejectRequest(id: string): Observable<void> {
+    return this.http.post<void>(apiUrl(`/nutritionists/me/requests/${id}/reject`), {});
+  }
 }
 
 /* Recursos da área do nutricionista (chamar no contexto de injeção). */
@@ -23,17 +50,48 @@ export function nutritionistProfileResource() {
 }
 
 /** Em ordem alfabética. `totalItems` traz quantos pacientes estão em acompanhamento. */
-export function myPatientsResource(pageSize = 5) {
+export function myPatientsResource(
+  search: Signal<string> = signal(''),
+  page: Signal<number> = signal(1),
+  pageSize = 10,
+) {
   return httpResource<PagedResponse<MyPatientItem>>(() => ({
     url: apiUrl('/nutritionists/me/patients'),
-    params: { page: 1, pageSize },
+    params: { page: page(), pageSize, ...(search().trim() ? { search: search().trim() } : {}) },
   }));
+}
+
+export function followedPatientResource(patientId: Signal<string | null>) {
+  return httpResource<FollowedPatient>(() => {
+    const id = patientId();
+    return id ? apiUrl(`/nutritionists/me/patients/${id}`) : undefined;
+  });
+}
+
+export function patientWeightRecordsResource(patientId: Signal<string | null>, pageSize = 50) {
+  return httpResource<PagedResponse<WeightRecord>>(() => {
+    const id = patientId();
+    return id
+      ? {
+          url: apiUrl(`/nutritionists/me/patients/${id}/weight-records`),
+          params: { page: 1, pageSize },
+        }
+      : undefined;
+  });
 }
 
 /** Da mais recente para a mais antiga. */
 export function pendingRequestsResource(pageSize = 5) {
+  return nutritionistRequestsResource(signal<RequestStatus | null>('Pending'), pageSize);
+}
+
+export function nutritionistRequestsResource(status: Signal<RequestStatus | null>, pageSize = 50) {
   return httpResource<PagedResponse<NutritionistRequestItem>>(() => ({
     url: apiUrl('/nutritionists/me/requests'),
-    params: { status: 'Pending', page: 1, pageSize },
+    params: {
+      page: 1,
+      pageSize,
+      ...(status() ? { status: status()! } : {}),
+    },
   }));
 }

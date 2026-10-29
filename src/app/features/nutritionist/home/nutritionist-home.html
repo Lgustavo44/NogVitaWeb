@@ -57,7 +57,12 @@
     class="flex flex-col gap-4 rounded-container bg-surface p-5 shadow-1"
     aria-labelledby="pendentes-titulo"
   >
-    <h2 id="pendentes-titulo" class="text-title-md text-ink">Solicitações pendentes</h2>
+    <div class="flex items-center justify-between gap-2">
+      <h2 id="pendentes-titulo" class="text-title-md text-ink">Solicitações pendentes</h2>
+      <a routerLink="/nutricionista/solicitacoes" class="text-label-lg text-link hover:underline">
+        Ver todas
+      </a>
+    </div>
     @if (requests.isLoading()) {
       <div
         class="h-24 rounded-control bg-surface-muted motion-safe:animate-pulse"
@@ -89,7 +94,12 @@
     class="flex flex-col gap-4 rounded-container bg-surface p-5 shadow-1"
     aria-labelledby="pacientes-titulo"
   >
-    <h2 id="pacientes-titulo" class="text-title-md text-ink">Seus pacientes</h2>
+    <div class="flex items-center justify-between gap-2">
+      <h2 id="pacientes-titulo" class="text-title-md text-ink">Seus pacientes</h2>
+      <a routerLink="/nutricionista/pacientes" class="text-label-lg text-link hover:underline">
+        Ver todos
+      </a>
+    </div>
     @if (patients.isLoading()) {
       <div
         class="h-24 rounded-control bg-surface-muted motion-safe:animate-pulse"
@@ -103,7 +113,12 @@
         @for (patient of patients.value().items; track patient.patientId) {
           <li class="flex flex-wrap items-center justify-between gap-2 py-3 first:pt-0 last:pb-0">
             <div>
-              <p class="text-label-lg text-ink">{{ patient.name }}</p>
+              <a
+                [routerLink]="['/nutricionista/pacientes', patient.patientId]"
+                class="text-label-lg text-ink hover:text-link hover:underline"
+              >
+                {{ patient.name }}
+              </a>
               <p class="text-body-sm text-ink-muted">
                 Desde {{ patient.startedAtUtc | date: 'dd/MM/yyyy' }}
               </p>

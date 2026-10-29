@@ -1,0 +1,203 @@
+<app-page-header
+  badge="Consultório digital"
+  title="Solicitações de acompanhamento"
+  subtitle="Avalie os pedidos de pacientes que desejam iniciar um acompanhamento com você."
+>
+  <button
+    appButton
+    variant="soft"
+    type="button"
+    [loading]="requests.isLoading()"
+    (click)="requests.reload()"
+  >
+    <svg lucideRefreshCw class="size-5"></svg>
+    Atualizar
+  </button>
+</app-page-header>
+
+<nav
+  class="flex gap-1 overflow-x-auto rounded-container bg-surface-muted p-1.5"
+  aria-label="Filtrar solicitações por status"
+>
+  @for (filter of filters; track filter.value) {
+    <button
+      type="button"
+      class="flex min-h-10 shrink-0 cursor-pointer items-center gap-2 rounded-control px-3 text-label-lg text-ink-muted transition-colors hover:text-ink aria-pressed:bg-primary aria-pressed:text-on-primary aria-pressed:shadow-1"
+      [attr.aria-pressed]="activeFilter() === filter.value"
+      (click)="selectFilter(filter.value)"
+    >
+      {{ filter.label }}
+      <span
+        class="rounded-pill px-2 text-label-sm tabular-nums"
+        [class.bg-surface]="activeFilter() !== filter.value"
+        [class.bg-on-primary/15]="activeFilter() === filter.value"
+      >
+        {{ counts()[filter.value] }}
+      </span>
+    </button>
+  }
+</nav>
+
+@if (actionError() && !rejectTarget()) {
+  <p class="flex items-center gap-2 text-body-sm text-danger-ink" role="alert">
+    <svg lucideTriangleAlert class="size-4 shrink-0"></svg>
+    {{ actionError() }}
+  </p>
+}
+
+@if (requests.isLoading() && !requests.hasValue()) {
+  <div class="flex flex-col gap-4" aria-hidden="true">
+    @for (item of [1, 2]; track item) {
+      <div class="h-52 rounded-container bg-surface-muted motion-safe:animate-pulse"></div>
+    }
+  </div>
+  <span class="sr-only" role="status">Carregando solicitações…</span>
+} @else if (requests.error()) {
+  <app-load-error [error]="requests.error()" (retry)="requests.reload()" />
+} @else if (filtered().length === 0) {
+  <section
+    class="flex flex-col items-center gap-3 rounded-container bg-surface p-10 text-center shadow-1"
+  >
+    <svg lucideInbox class="size-10 text-ink-muted"></svg>
+    <h2 class="text-title-md text-ink">Nenhuma solicitação encontrada</h2>
+    <p class="max-w-lg text-body-md text-ink-muted">
+      Não há solicitações neste filtro. Quando um paciente pedir acompanhamento, o pedido aparecerá
+      aqui.
+    </p>
+  </section>
+} @else {
+  <section class="flex flex-col gap-4" aria-label="Lista de solicitações">
+    @for (request of filtered(); track request.id) {
+      <article
+        class="flex flex-col gap-4 rounded-container bg-surface p-5 shadow-1 transition-shadow hover:shadow-2"
+        [class.opacity-70]="request.status !== 'Pending'"
+      >
+        <div class="flex flex-col justify-between gap-4 lg:flex-row lg:items-start">
+          <div class="flex min-w-0 items-start gap-4">
+            <div
+              class="relative flex size-12 shrink-0 items-center justify-center rounded-control bg-sidebar text-on-sidebar text-title-md font-bold"
+            >
+              {{ initials(request.patientName) }}
+              @if (request.status === 'Pending') {
+                <span
+                  class="absolute -right-1 -bottom-1 size-3.5 rounded-full bg-primary ring-2 ring-surface"
+                  title="Solicitação pendente"
+                ></span>
+              }
+            </div>
+            <div class="min-w-0">
+              <div class="flex flex-wrap items-center gap-2">
+                <h2 class="text-title-md font-bold text-ink">{{ request.patientName }}</h2>
+                <span
+                  class="rounded-pill px-2.5 py-0.5 text-label-md"
+                  [class]="statusClasses(request.status)"
+                >
+                  {{ statusLabels[request.status] }}
+                </span>
+              </div>
+              <p class="mt-1 flex items-center gap-1 text-body-sm text-ink-muted">
+                <svg lucideClock class="size-4"></svg>
+                Pedido em {{ request.createdAt | date: "dd/MM/yyyy 'às' HH:mm" }}
+              </p>
+            </div>
+          </div>
+          <span class="flex items-center gap-2 text-body-sm text-ink-muted">
+            <svg lucideUserRound class="size-4"></svg>
+            Solicitação de acompanhamento
+          </span>
+        </div>
+
+        @if (request.message) {
+          <div class="flex items-start gap-3 rounded-container bg-surface-muted p-4">
+            <span
+              class="w-1 self-stretch shrink-0 rounded-full bg-primary"
+              aria-hidden="true"
+            ></span>
+            <div>
+              <p class="text-label-sm font-semibold text-primary uppercase">Mensagem do paciente</p>
+              <p class="mt-1 text-body-md italic text-ink">“{{ request.message }}”</p>
+            </div>
+          </div>
+        } @else {
+          <p class="text-body-sm italic text-ink-muted">O paciente não enviou uma mensagem.</p>
+        }
+
+        @if (request.status === 'Pending') {
+          <div
+            class="flex flex-col gap-3 border-t border-divider pt-4 sm:flex-row sm:items-center sm:justify-end"
+          >
+            <div class="flex flex-wrap gap-2 sm:justify-end">
+              <button
+                appButton
+                variant="danger"
+                type="button"
+                [disabled]="actionId() !== null"
+                (click)="openReject(request)"
+              >
+                <svg lucideX class="size-5"></svg>
+                Recusar
+              </button>
+              <button
+                appButton
+                variant="primary"
+                type="button"
+                [loading]="actionId() === request.id"
+                [disabled]="actionId() !== null"
+                (click)="accept(request)"
+              >
+                <svg lucideCheck class="size-5"></svg>
+                Aceitar solicitação
+              </button>
+            </div>
+          </div>
+        }
+      </article>
+    }
+  </section>
+}
+
+@if (rejectTarget(); as request) {
+  <app-modal
+    heading="Recusar solicitação?"
+    subtitle="O pedido ficará como recusado. O paciente poderá enviar um novo pedido depois."
+    size="sm"
+    alert
+    [busy]="actionId() === request.id"
+    (closed)="closeReject()"
+  >
+    <div
+      modalIcon
+      class="flex size-10 shrink-0 items-center justify-center rounded-full bg-danger-soft text-danger-ink"
+    >
+      <svg lucideTriangleAlert class="size-5"></svg>
+    </div>
+    <p class="text-body-md text-ink">
+      Tem certeza que deseja recusar a solicitação de <strong>{{ request.patientName }}</strong
+      >?
+    </p>
+    @if (actionError()) {
+      <p class="text-body-sm text-danger-ink" role="alert">{{ actionError() }}</p>
+    }
+    <div modalActions class="flex w-full gap-2 sm:w-auto">
+      <button
+        appButton
+        variant="ghost"
+        type="button"
+        [disabled]="actionId() !== null"
+        (click)="closeReject()"
+      >
+        Voltar
+      </button>
+      <button
+        appButton
+        variant="danger"
+        type="button"
+        [loading]="actionId() === request.id"
+        (click)="confirmReject()"
+      >
+        <svg lucideX class="size-5"></svg>
+        Recusar
+      </button>
+    </div>
+  </app-modal>
+}

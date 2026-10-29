@@ -41,8 +41,8 @@ export class NutritionistArea {
   );
   protected readonly navigation: NavItem[] = [
     { label: 'Início', icon: LucideHouse, link: '/nutricionista', exact: true },
-    { label: 'Solicitações', icon: LucideInbox },
-    { label: 'Pacientes', icon: LucideUsers },
+    { label: 'Solicitações', icon: LucideInbox, link: '/nutricionista/solicitacoes' },
+    { label: 'Pacientes', icon: LucideUsers, link: '/nutricionista/pacientes' },
     { label: 'Planos alimentares', icon: LucideClipboardList },
     { label: 'Alimentos', icon: LucideUtensils },
     { label: 'Meu perfil', icon: LucideUserRound, link: '/nutricionista/perfil' },
