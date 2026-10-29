@@ -1,0 +1,139 @@
+<a
+  routerLink="/nutricionista/alimentos"
+  class="inline-flex w-fit items-center gap-2 text-label-lg text-link hover:underline"
+>
+  <svg lucideArrowLeft class="size-4"></svg>
+  Voltar para a busca
+</a>
+
+<app-page-header
+  badge="Open Food Facts"
+  title="Adicionar por código de barras"
+  subtitle="Consulte um produto industrializado no Open Food Facts e importe para a base do NogVita."
+/>
+
+<section
+  class="flex flex-col gap-3 rounded-container bg-surface p-4 shadow-1 sm:p-5"
+  aria-labelledby="consulta-titulo"
+>
+  <h2 id="consulta-titulo" class="flex items-center gap-2 text-title-md text-ink">
+    <svg lucideScanBarcode class="size-5 text-link"></svg>
+    Código de barras (EAN)
+  </h2>
+  <form class="flex flex-col gap-2 sm:flex-row" (submit)="$event.preventDefault(); search()">
+    <label class="flex flex-1 flex-col gap-1.5">
+      <span class="sr-only">Código de barras</span>
+      <input
+        type="text"
+        inputmode="numeric"
+        autocomplete="off"
+        placeholder="Ex.: 7891000315507"
+        class="h-12 w-full rounded-control border border-line bg-surface px-3 text-body-lg text-ink tabular-nums placeholder:text-ink-muted/70 focus:border-focus focus:ring-4 focus:ring-primary/20 focus:outline-none aria-invalid:border-danger"
+        aria-describedby="codigo-dica"
+        [attr.aria-invalid]="touched() && !validCode() ? true : null"
+        [value]="code()"
+        (input)="onInput($event)"
+      />
+    </label>
+    <button appButton type="submit" [loading]="searching()">
+      <svg lucideSearch class="size-5"></svg>
+      Consultar
+    </button>
+  </form>
+  <p
+    id="codigo-dica"
+    class="flex items-start gap-1.5 text-body-sm"
+    [class]="touched() && !validCode() ? 'text-danger-ink' : 'text-ink-muted'"
+  >
+    <svg lucideInfo class="mt-0.5 size-4 shrink-0"></svg>
+    Códigos de 8, 12, 13 ou 14 dígitos. Consulta e importação somam até 10 por minuto.
+  </p>
+</section>
+
+@if (failure(); as failure) {
+  <app-alert tone="danger">
+    {{ failure.message }}
+    @if (failure.traceId) {
+      <span class="mt-1 block text-body-sm opacity-80">Código do erro: {{ failure.traceId }}</span>
+    }
+  </app-alert>
+}
+
+@if (preview(); as product) {
+  <section
+    class="flex flex-col gap-5 rounded-container bg-surface p-5 shadow-2 sm:p-6"
+    aria-labelledby="previa-titulo"
+  >
+    <div class="flex flex-wrap items-center justify-between gap-2">
+      <span
+        class="inline-flex items-center gap-1.5 rounded-pill px-3 py-1 text-label-md"
+        [class]="
+          product.alreadyImported
+            ? 'bg-info-soft text-info-ink'
+            : 'bg-success-soft text-success-ink'
+        "
+      >
+        <svg lucideCircleCheck class="size-4"></svg>
+        {{
+          product.alreadyImported
+            ? 'Já está na base do NogVita'
+            : 'Produto encontrado no Open Food Facts'
+        }}
+      </span>
+      <span class="text-body-sm text-ink-muted tabular-nums">EAN {{ product.barcode }}</span>
+    </div>
+    <div>
+      @if (product.brand) {
+        <p class="text-label-md text-link">{{ product.brand }}</p>
+      }
+      <h2 id="previa-titulo" class="text-headline-lg text-ink">{{ product.name }}</h2>
+      <p class="text-body-sm text-ink-muted">Valores por 100 g. Confira antes de importar.</p>
+    </div>
+
+    <div class="grid gap-6 lg:grid-cols-2">
+      <table class="w-full text-left">
+        <thead>
+          <tr class="border-b border-divider text-label-md text-ink-muted">
+            <th scope="col" class="py-2 pr-4 font-semibold">Nutriente</th>
+            <th scope="col" class="py-2 text-right font-semibold">Em 100 g</th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-divider text-body-md">
+          @for (nutrient of nutrients; track nutrient.key) {
+            <tr>
+              <th scope="row" class="py-2.5 pr-4 font-normal text-ink">{{ nutrient.label }}</th>
+              <td class="py-2.5 text-right font-semibold text-ink tabular-nums">
+                {{ product[nutrient.key] | nutrient: nutrient.unit }}
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+      <div class="flex flex-col gap-2">
+        <h3 class="text-label-lg text-ink">De onde vêm as calorias</h3>
+        <app-macro-split [nutrients]="product" />
+      </div>
+    </div>
+
+    <div class="flex flex-col gap-2 border-t border-divider pt-4 sm:flex-row sm:justify-end">
+      @if (product.alreadyImported && product.foodId) {
+        <a
+          [routerLink]="['/nutricionista/alimentos', product.foodId]"
+          class="inline-flex min-h-11 items-center justify-center gap-2 rounded-control bg-primary px-5 text-label-lg font-semibold text-on-primary shadow-1 hover:bg-primary-hover"
+        >
+          Ver na base
+        </a>
+      } @else {
+        <button appButton variant="soft" type="button" [disabled]="importing()" (click)="discard()">
+          Descartar
+        </button>
+        <button appButton type="button" [loading]="importing()" (click)="import()">
+          <svg lucideDownload class="size-5"></svg>
+          Importar para a base
+        </button>
+      }
+    </div>
+  </section>
+
+  <app-food-attribution [attributions]="[product.attribution]" />
+}

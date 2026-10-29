@@ -29,4 +29,20 @@ export const NUTRITIONIST_ROUTES: Routes = [
     loadComponent: () =>
       import('./requests/nutritionist-requests').then((m) => m.NutritionistRequestsPage),
   },
+  {
+    path: 'alimentos',
+    title: 'Alimentos · NogVita',
+    loadComponent: () => import('./foods/food-search').then((m) => m.FoodSearchPage),
+  },
+  // Antes de ':foodId', senão "codigo-de-barras" seria lido como um id.
+  {
+    path: 'alimentos/codigo-de-barras',
+    title: 'Adicionar por código de barras · NogVita',
+    loadComponent: () => import('./foods/barcode-import').then((m) => m.BarcodeImportPage),
+  },
+  {
+    path: 'alimentos/:foodId',
+    title: 'Alimento · NogVita',
+    loadComponent: () => import('./foods/food-detail').then((m) => m.FoodDetailPage),
+  },
 ];
