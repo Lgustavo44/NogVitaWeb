@@ -11,7 +11,11 @@ As telas estão sendo construídas uma por vez, de ponta a ponta (visual, integr
 | Login, cadastro do paciente, esqueci/redefinir senha, confirmação de e-mail, convite do nutricionista | Prontas                          |
 | Escolha de área (contas com mais de um papel)                                                         | Pronta                           |
 | Início do paciente, do nutricionista e do admin                                                       | Prontos, com dados reais da API  |
-| Demais telas das áreas                                                                                | Aparecem no menu como "Em breve" |
+| Perfis do paciente e do nutricionista                                                                 | Prontos                          |
+| Paciente: encontrar nutricionista, minhas solicitações, meu nutricionista, meu peso                   | Prontas                          |
+| Nutricionista: solicitações, meus pacientes e detalhe do paciente (com o peso)                        | Prontas                          |
+| Nutricionista: alimentos (busca TACO/Open Food Facts, ficha e importação por código de barras)        | Prontas                          |
+| Planos alimentares e telas do admin                                                                   | Aparecem no menu como "Em breve" |
 
 A sessão fica no `sessionStorage` (sobrevive ao recarregar, some ao fechar a aba) e o token é renovado automaticamente, uma renovação por vez.
 
@@ -66,6 +70,8 @@ src/app/
     ui/                 componentes do design system (botão, campo, alerta, logo...)
     layout/             layout público (card) e AppShell (menu lateral, cabeçalho, menu da conta)
     domain/             enums e tipos da API usados por mais de uma área
+    weight/             painel de peso (gráfico, histórico, registro), usado pelo paciente e pelo nutricionista
+    food/               peças de alimento (fonte, atribuição, nutrientes, divisão das calorias)
   features/
     auth/               login, cadastro, confirmação de e-mail, senha, convite
     patient/            área do paciente
