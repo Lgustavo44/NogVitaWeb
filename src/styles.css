@@ -44,6 +44,9 @@
   --nv-line: #9c8778;
   --nv-divider: rgb(29 42 36 / 0.08);
 
+  /* Linha dos gráficos: validada (dataviz) contra o fundo do card, >= 3:1 */
+  --nv-chart-line: #c2620a;
+
   --nv-success: #16a34a;
   --nv-success-ink: #15803d;
   --nv-success-soft: #f0fdf4;
@@ -92,6 +95,8 @@
 
   --nv-line: #7a8f85;
   --nv-divider: rgb(255 255 255 / 0.08);
+
+  --nv-chart-line: #d9741c;
 
   --nv-success: #4ade80;
   --nv-success-ink: #4ade80;
@@ -147,6 +152,7 @@
   --color-sidebar-hover: var(--nv-sidebar-hover);
   --color-line: var(--nv-line);
   --color-divider: var(--nv-divider);
+  --color-chart-line: var(--nv-chart-line);
   --color-success: var(--nv-success);
   --color-success-ink: var(--nv-success-ink);
   --color-success-soft: var(--nv-success-soft);

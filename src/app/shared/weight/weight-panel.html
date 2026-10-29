@@ -1,0 +1,162 @@
+<div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+  <h2 class="flex items-center gap-2 text-title-md text-ink">
+    <svg lucideScale class="size-5 text-link"></svg>
+    {{ heading() }}
+  </h2>
+  <div class="flex gap-2">
+    <label class="flex min-w-0 flex-1 sm:flex-none">
+      <span class="sr-only">Período</span>
+      <select
+        class="h-11 w-full cursor-pointer rounded-control border border-line bg-surface px-3 text-body-md text-ink focus:border-focus focus:ring-4 focus:ring-primary/20 focus:outline-none"
+        (change)="onPeriod($event)"
+      >
+        @for (period of periods; track period.value) {
+          <option [value]="period.value" [selected]="period.value === periodDays()">
+            {{ period.label }}
+          </option>
+        }
+      </select>
+    </label>
+    <button appButton type="button" (click)="openForm()">
+      <svg lucidePlus class="size-5"></svg>
+      Registrar peso
+    </button>
+  </div>
+</div>
+
+@if (records.isLoading() && !records.hasValue()) {
+  <div class="grid grid-cols-3 gap-2 sm:gap-3" aria-hidden="true">
+    @for (item of [1, 2, 3]; track item) {
+      <div class="h-20 rounded-container bg-surface-muted motion-safe:animate-pulse"></div>
+    }
+  </div>
+  <div
+    class="h-60 rounded-container bg-surface-muted motion-safe:animate-pulse"
+    aria-hidden="true"
+  ></div>
+  <span class="sr-only" role="status">Carregando registros de peso…</span>
+} @else if (records.error()) {
+  <app-load-error [error]="records.error()" (retry)="records.reload()" />
+} @else if (summary(); as summary) {
+  <dl class="grid grid-cols-3 gap-2 sm:gap-3" [class.opacity-60]="records.isLoading()">
+    <div class="min-w-0 rounded-container bg-surface p-3 shadow-1 sm:p-4">
+      <dt class="text-body-sm leading-tight text-ink-muted">Peso mais recente</dt>
+      <dd class="text-title-md text-ink tabular-nums sm:text-headline-lg">
+        {{ summary.latest.weightKg | number: '1.0-1' }} kg
+      </dd>
+      <dd class="text-body-sm text-ink-muted">
+        em {{ summary.latest.recordedOn | date: 'dd/MM/yyyy' }}
+      </dd>
+    </div>
+    <div class="min-w-0 rounded-container bg-surface p-3 shadow-1 sm:p-4">
+      <dt class="text-body-sm leading-tight text-ink-muted">Variação no período</dt>
+      <dd class="text-title-md text-ink tabular-nums sm:text-headline-lg">
+        {{ summary.count > 1 ? signed(summary.change) + ' kg' : '—' }}
+      </dd>
+      <dd class="text-body-sm text-ink-muted">
+        @if (summary.count > 1) {
+          desde {{ summary.first.recordedOn | date: 'dd/MM/yyyy' }}
+        } @else {
+          precisa de 2 registros
+        }
+      </dd>
+    </div>
+    <div class="min-w-0 rounded-container bg-surface p-3 shadow-1 sm:p-4">
+      <dt class="text-body-sm leading-tight text-ink-muted">Registros no período</dt>
+      <dd class="text-title-md text-ink tabular-nums sm:text-headline-lg">
+        {{ records.value()?.totalItems }}
+      </dd>
+    </div>
+  </dl>
+
+  <section
+    class="flex flex-col gap-3 rounded-container bg-surface p-4 shadow-1 sm:p-5"
+    aria-label="Gráfico de evolução"
+  >
+    <app-weight-chart [records]="items()" />
+  </section>
+
+  <section
+    class="flex flex-col gap-3 rounded-container bg-surface p-4 shadow-1 sm:p-5"
+    aria-labelledby="historico-peso"
+  >
+    <h3 id="historico-peso" class="text-label-lg text-ink">Histórico</h3>
+    @if (truncated()) {
+      <p class="text-body-sm text-ink-muted">
+        Mostrando os {{ items().length }} registros mais recentes. Escolha um período menor para ver
+        tudo.
+      </p>
+    }
+    <app-weight-history
+      [records]="items()"
+      [perspective]="perspective()"
+      (deleteRequested)="askDelete($event)"
+    />
+  </section>
+} @else {
+  <section
+    class="flex flex-col items-center gap-3 rounded-container bg-surface p-8 text-center shadow-1"
+  >
+    <svg lucideScale class="size-10 text-ink-muted"></svg>
+    <h3 class="text-title-md text-ink">Nenhum registro neste período</h3>
+    <p class="max-w-md text-body-md text-ink-muted">
+      Registre o peso para acompanhar a evolução. Escolha "Todo o histórico" para ver registros mais
+      antigos.
+    </p>
+  </section>
+}
+
+@if (formOpen()) {
+  <app-weight-form-modal
+    [sameDayHint]="sameDayHint()"
+    [busy]="saving()"
+    [error]="saveError()"
+    (saved)="save($event)"
+    (closed)="formOpen.set(false)"
+  />
+}
+
+@if (deleteTarget(); as record) {
+  <app-modal
+    heading="Apagar registro de peso?"
+    size="sm"
+    alert
+    [busy]="deleting()"
+    (closed)="deleteTarget.set(null)"
+  >
+    <span
+      modalIcon
+      class="flex size-10 shrink-0 items-center justify-center rounded-full bg-danger-soft text-danger-ink"
+    >
+      <svg lucideTriangleAlert class="size-5"></svg>
+    </span>
+    <p class="text-body-md text-ink-muted">
+      O registro de <strong class="text-ink">{{ record.weightKg | number: '1.0-1' }} kg</strong> em
+      {{ record.recordedOn | date: 'dd/MM/yyyy' }} será apagado. Esta ação não pode ser desfeita.
+    </p>
+    @if (deleteError(); as message) {
+      <app-alert tone="danger">{{ message }}</app-alert>
+    }
+    <ng-container modalActions>
+      <button
+        appButton
+        variant="soft"
+        type="button"
+        cdkFocusInitial
+        [disabled]="deleting()"
+        (click)="deleteTarget.set(null)"
+      >
+        Cancelar
+      </button>
+      <button
+        appButton
+        variant="danger"
+        type="button"
+        [loading]="deleting()"
+        (click)="confirmDelete()"
+      >
+        Apagar
+      </button>
+    </ng-container>
+  </app-modal>
+}
