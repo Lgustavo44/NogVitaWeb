@@ -66,6 +66,16 @@ function messageFor(
 }
 
 /**
+ * Mensagem única para mostrar num alerta: as mensagens dos campos, quando houver
+ * (ex.: "A quantidade deve ser maior que zero."), senão a mensagem geral.
+ */
+export function errorSummary(error: unknown): string {
+  const apiError = toApiError(error);
+  const fieldMessages = Object.values(apiError.fieldErrors).flat();
+  return fieldMessages.length > 0 ? fieldMessages.join(' ') : apiError.message;
+}
+
+/**
  * Converte os erros por campo da API em erros do Signal Forms, para aparecerem embaixo de cada campo.
  * Uso no `action` do formulário: `return toFieldErrors(apiError, { email: f.email })`.
  */

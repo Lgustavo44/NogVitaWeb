@@ -1,0 +1,153 @@
+<article
+  class="flex flex-col gap-4 rounded-container bg-surface p-4 shadow-1 sm:p-5"
+  [attr.aria-labelledby]="'refeicao-' + meal().id"
+>
+  <header class="flex flex-wrap items-start gap-3">
+    <span
+      class="flex size-9 shrink-0 items-center justify-center rounded-full bg-soft/40 text-label-lg font-semibold text-soft-ink tabular-nums"
+      aria-hidden="true"
+      >{{ meal().order }}</span
+    >
+    <div class="flex min-w-0 flex-1 basis-40 flex-col gap-1">
+      <h3 [id]="'refeicao-' + meal().id" class="text-title-md text-ink">
+        <span class="sr-only">Refeição {{ meal().order }}: </span>{{ meal().name }}
+      </h3>
+      <p class="flex flex-wrap items-center gap-x-3 gap-y-1 text-body-sm text-ink-muted">
+        @if (meal().suggestedTime; as suggested) {
+          <span class="inline-flex items-center gap-1">
+            <svg lucideClock3 class="size-4"></svg>
+            {{ time(suggested) }}
+          </span>
+        } @else {
+          <span>Sem horário</span>
+        }
+        <span class="tabular-nums">{{ meal().totals.energyKcal.value | nutrient: 'kcal' }}</span>
+      </p>
+    </div>
+    @if (editable()) {
+      <div
+        class="ml-auto flex shrink-0 items-center gap-1"
+        role="group"
+        [attr.aria-label]="'Ações de ' + meal().name"
+      >
+        <button
+          type="button"
+          class="inline-flex size-10 cursor-pointer items-center justify-center rounded-control text-ink-muted hover:bg-surface-muted hover:text-ink disabled:cursor-not-allowed disabled:opacity-40"
+          [attr.aria-label]="'Subir ' + meal().name"
+          [disabled]="first() || busy()"
+          (click)="moveUp.emit()"
+        >
+          <svg lucideArrowUp class="size-5"></svg>
+        </button>
+        <button
+          type="button"
+          class="inline-flex size-10 cursor-pointer items-center justify-center rounded-control text-ink-muted hover:bg-surface-muted hover:text-ink disabled:cursor-not-allowed disabled:opacity-40"
+          [attr.aria-label]="'Descer ' + meal().name"
+          [disabled]="last() || busy()"
+          (click)="moveDown.emit()"
+        >
+          <svg lucideArrowDown class="size-5"></svg>
+        </button>
+        <button
+          type="button"
+          class="inline-flex size-10 cursor-pointer items-center justify-center rounded-control text-ink-muted hover:bg-surface-muted hover:text-ink"
+          [attr.aria-label]="'Editar ' + meal().name"
+          (click)="edit.emit()"
+        >
+          <svg lucidePencil class="size-5"></svg>
+        </button>
+        <button
+          type="button"
+          class="inline-flex size-10 cursor-pointer items-center justify-center rounded-control text-danger-ink hover:bg-danger-soft"
+          [attr.aria-label]="'Remover ' + meal().name"
+          (click)="remove.emit()"
+        >
+          <svg lucideTrash class="size-5"></svg>
+        </button>
+      </div>
+    }
+  </header>
+
+  @if (meal().outsideRoutine === true) {
+    <p
+      class="flex items-start gap-2 rounded-control bg-warning-soft px-3 py-2 text-body-sm text-warning-ink"
+    >
+      <svg lucideMoonStar class="mt-0.5 size-4 shrink-0"></svg>
+      Este horário cai fora da rotina do paciente (no período de sono).
+    </p>
+  }
+
+  @if (meal().notes) {
+    <p class="rounded-control bg-surface-muted px-3 py-2 text-body-md whitespace-pre-line text-ink">
+      {{ meal().notes }}
+    </p>
+  }
+
+  @if (meal().foods.length === 0) {
+    <p class="text-body-md text-ink-muted">Nenhum alimento nesta refeição ainda.</p>
+  } @else {
+    <ul class="flex flex-col divide-y divide-divider border-y border-divider">
+      @for (food of meal().foods; track food.id) {
+        <li class="flex items-center gap-3 py-2.5">
+          <div class="flex min-w-0 flex-1 flex-col gap-1">
+            <span class="text-label-lg text-ink">{{ food.name }}</span>
+            <span class="flex flex-wrap items-center gap-x-2 gap-y-1 text-body-sm text-ink-muted">
+              <app-source-badge [source]="food.source" />
+              @if (food.brand) {
+                <span>{{ food.brand }}</span>
+              }
+              <span class="tabular-nums">
+                P {{ food.portion.protein | nutrient: 'g' }} · C
+                {{ food.portion.carbohydrate | nutrient: 'g' }} · G
+                {{ food.portion.fat | nutrient: 'g' }}
+              </span>
+            </span>
+          </div>
+          <div class="flex shrink-0 flex-col items-end tabular-nums">
+            <span class="text-label-lg text-ink">{{ grams(food.quantityInGrams) }}</span>
+            <span class="text-body-sm text-ink-muted">{{
+              food.portion.energyKcal | nutrient: 'kcal'
+            }}</span>
+          </div>
+          @if (editable()) {
+            <div class="flex shrink-0 items-center">
+              <button
+                type="button"
+                class="inline-flex size-10 cursor-pointer items-center justify-center rounded-control text-ink-muted hover:bg-surface-muted hover:text-ink"
+                [attr.aria-label]="'Alterar quantidade de ' + food.name"
+                (click)="editFood.emit(food)"
+              >
+                <svg lucidePencil class="size-4"></svg>
+              </button>
+              <button
+                type="button"
+                class="inline-flex size-10 cursor-pointer items-center justify-center rounded-control text-danger-ink hover:bg-danger-soft"
+                [attr.aria-label]="'Remover ' + food.name + ' da refeição'"
+                (click)="removeFood.emit(food)"
+              >
+                <svg lucideTrash class="size-4"></svg>
+              </button>
+            </div>
+          }
+        </li>
+      }
+    </ul>
+    <p class="text-body-sm text-ink-muted tabular-nums">
+      Total da refeição: {{ meal().totals.energyKcal.value | nutrient: 'kcal' }} · P
+      {{ meal().totals.protein.value | nutrient: 'g' }} · C
+      {{ meal().totals.carbohydrate.value | nutrient: 'g' }} · G
+      {{ meal().totals.fat.value | nutrient: 'g' }}
+    </p>
+  }
+
+  @if (editable()) {
+    <button
+      type="button"
+      class="inline-flex min-h-11 cursor-pointer items-center justify-center gap-2 self-start rounded-control px-3 text-label-lg font-semibold text-link hover:bg-soft/25"
+      (click)="addFood.emit()"
+    >
+      <svg lucidePlus class="size-5"></svg>
+      Adicionar alimento<span class="sr-only"> em {{ meal().name }}</span>
+    </button>
+  }
+</article>

@@ -5,7 +5,7 @@ import { NutrientPipe } from './nutrient.pipe';
 interface MacroShare {
   key: 'carb' | 'protein' | 'fat';
   label: string;
-  /** Telas estreitas: "Carboidratos" não cabe numa coluna de ~90 px. */
+  /** Espaço estreito (celular, coluna lateral): "Carboidratos" não cabe numa coluna de ~90 px. */
   shortLabel: string;
   grams: number;
   percent: number;
@@ -22,7 +22,7 @@ interface MacroShare {
   imports: [NutrientPipe],
   template: `
     @if (shares(); as shares) {
-      <div class="flex flex-col gap-3">
+      <div class="@container flex flex-col gap-3">
         <div
           class="flex h-3 gap-0.5 overflow-hidden rounded-pill"
           role="img"
@@ -47,8 +47,8 @@ interface MacroShare {
                   [class]="share.colorClass"
                   aria-hidden="true"
                 ></span>
-                <span class="min-[400px]:hidden">{{ share.shortLabel }}</span>
-                <span class="hidden min-[400px]:inline">{{ share.label }}</span>
+                <span class="@min-[24rem]:hidden">{{ share.shortLabel }}</span>
+                <span class="hidden @min-[24rem]:inline">{{ share.label }}</span>
               </dt>
               <dd class="text-title-md text-ink tabular-nums">{{ share.percent }}%</dd>
               <dd class="text-body-sm text-ink-muted tabular-nums">
