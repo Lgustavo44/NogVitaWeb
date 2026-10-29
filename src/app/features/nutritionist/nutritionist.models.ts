@@ -1,5 +1,4 @@
-import { Goal } from '../../shared/domain/patient-enums';
-import { BiologicalSex } from '../../shared/domain/patient-enums';
+import { BiologicalSex, Goal } from '../../shared/domain/patient-enums';
 
 export interface NutritionistProfile {
   userId: string;
@@ -22,20 +21,7 @@ export interface LatestWeight {
   recordedOn: string;
 }
 
-export interface WeightRecord {
-  id: string;
-  recordedOn: string;
-  weightKg: number;
-  notes: string | null;
-  recordedByPatient: boolean;
-  recordedByName: string;
-}
-
-export interface RecordWeightRequest {
-  weightKg: number;
-  recordedOn: string | null;
-  notes: string | null;
-}
+export type { RecordWeightRequest, WeightRecord } from '../../shared/domain/weight';
 
 export interface FollowedPatient {
   patientId: string;

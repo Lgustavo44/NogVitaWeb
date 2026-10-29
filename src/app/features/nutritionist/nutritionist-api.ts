@@ -8,9 +8,7 @@ import {
   FollowedPatient,
   NutritionistProfile,
   NutritionistRequestItem,
-  RecordWeightRequest,
   RequestStatus,
-  WeightRecord,
 } from './nutritionist.models';
 
 /** Escritas da área do nutricionista. As leituras são os httpResource abaixo. */
@@ -25,13 +23,6 @@ export class NutritionistApi {
 
   endPatientCare(patientId: string): Observable<void> {
     return this.http.post<void>(apiUrl(`/nutritionists/me/patients/${patientId}/end`), {});
-  }
-
-  recordPatientWeight(patientId: string, body: RecordWeightRequest): Observable<unknown> {
-    return this.http.post(
-      apiUrl(`/nutritionists/me/patients/${patientId}/weight-records`),
-      body,
-    );
   }
 
   acceptRequest(id: string): Observable<void> {
@@ -65,18 +56,6 @@ export function followedPatientResource(patientId: Signal<string | null>) {
   return httpResource<FollowedPatient>(() => {
     const id = patientId();
     return id ? apiUrl(`/nutritionists/me/patients/${id}`) : undefined;
-  });
-}
-
-export function patientWeightRecordsResource(patientId: Signal<string | null>, pageSize = 50) {
-  return httpResource<PagedResponse<WeightRecord>>(() => {
-    const id = patientId();
-    return id
-      ? {
-          url: apiUrl(`/nutritionists/me/patients/${id}/weight-records`),
-          params: { page: 1, pageSize },
-        }
-      : undefined;
   });
 }
 
