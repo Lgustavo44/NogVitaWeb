@@ -48,7 +48,10 @@ export class ForgotPassword {
       required(path.email, { message: 'Informe seu e-mail.' });
       email(path.email, { message: 'Informe um e-mail válido.' });
     },
-    { name: 'password-reset-request', submission: { action: (fieldTree) => this.request(fieldTree) } },
+    {
+      name: 'password-reset-request',
+      submission: { action: (fieldTree) => this.request(fieldTree) },
+    },
   );
 
   protected readonly failure = signal<ApiError | null>(null);

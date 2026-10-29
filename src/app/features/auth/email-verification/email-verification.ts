@@ -1,9 +1,16 @@
 import { DOCUMENT } from '@angular/common';
 import { Component, inject, signal } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
-import { LucideArrowLeft, LucideCheck, LucideCircleAlert, LucideRefreshCw, LucideSend } from '@lucide/angular';
+import {
+  LucideArrowLeft,
+  LucideCheck,
+  LucideCircleAlert,
+  LucideRefreshCw,
+  LucideSend,
+} from '@lucide/angular';
 import { firstValueFrom } from 'rxjs';
 import { AuthApi } from '../../../core/auth/auth-api';
+import { takeFragmentToken } from '../../../core/auth/fragment-token';
 import { ApiError, toApiError } from '../../../core/http/api-error';
 import { Alert } from '../../../shared/ui/alert/alert';
 import { Logo } from '../../../shared/ui/logo/logo';
@@ -12,7 +19,16 @@ type VerificationState = 'loading' | 'success' | 'expired' | 'missing';
 
 @Component({
   selector: 'app-email-verification',
-  imports: [Alert, Logo, LucideArrowLeft, LucideCheck, LucideCircleAlert, LucideRefreshCw, LucideSend, RouterLink],
+  imports: [
+    Alert,
+    Logo,
+    LucideArrowLeft,
+    LucideCheck,
+    LucideCircleAlert,
+    LucideRefreshCw,
+    LucideSend,
+    RouterLink,
+  ],
   host: { class: 'flex flex-col gap-6' },
   templateUrl: './email-verification.html',
 })
@@ -45,12 +61,6 @@ export class EmailVerification {
   }
 
   private readToken(): string | null {
-    const window = this.document.defaultView;
-    const hash = window?.location.hash ?? '';
-    const token = /(?:^|[#&?])token=([A-Za-z0-9_-]+)/.exec(hash)?.[1] ?? null;
-    if (token && window) {
-      window.history.replaceState(null, '', `${window.location.pathname}${window.location.search}`);
-    }
-    return token;
+    return takeFragmentToken(this.document.defaultView);
   }
 }

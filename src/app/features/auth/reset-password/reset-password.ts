@@ -13,7 +13,9 @@ import {
 import { Router, RouterLink } from '@angular/router';
 import { LucideArrowLeft, LucideCheck, LucideEye, LucideEyeOff, LucideLock } from '@lucide/angular';
 import { firstValueFrom } from 'rxjs';
+import { Auth } from '../../../core/auth/auth';
 import { AuthApi } from '../../../core/auth/auth-api';
+import { takeFragmentToken } from '../../../core/auth/fragment-token';
 import { ApiError, toApiError, toFieldErrors } from '../../../core/http/api-error';
 import { Alert } from '../../../shared/ui/alert/alert';
 import { Button } from '../../../shared/ui/button/button';
@@ -47,6 +49,7 @@ interface ResetPasswordModel {
   templateUrl: './reset-password.html',
 })
 export class ResetPassword {
+  private readonly auth = inject(Auth);
   private readonly authApi = inject(AuthApi);
   private readonly document = inject(DOCUMENT);
   private readonly router = inject(Router);
@@ -71,7 +74,10 @@ export class ResetPassword {
           : { kind: 'password-match', message: 'As senhas precisam ser iguais.' },
       );
     },
-    { name: 'password-reset-confirm', submission: { action: (fieldTree) => this.reset(fieldTree) } },
+    {
+      name: 'password-reset-confirm',
+      submission: { action: (fieldTree) => this.reset(fieldTree) },
+    },
   );
 
   protected readonly failure = signal<ApiError | null>(null);
@@ -87,9 +93,7 @@ export class ResetPassword {
     this.showConfirmation.update((visible) => !visible);
   }
 
-  private async reset(
-    fieldTree: FieldTree<ResetPasswordModel>,
-  ): Promise<TreeValidationResult> {
+  private async reset(fieldTree: FieldTree<ResetPasswordModel>): Promise<TreeValidationResult> {
     this.failure.set(null);
 
     if (!this.token) {
@@ -108,6 +112,8 @@ export class ResetPassword {
           newPassword: this.model().newPassword,
         }),
       );
+      // A API encerra todas as sessões ao trocar a senha, inclusive a deste navegador.
+      this.auth.clearLocal();
       this.completed.set(true);
       return undefined;
     } catch (error) {
@@ -118,11 +124,6 @@ export class ResetPassword {
   }
 
   private readToken(): string | null {
-    const hash = this.document.defaultView?.location.hash ?? '';
-    const token = /(?:^|[#&?])token=([A-Za-z0-9_-]+)/.exec(hash)?.[1] ?? null;
-    if (token) {
-      this.document.defaultView?.history.replaceState(null, '', `${this.document.defaultView.location.pathname}${this.document.defaultView.location.search}`);
-    }
-    return token;
+    return takeFragmentToken(this.document.defaultView);
   }
 }

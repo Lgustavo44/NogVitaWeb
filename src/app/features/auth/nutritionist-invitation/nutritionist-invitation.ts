@@ -20,6 +20,7 @@ import {
 } from '@lucide/angular';
 import { firstValueFrom } from 'rxjs';
 import { AuthApi } from '../../../core/auth/auth-api';
+import { takeFragmentToken } from '../../../core/auth/fragment-token';
 import { ApiError, toApiError, toFieldErrors } from '../../../core/http/api-error';
 import { Alert } from '../../../shared/ui/alert/alert';
 import { Button } from '../../../shared/ui/button/button';
@@ -71,7 +72,10 @@ export class NutritionistInvitation {
         when: () => this.needsPassword(),
       });
     },
-    { name: 'nutritionist-invitation', submission: { action: (fieldTree) => this.accept(fieldTree) } },
+    {
+      name: 'nutritionist-invitation',
+      submission: { action: (fieldTree) => this.accept(fieldTree) },
+    },
   );
 
   protected readonly failure = signal<ApiError | null>(null);
@@ -119,15 +123,6 @@ export class NutritionistInvitation {
   }
 
   private readToken(): string | null {
-    const hash = this.document.defaultView?.location.hash ?? '';
-    const token = /(?:^|[#&?])token=([A-Za-z0-9_-]+)/.exec(hash)?.[1] ?? null;
-    if (token) {
-      this.document.defaultView?.history.replaceState(
-        null,
-        '',
-        `${this.document.defaultView.location.pathname}${this.document.defaultView.location.search}`,
-      );
-    }
-    return token;
+    return takeFragmentToken(this.document.defaultView);
   }
 }

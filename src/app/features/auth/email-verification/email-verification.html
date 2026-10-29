@@ -11,11 +11,20 @@
   <div class="flex flex-col items-center gap-5 text-center">
     <app-logo class="h-10" priority />
     <div class="flex flex-col gap-2">
-      <div class="mx-auto flex size-14 items-center justify-center rounded-full bg-success-soft text-success-ink"><svg lucideCheck class="size-7"></svg></div>
+      <div
+        class="mx-auto flex size-14 items-center justify-center rounded-full bg-success-soft text-success-ink"
+      >
+        <svg lucideCheck class="size-7"></svg>
+      </div>
       <h1 class="text-headline-lg text-ink">E-mail confirmado!</h1>
-      <p class="text-body-md text-ink-muted">Sua conta foi ativada. Agora você já pode entrar no NogVita.</p>
+      <p class="text-body-md text-ink-muted">
+        Sua conta foi ativada. Agora você já pode entrar no NogVita.
+      </p>
     </div>
-    <a routerLink="/login" class="inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-control bg-primary px-5 py-2 text-label-lg font-semibold text-on-primary shadow-1 hover:bg-primary-hover">
+    <a
+      routerLink="/login"
+      class="inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-control bg-primary px-5 py-2 text-label-lg font-semibold text-on-primary shadow-1 hover:bg-primary-hover"
+    >
       Entrar na plataforma
       <svg lucideArrowLeft class="size-5 rotate-180"></svg>
     </a>
@@ -24,7 +33,11 @@
   <div class="flex flex-col items-center gap-4 text-center">
     <app-logo class="h-10" priority />
     <div class="flex flex-col gap-2">
-      <div class="mx-auto flex size-14 items-center justify-center rounded-full bg-danger-soft text-danger-ink"><svg lucideCircleAlert class="size-7"></svg></div>
+      <div
+        class="mx-auto flex size-14 items-center justify-center rounded-full bg-danger-soft text-danger-ink"
+      >
+        <svg lucideCircleAlert class="size-7"></svg>
+      </div>
       <h1 class="text-headline-lg text-ink">Link expirado ou inválido</h1>
       <p class="text-body-md text-ink-muted">
         Este link de confirmação não é mais válido. Solicite um novo link pelo login.
@@ -33,7 +46,10 @@
     @if (failure(); as failure) {
       <app-alert tone="danger">{{ failure.message }}</app-alert>
     }
-    <a routerLink="/login" class="inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-control bg-primary px-5 py-2 text-label-lg font-semibold text-on-primary shadow-1 hover:bg-primary-hover">
+    <a
+      routerLink="/login"
+      class="inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-control bg-primary px-5 py-2 text-label-lg font-semibold text-on-primary shadow-1 hover:bg-primary-hover"
+    >
       <svg lucideRefreshCw class="size-5"></svg>
       Voltar para o login
     </a>
