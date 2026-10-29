@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 170 170" role="img" aria-label="NogVita">
+  <circle cx="85" cy="85" r="52" fill="#F28C28"/>
+  <circle cx="85" cy="85" r="41.6" fill="#FFD08A"/>
+  <g stroke="#F28C28" stroke-width="4.16" stroke-linecap="round">
+    <line x1="43.4" y1="85" x2="126.6" y2="85"/>
+    <line x1="55.3" y1="55.3" x2="114.7" y2="114.7"/>
+    <line x1="85" y1="43.4" x2="85" y2="126.6"/>
+    <line x1="114.7" y1="55.3" x2="55.3" y2="114.7"/>
+  </g>
+</svg>

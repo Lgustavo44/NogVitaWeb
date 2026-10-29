@@ -1,0 +1,131 @@
+<div class="flex h-dvh overflow-hidden bg-canvas">
+  <aside class="hidden h-dvh shrink-0 flex-col border-r border-divider bg-surface text-ink shadow-1 transition-[width] duration-200 lg:flex" [class.w-24]="sidebarCollapsed()" [class.w-64]="!sidebarCollapsed()">
+    <div class="flex flex-col gap-6 px-3 py-6">
+      <div class="flex items-center justify-between gap-0 px-1">
+        @if (!sidebarCollapsed()) { <app-logo class="h-9" tone="auto" priority /> } @else { <app-logo class="h-10 w-10" tone="auto" compact priority /> }
+        <button type="button" class="rounded-control p-1 text-ink-muted hover:bg-surface-muted hover:text-ink" [attr.aria-label]="sidebarCollapsed() ? 'Expandir menu lateral' : 'Recolher menu lateral'" (click)="toggleSidebar()">
+          <svg lucidePanelLeft class="size-5"></svg>
+        </button>
+      </div>
+      @if (!sidebarCollapsed()) {
+        <div class="rounded-control bg-surface-muted px-3 py-2 text-label-sm font-semibold uppercase tracking-wider text-ink-muted">Painel administrativo</div>
+      }
+      <nav class="flex flex-col gap-1.5" aria-label="Navegação administrativa">
+        <a
+          href="#visao-geral"
+          aria-label="Visão Geral"
+          class="flex items-center gap-3 rounded-control bg-primary px-3.5 py-3 font-semibold text-on-primary shadow-1"
+        >
+          <svg lucideLayoutDashboard class="size-5"></svg>
+          @if (!sidebarCollapsed()) { <span>Visão Geral</span> }
+        </a>
+        <a href="#usuarios" aria-label="Usuários" class="flex items-center gap-3 rounded-control px-3.5 py-3 text-ink-muted hover:bg-surface-muted hover:text-ink">
+          <svg lucideUsers class="size-5"></svg>@if (!sidebarCollapsed()) { <span>Usuários</span> }
+        </a>
+        <a href="#pacientes" aria-label="Pacientes" class="flex items-center gap-3 rounded-control px-3.5 py-3 text-ink-muted hover:bg-surface-muted hover:text-ink">
+          <svg lucideUserRound class="size-5"></svg>@if (!sidebarCollapsed()) { <span>Pacientes</span> }
+        </a>
+        <a href="#nutricionistas" aria-label="Nutricionistas" class="flex items-center gap-3 rounded-control px-3.5 py-3 text-ink-muted hover:bg-surface-muted hover:text-ink">
+          <svg lucideClipboardList class="size-5"></svg>@if (!sidebarCollapsed()) { <span>Nutricionistas</span> }
+        </a>
+        <a href="#alimentos" aria-label="Alimentos" class="flex items-center gap-3 rounded-control px-3.5 py-3 text-ink-muted hover:bg-surface-muted hover:text-ink">
+          <svg lucideUtensils class="size-5"></svg>@if (!sidebarCollapsed()) { <span>Alimentos</span> }
+        </a>
+      </nav>
+    </div>
+    <div class="mt-auto border-t border-divider px-3 py-5">
+      <div class="flex items-center justify-center gap-2 text-ink-muted"><svg lucideShieldCheck class="size-4"></svg>@if (!sidebarCollapsed()) { <span class="text-label-sm font-semibold">Modo Administrador</span> }</div>
+      @if (!sidebarCollapsed()) { <p class="mt-1 text-center text-label-sm text-ink-muted">Segurança LGPD / CFN</p> }
+    </div>
+  </aside>
+
+  <div class="flex min-h-0 min-w-0 flex-1 flex-col">
+    <header class="z-20 flex min-h-20 shrink-0 items-center justify-between gap-2 border-b border-divider bg-surface/95 px-3 shadow-1 backdrop-blur sm:gap-4 sm:px-8">
+      <div class="flex min-w-0 flex-1 items-center gap-4">
+        @if (roles().length > 1) {
+          <app-access-switcher class="hidden sm:block" [roles]="roles()" active="Admin" (roleChange)="switchRole($event)" />
+        }
+        <label class="relative hidden min-w-0 max-w-2xl flex-1 items-center gap-3 rounded-control bg-surface-muted px-4 py-3 sm:flex">
+          <svg lucideSearch class="size-5 shrink-0 text-ink-muted"></svg>
+          <input
+            type="search"
+            class="min-w-0 flex-1 bg-transparent text-body-md outline-none placeholder:text-ink-muted"
+            placeholder="Buscar usuários, nutricionistas, alimentos..."
+            aria-label="Buscar no painel administrativo"
+            [value]="searchQuery()"
+            (input)="updateSearch($event)"
+          />
+        </label>
+      </div>
+      <div class="flex shrink-0 items-center gap-1 sm:gap-3">
+        <app-theme-toggle />
+        <span class="hidden text-right sm:block"><strong class="block text-label-lg">Administrador</strong><small class="text-body-sm text-ink-muted">Acesso completo</small></span>
+        <button type="button" class="rounded-control p-2" aria-label="Sair" (click)="logout()"><svg lucideLogOut class="size-5"></svg></button>
+      </div>
+    </header>
+
+    <main id="visao-geral" class="min-h-0 flex-1 overflow-y-auto px-4 pb-8 pt-8 sm:px-8 lg:px-10">
+      <div class="mx-auto max-w-[1500px]">
+      <nav class="mb-6 flex gap-2 overflow-x-auto rounded-container bg-surface p-2 shadow-1 lg:hidden" aria-label="Navegação administrativa móvel">
+        <a href="#visao-geral" class="shrink-0 rounded-control bg-primary px-3 py-2 text-label-md text-on-primary">Visão geral</a>
+        <a href="#usuarios" class="shrink-0 rounded-control px-3 py-2 text-label-md text-ink-muted hover:bg-surface-muted">Usuários</a>
+        <a href="#pacientes" class="shrink-0 rounded-control px-3 py-2 text-label-md text-ink-muted hover:bg-surface-muted">Pacientes</a>
+        <a href="#nutricionistas" class="shrink-0 rounded-control px-3 py-2 text-label-md text-ink-muted hover:bg-surface-muted">Nutricionistas</a>
+        <a href="#alimentos" class="shrink-0 rounded-control px-3 py-2 text-label-md text-ink-muted hover:bg-surface-muted">Alimentos</a>
+      </nav>
+      @if (failure(); as failure) { <app-alert tone="danger" class="mb-6">{{ failure.message }}</app-alert> }
+      <div class="mb-8">
+        <p class="text-body-sm text-ink-muted">Painel administrativo</p>
+        <h1 class="mt-1 text-display-lg-mobile text-ink sm:text-display-lg">Visão Geral</h1>
+        <p class="mt-2 text-body-lg text-ink-muted">Acompanhe a saúde e a operação do NogVita.</p>
+      </div>
+
+      <section class="grid gap-4 sm:grid-cols-2 xl:grid-cols-5" aria-label="Resumo administrativo">
+        <article class="rounded-container bg-surface p-5 shadow-1">
+          <div class="mb-5 flex items-center justify-between"><span class="rounded-control bg-primary-fixed p-2 text-on-primary-fixed"><svg lucideUsers class="size-5"></svg></span><svg lucideActivity class="size-5 text-success"></svg></div>
+          <span class="text-label-md uppercase tracking-wider text-ink-muted">Total de usuários</span><strong class="mt-2 block text-3xl">{{ users().length }}</strong><span class="mt-1 block text-body-sm text-success-ink">{{ activeUsers() }} ativos</span>
+        </article>
+        <article id="pacientes" class="rounded-container bg-surface p-5 shadow-1">
+          <div class="mb-5 flex items-center justify-between"><span class="rounded-control bg-info-soft p-2 text-info-ink"><svg lucideUserRound class="size-5"></svg></span><span class="text-body-sm text-ink-muted">Cadastros</span></div>
+          <span class="text-label-md uppercase tracking-wider text-ink-muted">Pacientes</span><strong class="mt-2 block text-3xl">{{ patients() }}</strong><span class="mt-1 block text-body-sm text-ink-muted">contas registradas</span>
+        </article>
+        <article id="nutricionistas" class="rounded-container bg-surface p-5 shadow-1">
+          <div class="mb-5 flex items-center justify-between"><span class="rounded-control bg-success-soft p-2 text-success-ink"><svg lucideClipboardList class="size-5"></svg></span><span class="text-body-sm text-success-ink">Homologados</span></div>
+          <span class="text-label-md uppercase tracking-wider text-ink-muted">Nutricionistas</span><strong class="mt-2 block text-3xl">{{ nutritionists() }}</strong><span class="mt-1 block text-body-sm text-ink-muted">perfis cadastrados</span>
+        </article>
+        <article class="rounded-container bg-surface p-5 shadow-1">
+          <div class="mb-5 flex items-center justify-between"><span class="rounded-control bg-warning-soft p-2 text-warning-ink"><svg lucideActivity class="size-5"></svg></span><span class="rounded-pill bg-warning-soft px-2 py-1 text-label-sm text-warning-ink">Atenção</span></div>
+          <span class="text-label-md uppercase tracking-wider text-ink-muted">Pendentes</span><strong class="mt-2 block text-3xl">—</strong><span class="mt-1 block text-body-sm text-ink-muted">convites e análises</span>
+        </article>
+        <article id="alimentos" class="rounded-container bg-surface p-5 shadow-1">
+          <div class="mb-5 flex items-center justify-between"><span class="rounded-control bg-primary-fixed p-2 text-on-primary-fixed"><svg lucideUtensils class="size-5"></svg></span><span class="text-body-sm text-ink-muted">Catálogo</span></div>
+          <span class="text-label-md uppercase tracking-wider text-ink-muted">Base alimentos</span><strong class="mt-2 block text-3xl">—</strong><span class="mt-1 block text-body-sm text-ink-muted">dados disponíveis na API</span>
+        </article>
+      </section>
+
+      <div class="mt-6 grid gap-6 xl:grid-cols-[minmax(0,1.7fr)_minmax(300px,1fr)]">
+        <section id="usuarios" class="rounded-container bg-surface p-6 shadow-1">
+          <div class="mb-5 flex flex-wrap items-center justify-between gap-3">
+            <div><h2 class="text-headline-lg">Usuários recentes</h2><p class="mt-1 text-body-sm text-ink-muted">Contas criadas e seus níveis de acesso.</p></div>
+            <span class="rounded-pill bg-surface-muted px-3 py-1 text-label-sm text-ink-muted">Atualizado agora</span>
+          </div>
+          @if (loading()) { <div class="h-48 animate-pulse rounded-control bg-surface-muted"></div> } @else {
+            <div class="overflow-x-auto"><table class="w-full min-w-[650px] text-left text-body-md"><thead><tr class="border-b border-divider text-label-md uppercase tracking-wider text-ink-muted"><th class="p-3">Usuário</th><th class="p-3">Acessos</th><th class="p-3">Cadastro</th><th class="p-3">Status</th></tr></thead><tbody>@for (user of filteredUsers(); track user.id) { <tr class="border-b border-divider last:border-0"><td class="p-3"><strong class="block">{{ user.name }}</strong><span class="text-body-sm text-ink-muted">{{ user.email }}</span></td><td class="p-3"><div class="flex flex-wrap gap-1">@if (user.isAdmin) { <span class="rounded-pill bg-primary-fixed px-2 py-1 text-label-sm text-on-primary-fixed">Admin</span> } @if (user.isNutritionist) { <span class="rounded-pill bg-success-soft px-2 py-1 text-label-sm text-success-ink">Nutri</span> } @if (user.isPatient) { <span class="rounded-pill bg-info-soft px-2 py-1 text-label-sm text-info-ink">Paciente</span> }</div></td><td class="p-3 text-ink-muted">{{ user.createdAt | date:'dd/MM/yyyy' }}</td><td class="p-3"><span [class]="user.isActive ? 'text-success-ink' : 'text-ink-muted'">{{ user.isActive ? 'Ativo' : 'Inativo' }}</span></td></tr> } @empty { <tr><td colspan="4" class="p-6 text-center text-ink-muted">Nenhum usuário encontrado.</td></tr> }</tbody></table></div>
+          }
+        </section>
+
+        <aside class="flex flex-col gap-6">
+          <section class="rounded-container bg-surface p-6 shadow-1">
+            <div class="mb-5 flex items-center justify-between"><h2 class="text-headline-lg">Atividade</h2><svg lucideActivity class="size-5 text-primary"></svg></div>
+            <div class="flex flex-col gap-4 text-body-md"><div class="flex gap-3"><span class="mt-1 size-2 shrink-0 rounded-full bg-success"></span><p><strong>Sistema operacional</strong><span class="block text-body-sm text-ink-muted">API e serviços respondendo normalmente</span></p></div><div class="flex gap-3"><span class="mt-1 size-2 shrink-0 rounded-full bg-primary"></span><p><strong>{{ activeUsers() }} contas ativas</strong><span class="block text-body-sm text-ink-muted">usuários com acesso liberado</span></p></div><div class="flex gap-3"><span class="mt-1 size-2 shrink-0 rounded-full bg-info"></span><p><strong>Auditoria protegida</strong><span class="block text-body-sm text-ink-muted">Acesso administrativo registrado</span></p></div></div>
+          </section>
+          <section class="rounded-container bg-surface p-6 shadow-1">
+            <h2 class="mb-4 text-headline-lg">Ações rápidas</h2>
+            <div class="grid gap-2"><a href="#usuarios" class="flex items-center gap-3 rounded-control bg-surface-muted p-3 hover:bg-primary-fixed"><svg lucideUsers class="size-5 text-primary"></svg><span class="text-label-lg">Gerenciar usuários</span></a><a href="#nutricionistas" class="flex items-center gap-3 rounded-control bg-surface-muted p-3 hover:bg-primary-fixed"><svg lucideClipboardList class="size-5 text-primary"></svg><span class="text-label-lg">Revisar nutricionistas</span></a><a href="#alimentos" class="flex items-center gap-3 rounded-control bg-surface-muted p-3 hover:bg-primary-fixed"><svg lucideUtensils class="size-5 text-primary"></svg><span class="text-label-lg">Auditar alimentos</span></a></div>
+          </section>
+        </aside>
+      </div>
+      </div>
+    </main>
+  </div>
+</div>

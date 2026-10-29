@@ -1,0 +1,247 @@
+@if (successMessage(); as message) {
+  <div class="flex flex-col items-center gap-5 text-center">
+    <app-logo class="h-10" priority />
+    <div class="flex flex-col gap-2">
+      <h1 class="text-headline-lg text-ink">Confira seu e-mail</h1>
+      <p class="text-body-md text-ink-muted">{{ message }}</p>
+    </div>
+    <div class="flex w-full flex-col gap-3">
+      <a
+        routerLink="/login"
+        class="inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-control bg-primary px-5 py-2 text-label-lg font-semibold text-on-primary shadow-1"
+      >
+        Ir para o login
+        <svg lucideArrowRight class="size-5"></svg>
+      </a>
+      <p class="text-body-sm text-ink-muted">
+        Não recebeu a mensagem? Confira a caixa de spam.
+      </p>
+    </div>
+  </div>
+} @else {
+  <div class="flex flex-col items-center gap-3 text-center">
+    <app-logo class="h-10" priority />
+    <div class="flex flex-col gap-1">
+      <h1 class="text-headline-lg text-ink">Crie sua conta de paciente</h1>
+      <p class="mx-auto max-w-sm text-body-md text-ink-muted">
+        Inicie sua jornada de saúde e nutrição personalizada com acompanhamento inteligente.
+      </p>
+    </div>
+  </div>
+
+  @if (failure(); as failure) {
+    <app-alert tone="danger">
+      {{ failure.message }}
+      @if (failure.traceId) {
+        <span class="mt-1 block text-body-sm opacity-80">Código do erro: {{ failure.traceId }}</span>
+      }
+    </app-alert>
+  }
+
+  <form [formRoot]="registerForm" class="flex flex-col gap-4">
+    <section class="flex flex-col gap-4 rounded-container bg-surface-raised p-4 shadow-1">
+      <div class="flex items-center gap-2">
+        <span class="h-4 w-2 rounded-full bg-primary" aria-hidden="true"></span>
+        <h2 class="text-title-md text-ink">1. Dados pessoais</h2>
+        <span class="ml-auto rounded-pill bg-surface-muted px-2 py-0.5 text-label-sm text-ink-muted">
+          Essencial
+        </span>
+      </div>
+
+      <app-field label="Nome completo">
+        <svg lucideUserRound class="pointer-events-none absolute left-3 size-5 text-ink-muted"></svg>
+        <input
+          appInput
+          [formField]="registerForm.name"
+          type="text"
+          autocomplete="name"
+          placeholder="Ex.: Mariana Silva e Castro"
+          class="pl-10"
+        />
+      </app-field>
+
+      <app-field label="E-mail">
+        <svg lucideMail class="pointer-events-none absolute left-3 size-5 text-ink-muted"></svg>
+        <input
+          appInput
+          [formField]="registerForm.email"
+          type="email"
+          inputmode="email"
+          autocomplete="email"
+          placeholder="seu.email@exemplo.com"
+          class="pl-10"
+        />
+      </app-field>
+
+      <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
+        <app-field label="CPF">
+          <svg lucideBadge class="pointer-events-none absolute left-3 size-5 text-ink-muted"></svg>
+          <input
+            appInput
+            [formField]="registerForm.cpf"
+            type="text"
+            inputmode="numeric"
+            autocomplete="off"
+            placeholder="000.000.000-00"
+            class="pl-10"
+            (input)="formatCpf($event)"
+          />
+        </app-field>
+        <app-field label="Nascimento">
+          <input
+            appInput
+            [formField]="registerForm.birthDate"
+            type="text"
+            inputmode="numeric"
+            autocomplete="bday"
+            placeholder="dd/mm/aaaa"
+            class="pr-3 pl-10"
+            (input)="formatBirthDate($event)"
+          />
+          <button
+            type="button"
+            class="absolute left-1 inline-flex size-10 items-center justify-center rounded-control text-ink-muted hover:text-ink"
+            aria-label="Abrir seletor de data de nascimento"
+            (click)="openBirthDatePicker(birthDatePicker)"
+          >
+            <svg lucideCalendarDays class="size-5"></svg>
+          </button>
+          <input
+            #birthDatePicker
+            type="date"
+            tabindex="-1"
+            aria-hidden="true"
+            class="pointer-events-none absolute size-px opacity-0"
+            [max]="maxBirthDate()"
+            (change)="setBirthDateFromPicker($event)"
+          />
+        </app-field>
+      </div>
+
+      <div class="grid grid-cols-1 items-end gap-4 sm:grid-cols-2">
+        <fieldset class="flex flex-col gap-1.5">
+          <legend class="text-label-md text-ink">Sexo biológico</legend>
+          <div class="flex h-11 gap-1 rounded-control bg-surface-muted p-1">
+            @for (sex of sexOptions; track sex.value) {
+              <button
+                type="button"
+                class="flex-1 rounded text-label-md transition-colors"
+                [class.bg-surface-raised]="isSexSelected(sex.value)"
+                [class.text-link]="isSexSelected(sex.value)"
+                [class.font-semibold]="isSexSelected(sex.value)"
+                [attr.aria-pressed]="isSexSelected(sex.value)"
+                (click)="selectSex(sex.value)"
+              >
+                {{ sex.label }}
+              </button>
+            }
+          </div>
+        </fieldset>
+        <app-field label="Altura">
+          <svg lucideRuler class="pointer-events-none absolute left-3 size-5 text-ink-muted"></svg>
+          <input
+            appInput
+            [formField]="registerForm.heightInCm"
+            type="number"
+            inputmode="numeric"
+            placeholder="170"
+            class="pl-10 pr-12"
+            (input)="formatHeight($event)"
+          />
+          <span class="pointer-events-none absolute right-3 text-label-sm text-ink-muted">cm</span>
+        </app-field>
+      </div>
+    </section>
+
+    <section class="flex flex-col gap-3 rounded-container bg-surface-raised p-4 shadow-1">
+      <div class="flex items-center gap-2">
+        <span class="h-4 w-2 rounded-full bg-primary" aria-hidden="true"></span>
+        <h2 class="text-title-md text-ink">2. Objetivo nutricional</h2>
+      </div>
+      <p class="text-body-sm text-ink-muted">Qual é a sua principal meta de saúde no momento?</p>
+      <div class="grid grid-cols-1 gap-2 sm:grid-cols-3">
+        @for (goal of goalOptions; track goal.value) {
+          <button
+            type="button"
+            class="flex min-h-24 flex-col items-center justify-center gap-2 rounded-container bg-surface-muted p-3 text-center transition-colors hover:bg-soft/30"
+            [class.bg-info-soft]="isGoalSelected(goal.value)"
+            [class.ring-2]="isGoalSelected(goal.value)"
+            [class.ring-primary]="isGoalSelected(goal.value)"
+            [attr.aria-pressed]="isGoalSelected(goal.value)"
+            (click)="selectGoal(goal.value)"
+          >
+            @switch (goal.icon) {
+              @case ('goal') { <svg lucideGoal class="size-6 text-primary"></svg> }
+              @case ('scale') { <svg lucideScale class="size-6 text-primary"></svg> }
+              @default { <svg lucideDumbbell class="size-6 text-primary"></svg> }
+            }
+            <span class="text-label-md text-ink">{{ goal.label }}</span>
+            @if (isGoalSelected(goal.value)) {
+              <span class="text-label-sm text-link">Meta foco</span>
+            }
+          </button>
+        }
+      </div>
+    </section>
+
+    <section class="flex flex-col gap-3 rounded-container bg-surface-raised p-4 shadow-1">
+      <div class="flex items-center gap-2">
+        <span class="h-4 w-2 rounded-full bg-primary" aria-hidden="true"></span>
+        <h2 class="text-title-md text-ink">3. Segurança e senha</h2>
+        <span class="ml-auto text-label-sm text-ink-muted">{{ passwordLength() }}/15 caracteres</span>
+      </div>
+      <app-field label="Senha segura" hint="Use uma frase longa e fácil de lembrar. Não é necessário usar símbolos.">
+        <svg lucideLock class="pointer-events-none absolute left-3 size-5 text-ink-muted"></svg>
+        <input
+          appInput
+          [formField]="registerForm.password"
+          [type]="showPassword() ? 'text' : 'password'"
+          autocomplete="new-password"
+          placeholder="Crie sua frase-senha"
+          class="pr-12 pl-10"
+        />
+        <button
+          type="button"
+          class="absolute right-1 inline-flex size-10 items-center justify-center rounded-control text-ink-muted hover:text-ink"
+          [attr.aria-label]="showPassword() ? 'Ocultar senha' : 'Mostrar senha'"
+          [attr.aria-pressed]="showPassword()"
+          (click)="togglePassword()"
+        >
+          @if (showPassword()) { <svg lucideEyeOff class="size-5"></svg> }
+          @else { <svg lucideEye class="size-5"></svg> }
+        </button>
+      </app-field>
+      <div class="h-1.5 overflow-hidden rounded-pill bg-surface-muted" aria-hidden="true">
+        <div class="h-full bg-primary transition-[width]" [style.width.%]="passwordProgress()"></div>
+      </div>
+    </section>
+
+    <button appButton type="submit" block [loading]="registerForm().submitting()">
+      Criar conta
+      <svg lucideArrowRight class="size-5"></svg>
+    </button>
+    <p class="text-center text-body-sm text-ink-muted">
+      Ao prosseguir, você concorda com os
+      <a
+        href="/legal/termos-de-uso.pdf"
+        target="_blank"
+        rel="noopener noreferrer"
+        class="font-medium text-link hover:underline"
+        >Termos de Uso</a
+      >
+      e a
+      <a
+        href="/legal/politica-de-privacidade.pdf"
+        target="_blank"
+        rel="noopener noreferrer"
+        class="font-medium text-link hover:underline"
+        >Política de Privacidade</a
+      >
+      do NogVita.
+    </p>
+    <p class="text-center text-body-md text-ink-muted">
+      Já tem uma conta de paciente?
+      <a routerLink="/login" class="font-semibold text-link hover:underline">Entrar</a>
+    </p>
+  </form>
+}
