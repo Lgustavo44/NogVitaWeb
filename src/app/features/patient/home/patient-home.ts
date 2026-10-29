@@ -4,12 +4,21 @@ import { LucideClock, LucideStethoscope, LucideTarget, LucideUtensils } from '@l
 import { isNotFound } from '../../../core/http/resource-status';
 import { BIOLOGICAL_SEX_LABELS, GOAL_LABELS } from '../../../shared/domain/patient-enums';
 import { LoadError } from '../../../shared/ui/load-error/load-error';
+import { PageHeader } from '../../../shared/ui/page-header/page-header';
 import { careRelationshipResource, currentPlanResource } from '../patient-api';
 import { PatientProfileStore } from '../patient-profile-store';
 
 @Component({
   selector: 'app-patient-home',
-  imports: [DatePipe, LoadError, LucideClock, LucideStethoscope, LucideTarget, LucideUtensils],
+  imports: [
+    DatePipe,
+    LoadError,
+    PageHeader,
+    LucideClock,
+    LucideStethoscope,
+    LucideTarget,
+    LucideUtensils,
+  ],
   host: { class: 'flex flex-col gap-6' },
   templateUrl: './patient-home.html',
 })
@@ -20,7 +29,6 @@ export class PatientHome {
 
   protected readonly goalLabels = GOAL_LABELS;
   protected readonly sexLabels = BIOLOGICAL_SEX_LABELS;
-  protected readonly today = new Date();
 
   protected readonly firstName = computed(() =>
     this.profile.hasValue() ? this.profile.value().name.split(' ')[0] : null,

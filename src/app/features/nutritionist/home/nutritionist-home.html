@@ -1,18 +1,13 @@
-<header class="flex flex-col gap-1">
-  <p class="text-body-sm text-ink-muted">Área do nutricionista</p>
-  @if (firstName(); as firstName) {
-    <h1 class="text-headline-xl text-ink sm:text-display-lg-mobile">Olá, {{ firstName }}!</h1>
-  } @else {
-    <h1 class="text-headline-xl text-ink sm:text-display-lg-mobile">Olá!</h1>
-  }
-  @if (profile.hasValue()) {
-    <p class="text-body-lg text-ink-muted">
-      CRN-{{ profile.value().crnRegion }} {{ profile.value().crnNumber }}
-    </p>
-  } @else if (profile.error()) {
+<app-page-header
+  badge="Consultório digital"
+  [title]="firstName() ? 'Olá, ' + firstName() + '!' : 'Olá!'"
+  subtitle="Aqui está o resumo dos seus pacientes e das novas solicitações de acompanhamento."
+  wave
+>
+  @if (profile.error()) {
     <app-load-error [error]="profile.error()" (retry)="profile.reload()" />
   }
-</header>
+</app-page-header>
 
 <section class="grid gap-4 sm:grid-cols-2" aria-label="Resumo">
   <div class="flex items-center gap-4 rounded-container bg-surface p-5 shadow-1">

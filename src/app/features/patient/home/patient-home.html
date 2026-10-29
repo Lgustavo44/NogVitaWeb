@@ -1,12 +1,9 @@
-<header class="flex flex-col gap-1">
-  <p class="text-body-sm text-ink-muted">Hoje, {{ today | date: "d 'de' MMMM" }}</p>
-  @if (firstName(); as firstName) {
-    <h1 class="text-headline-xl text-ink sm:text-display-lg-mobile">Olá, {{ firstName }}!</h1>
-  } @else {
-    <h1 class="text-headline-xl text-ink sm:text-display-lg-mobile">Olá!</h1>
-  }
-  <p class="text-body-lg text-ink-muted">Acompanhe sua jornada de saúde e nutrição.</p>
-</header>
+<app-page-header
+  badge="Painel do paciente"
+  [title]="firstName() ? 'Olá, ' + firstName() + '!' : 'Olá!'"
+  subtitle="Que bom ter você aqui. Confira seu acompanhamento, seu objetivo e o seu plano alimentar."
+  wave
+/>
 
 <div class="grid gap-6 lg:grid-cols-2">
   <!-- Nutricionista -->

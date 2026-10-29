@@ -1,8 +1,8 @@
-<header class="flex flex-col gap-1">
-  <p class="text-body-sm text-ink-muted">Administração</p>
-  <h1 class="text-headline-xl text-ink sm:text-display-lg-mobile">Painel</h1>
-  <p class="text-body-lg text-ink-muted">Visão geral das contas da plataforma.</p>
-</header>
+<app-page-header
+  badge="Painel administrativo"
+  title="Visão geral do sistema"
+  subtitle="Números consolidados de usuários, pacientes e nutricionistas da plataforma."
+/>
 
 <section class="grid grid-cols-2 gap-4 lg:grid-cols-4" aria-label="Totais">
   @for (total of totals; track total.label) {

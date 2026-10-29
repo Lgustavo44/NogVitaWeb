@@ -9,13 +9,14 @@ import {
   LucideUsers,
 } from '@lucide/angular';
 import { LoadError } from '../../../shared/ui/load-error/load-error';
+import { PageHeader } from '../../../shared/ui/page-header/page-header';
 import { adminTotalResource, adminUsersResource } from '../admin-api';
 
 const SEARCH_DEBOUNCE_MS = 350;
 
 @Component({
   selector: 'app-admin-home',
-  imports: [DatePipe, LoadError, LucideDynamicIcon, LucideSearch],
+  imports: [DatePipe, LoadError, PageHeader, LucideDynamicIcon, LucideSearch],
   host: { class: 'flex flex-col gap-6' },
   templateUrl: './admin-home.html',
 })
