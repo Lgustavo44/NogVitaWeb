@@ -4,7 +4,11 @@ import { RouterLink } from '@angular/router';
 import {
   LucideBadgeCheck,
   LucideCalendarDays,
+  LucideClipboardList,
+  LucideClock3,
+  LucideMapPin,
   LucideSearch,
+  LucideShieldCheck,
   LucideTriangleAlert,
   LucideUserX,
 } from '@lucide/angular';
@@ -28,7 +32,11 @@ import { PatientApi, careRelationshipResource } from '../patient-api';
     LoadError,
     LucideBadgeCheck,
     LucideCalendarDays,
+    LucideClipboardList,
+    LucideClock3,
+    LucideMapPin,
     LucideSearch,
+    LucideShieldCheck,
     LucideTriangleAlert,
     LucideUserX,
     Modal,

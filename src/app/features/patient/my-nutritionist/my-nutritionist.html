@@ -36,61 +36,136 @@
 } @else if (care.error()) {
   <app-load-error [error]="care.error()" (retry)="care.reload()" />
 } @else if (care.hasValue()) {
-  <section
-    class="flex flex-col gap-5 rounded-container bg-surface p-5 shadow-1 sm:p-6"
-    aria-labelledby="nutri-nome"
-  >
-    <div class="flex flex-col gap-4 sm:flex-row sm:items-center">
-      <span
-        class="flex size-20 shrink-0 items-center justify-center rounded-full bg-soft text-headline-lg text-on-soft"
+  <div class="grid gap-6 lg:grid-cols-[minmax(0,1.7fr)_minmax(18rem,0.8fr)]">
+    <section
+      class="relative flex flex-col gap-6 overflow-hidden rounded-container bg-surface p-5 shadow-2 sm:p-7"
+      aria-labelledby="nutri-nome"
+    >
+      <div
+        class="pointer-events-none absolute -top-24 -right-24 size-64 rounded-full bg-primary/10 blur-3xl"
         aria-hidden="true"
-      >
-        {{ care.value().nutritionistName.charAt(0) }}
-      </span>
-      <div class="flex min-w-0 flex-col gap-1">
-        <span
-          class="inline-flex w-fit items-center gap-1.5 rounded-pill bg-success-soft px-3 py-1 text-label-sm text-success-ink uppercase"
-        >
-          <svg lucideBadgeCheck class="size-4"></svg>
-          Acompanhamento ativo
-        </span>
-        <h2 id="nutri-nome" class="text-headline-lg text-ink">
-          {{ care.value().nutritionistName }}
-        </h2>
-        <p class="text-body-md text-link">
-          CRN-{{ care.value().crnRegion }} {{ care.value().crnNumber }}
-        </p>
-        <p class="flex items-center gap-1.5 text-body-sm text-ink-muted">
-          <svg lucideCalendarDays class="size-4"></svg>
-          Em acompanhamento desde {{ care.value().startedAtUtc | date: 'dd/MM/yyyy' }}
-        </p>
-      </div>
-    </div>
-    <div class="flex flex-col gap-1.5">
-      <h3 class="text-label-md text-ink-muted uppercase">Apresentação</h3>
-      @if (care.value().bio) {
-        <p class="text-body-md whitespace-pre-line text-ink">{{ care.value().bio }}</p>
-      } @else {
-        <p class="text-body-md text-ink-muted italic">Sem apresentação.</p>
-      }
-    </div>
-  </section>
+      ></div>
+      <div class="relative flex flex-col gap-5">
+        <div class="flex flex-col gap-4 sm:flex-row sm:items-center">
+          <div
+            class="relative flex size-24 shrink-0 items-center justify-center rounded-container bg-sidebar text-display-lg font-bold text-on-sidebar shadow-1"
+          >
+            {{ care.value().nutritionistName.charAt(0) }}
+            <span
+              class="absolute -right-2 -bottom-2 flex size-9 items-center justify-center rounded-full bg-surface shadow-1"
+              aria-label="Nutricionista verificado"
+            >
+              <span
+                class="flex size-7 items-center justify-center rounded-full bg-primary text-on-primary"
+              >
+                <svg lucideShieldCheck class="size-4"></svg>
+              </span>
+            </span>
+          </div>
+          <div class="min-w-0">
+            <div class="flex flex-wrap items-center gap-2">
+              <span
+                class="inline-flex items-center gap-1.5 rounded-pill bg-success-soft px-2.5 py-1 text-label-sm font-semibold text-success-ink uppercase"
+              >
+                <span class="size-1.5 rounded-full bg-success"></span>
+                Acompanhamento ativo
+              </span>
+              <span class="rounded-pill bg-surface-muted px-2.5 py-1 text-label-sm text-ink-muted">
+                CRN-{{ care.value().crnRegion }} {{ care.value().crnNumber }}
+              </span>
+            </div>
+            <h2 id="nutri-nome" class="mt-2 text-headline-xl text-ink">
+              {{ care.value().nutritionistName }}
+            </h2>
+            <p class="mt-1 flex items-center gap-1.5 text-body-sm text-ink-muted">
+              <svg lucideMapPin class="size-4 text-link"></svg>
+              Profissional de nutrição do NogVita
+            </p>
+          </div>
+        </div>
 
-  <section
-    class="flex flex-col gap-3 rounded-container border border-danger/30 bg-surface p-5 sm:flex-row sm:items-center sm:justify-between"
-    aria-labelledby="encerrar-titulo"
-  >
-    <div>
-      <h2 id="encerrar-titulo" class="text-label-lg text-ink">Mudança no acompanhamento</h2>
-      <p class="text-body-sm text-ink-muted">
-        Ao encerrar, você poderá pedir acompanhamento a outro nutricionista.
-      </p>
-    </div>
-    <button appButton variant="danger" type="button" (click)="openConfirm()">
-      <svg lucideUserX class="size-5"></svg>
-      Encerrar acompanhamento
-    </button>
-  </section>
+        <div class="grid gap-3 rounded-container bg-surface-muted p-4 sm:grid-cols-2">
+          <div class="flex flex-col gap-1">
+            <span class="text-label-sm text-ink-muted uppercase">Início do acompanhamento</span>
+            <span class="flex items-center gap-1.5 text-label-lg font-semibold text-ink">
+              <svg lucideCalendarDays class="size-4 text-link"></svg>
+              {{ care.value().startedAtUtc | date: 'dd/MM/yyyy' }}
+            </span>
+          </div>
+          <div class="flex flex-col gap-1">
+            <span class="text-label-sm text-ink-muted uppercase">Status do vínculo</span>
+            <span class="flex items-center gap-1.5 text-label-lg font-semibold text-success-ink">
+              <svg lucideClock3 class="size-4"></svg>
+              Em acompanhamento
+            </span>
+          </div>
+        </div>
+
+        <div class="flex flex-col gap-2">
+          <h3 class="flex items-center gap-2 text-label-lg font-semibold text-ink uppercase">
+            <svg lucideClipboardList class="size-5 text-primary"></svg>
+            Apresentação profissional
+          </h3>
+          @if (care.value().bio) {
+            <p class="text-body-md leading-relaxed whitespace-pre-line text-ink">
+              {{ care.value().bio }}
+            </p>
+          } @else {
+            <p class="text-body-md text-ink-muted italic">
+              O nutricionista ainda não adicionou uma apresentação.
+            </p>
+          }
+        </div>
+      </div>
+    </section>
+
+    <aside class="flex flex-col gap-4">
+      <section
+        class="flex flex-col gap-4 rounded-container bg-surface p-5 shadow-1"
+        aria-labelledby="acompanhamento-resumo"
+      >
+        <h2 id="acompanhamento-resumo" class="flex items-center gap-2 text-title-md text-ink">
+          <svg lucideBadgeCheck class="size-5 text-success-ink"></svg>
+          Seu acompanhamento
+        </h2>
+        <p class="text-body-md leading-relaxed text-ink-muted">
+          Seu nutricionista pode acompanhar sua evolução e disponibilizar planos alimentares
+          personalizados para sua rotina.
+        </p>
+        <div
+          class="flex items-start gap-3 rounded-control bg-info-soft p-3 text-body-sm text-info-ink"
+        >
+          <svg lucideClipboardList class="mt-0.5 size-4 shrink-0"></svg>
+          <span>Quando houver um plano ativo, ele aparecerá na área de plano alimentar.</span>
+        </div>
+      </section>
+
+      <section
+        class="flex flex-col gap-3 rounded-container border border-danger/30 bg-surface p-5"
+        aria-labelledby="encerrar-titulo"
+      >
+        <div class="flex items-start gap-3">
+          <span
+            class="flex size-10 shrink-0 items-center justify-center rounded-control bg-danger-soft text-danger-ink"
+          >
+            <svg lucideUserX class="size-5"></svg>
+          </span>
+          <div>
+            <h2 id="encerrar-titulo" class="text-label-lg font-semibold text-ink">
+              Mudança no acompanhamento
+            </h2>
+            <p class="mt-1 text-body-sm text-ink-muted">
+              Você poderá pedir acompanhamento a outro nutricionista.
+            </p>
+          </div>
+        </div>
+        <button appButton variant="danger" type="button" block (click)="openConfirm()">
+          <svg lucideUserX class="size-5"></svg>
+          Encerrar acompanhamento
+        </button>
+      </section>
+    </aside>
+  </div>
 
   @if (confirming()) {
     <app-modal
