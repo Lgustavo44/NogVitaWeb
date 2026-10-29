@@ -1,0 +1,5 @@
+# Finais de linha LF no repositório e no disco, para o Prettier não acusar CRLF no Windows
+* text=auto eol=lf
+*.ico binary
+*.png binary
+*.svg text eol=lf
