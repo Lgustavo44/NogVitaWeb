@@ -1,9 +1,11 @@
 import { Component, booleanAttribute, computed, input } from '@angular/core';
 import { LucideLoaderCircle } from '@lucide/angular';
 
-export type ButtonVariant = 'primary' | 'soft' | 'forest' | 'ghost';
+export type ButtonVariant = 'primary' | 'soft' | 'forest' | 'ghost' | 'danger';
 
 const VARIANT_CLASSES: Record<ButtonVariant, string> = {
+  /** Ações destrutivas (cancelar pedido, encerrar acompanhamento). */
+  danger: 'px-5 bg-danger-soft text-danger-ink hover:bg-danger/20',
   primary: 'px-5 bg-primary text-on-primary shadow-1 hover:bg-primary-hover',
   soft: 'px-5 bg-soft/30 text-soft-ink hover:bg-soft/50',
   forest: 'px-5 bg-forest text-on-forest hover:opacity-90',
