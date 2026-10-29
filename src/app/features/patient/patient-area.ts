@@ -38,8 +38,18 @@ export class PatientArea {
       icon: LucideUserSearch,
       link: '/paciente/encontrar-nutricionista',
     },
-    { label: 'Minhas solicitações', icon: LucideClipboardList },
-    { label: 'Meu nutricionista', shortLabel: 'Nutri', icon: LucideStethoscope, bottom: true },
+    {
+      label: 'Minhas solicitações',
+      icon: LucideClipboardList,
+      link: '/paciente/minhas-solicitacoes',
+    },
+    {
+      label: 'Meu nutricionista',
+      shortLabel: 'Nutri',
+      icon: LucideStethoscope,
+      link: '/paciente/meu-nutricionista',
+      bottom: true,
+    },
     {
       label: 'Meu perfil',
       shortLabel: 'Perfil',

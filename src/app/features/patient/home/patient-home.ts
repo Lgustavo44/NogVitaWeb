@@ -1,5 +1,6 @@
 import { DatePipe } from '@angular/common';
 import { Component, computed, inject } from '@angular/core';
+import { RouterLink } from '@angular/router';
 import { LucideClock, LucideStethoscope, LucideTarget, LucideUtensils } from '@lucide/angular';
 import { isNotFound } from '../../../core/http/resource-status';
 import { BIOLOGICAL_SEX_LABELS, GOAL_LABELS } from '../../../shared/domain/patient-enums';
@@ -14,6 +15,7 @@ import { PatientProfileStore } from '../patient-profile-store';
     DatePipe,
     LoadError,
     PageHeader,
+    RouterLink,
     LucideClock,
     LucideStethoscope,
     LucideTarget,

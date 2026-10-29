@@ -22,10 +22,13 @@
       ></div>
       <span class="sr-only">Carregando…</span>
     } @else if (careMissing()) {
-      <p class="text-body-md text-ink-muted">
-        Você ainda não está em acompanhamento. Em breve você poderá encontrar um nutricionista por
-        aqui.
-      </p>
+      <p class="text-body-md text-ink-muted">Você ainda não está em acompanhamento.</p>
+      <a
+        routerLink="/paciente/encontrar-nutricionista"
+        class="w-fit font-semibold text-link hover:underline"
+      >
+        Encontrar nutricionista
+      </a>
     } @else if (care.error()) {
       <app-load-error [error]="care.error()" (retry)="care.reload()" />
     } @else if (care.hasValue()) {

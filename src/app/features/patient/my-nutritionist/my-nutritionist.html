@@ -1,0 +1,141 @@
+<app-page-header
+  badge="Acompanhamento"
+  title="Meu nutricionista"
+  subtitle="O profissional que acompanha você e monta o seu plano alimentar."
+/>
+
+@if (care.isLoading() && !care.hasValue()) {
+  <div
+    class="h-56 rounded-container bg-surface-muted motion-safe:animate-pulse"
+    aria-hidden="true"
+  ></div>
+  <span class="sr-only" role="status">Carregando…</span>
+} @else if (withoutCare()) {
+  <section
+    class="flex flex-col items-center gap-4 rounded-container bg-surface p-8 text-center shadow-1 sm:p-10"
+  >
+    <span class="flex size-20 items-center justify-center rounded-full bg-soft/40">
+      <img src="/brand/mark.svg" alt="" width="56" height="56" class="size-14" />
+    </span>
+    <h2 class="text-headline-lg text-ink">Você ainda não tem nutricionista em acompanhamento</h2>
+    <p class="max-w-xl text-body-md text-ink-muted">
+      Com um nutricionista, você recebe um plano alimentar feito para o seu objetivo e para a sua
+      rotina.
+    </p>
+    <a
+      routerLink="/paciente/encontrar-nutricionista"
+      class="inline-flex min-h-11 items-center gap-2 rounded-control bg-primary px-5 text-label-lg font-semibold text-on-primary shadow-1 hover:bg-primary-hover"
+    >
+      <svg lucideSearch class="size-5"></svg>
+      Encontrar nutricionista
+    </a>
+    <a routerLink="/paciente/minhas-solicitacoes" class="text-label-lg text-link hover:underline">
+      Ver minhas solicitações
+    </a>
+  </section>
+} @else if (care.error()) {
+  <app-load-error [error]="care.error()" (retry)="care.reload()" />
+} @else if (care.hasValue()) {
+  <section
+    class="flex flex-col gap-5 rounded-container bg-surface p-5 shadow-1 sm:p-6"
+    aria-labelledby="nutri-nome"
+  >
+    <div class="flex flex-col gap-4 sm:flex-row sm:items-center">
+      <span
+        class="flex size-20 shrink-0 items-center justify-center rounded-full bg-soft text-headline-lg text-on-soft"
+        aria-hidden="true"
+      >
+        {{ care.value().nutritionistName.charAt(0) }}
+      </span>
+      <div class="flex min-w-0 flex-col gap-1">
+        <span
+          class="inline-flex w-fit items-center gap-1.5 rounded-pill bg-success-soft px-3 py-1 text-label-sm text-success-ink uppercase"
+        >
+          <svg lucideBadgeCheck class="size-4"></svg>
+          Acompanhamento ativo
+        </span>
+        <h2 id="nutri-nome" class="text-headline-lg text-ink">
+          {{ care.value().nutritionistName }}
+        </h2>
+        <p class="text-body-md text-link">
+          CRN-{{ care.value().crnRegion }} {{ care.value().crnNumber }}
+        </p>
+        <p class="flex items-center gap-1.5 text-body-sm text-ink-muted">
+          <svg lucideCalendarDays class="size-4"></svg>
+          Em acompanhamento desde {{ care.value().startedAtUtc | date: 'dd/MM/yyyy' }}
+        </p>
+      </div>
+    </div>
+    <div class="flex flex-col gap-1.5">
+      <h3 class="text-label-md text-ink-muted uppercase">Apresentação</h3>
+      @if (care.value().bio) {
+        <p class="text-body-md whitespace-pre-line text-ink">{{ care.value().bio }}</p>
+      } @else {
+        <p class="text-body-md text-ink-muted italic">Sem apresentação.</p>
+      }
+    </div>
+  </section>
+
+  <section
+    class="flex flex-col gap-3 rounded-container border border-danger/30 bg-surface p-5 sm:flex-row sm:items-center sm:justify-between"
+    aria-labelledby="encerrar-titulo"
+  >
+    <div>
+      <h2 id="encerrar-titulo" class="text-label-lg text-ink">Mudança no acompanhamento</h2>
+      <p class="text-body-sm text-ink-muted">
+        Ao encerrar, você poderá pedir acompanhamento a outro nutricionista.
+      </p>
+    </div>
+    <button appButton variant="danger" type="button" (click)="openConfirm()">
+      <svg lucideUserX class="size-5"></svg>
+      Encerrar acompanhamento
+    </button>
+  </section>
+
+  @if (confirming()) {
+    <app-modal
+      heading="Encerrar acompanhamento?"
+      [subtitle]="
+        care.value().nutritionistName +
+        ' · CRN-' +
+        care.value().crnRegion +
+        ' ' +
+        care.value().crnNumber
+      "
+      size="sm"
+      alert
+      [busy]="ending()"
+      (closed)="closeConfirm()"
+    >
+      <span
+        modalIcon
+        class="flex size-10 shrink-0 items-center justify-center rounded-full bg-danger-soft text-danger-ink"
+      >
+        <svg lucideTriangleAlert class="size-5"></svg>
+      </span>
+      <p class="text-body-md text-ink-muted">
+        O acompanhamento com
+        <strong class="text-ink">{{ care.value().nutritionistName }}</strong> será encerrado. Esta
+        ação não pode ser desfeita: para voltar, será preciso enviar um novo pedido.
+      </p>
+      @if (endError(); as error) {
+        <app-alert tone="danger">{{ error }}</app-alert>
+      }
+      <ng-container modalActions>
+        <button
+          appButton
+          variant="soft"
+          type="button"
+          cdkFocusInitial
+          [disabled]="ending()"
+          (click)="closeConfirm()"
+        >
+          Manter acompanhamento
+        </button>
+        <button appButton variant="danger" type="button" [loading]="ending()" (click)="endCare()">
+          Sim, encerrar
+        </button>
+      </ng-container>
+    </app-modal>
+  }
+}
