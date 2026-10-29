@@ -1,0 +1,12 @@
+{
+  "/api": {
+    "target": "https://nogvitaapi.onrender.com",
+    "secure": true,
+    "changeOrigin": true
+  },
+  "/health": {
+    "target": "https://nogvitaapi.onrender.com",
+    "secure": true,
+    "changeOrigin": true
+  }
+}

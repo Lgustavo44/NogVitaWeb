@@ -64,7 +64,8 @@
               "buildTarget": "nogvita-web:build:production"
             },
             "development": {
-              "buildTarget": "nogvita-web:build:development"
+              "buildTarget": "nogvita-web:build:development",
+              "proxyConfig": "proxy.conf.json"
             }
           },
           "defaultConfiguration": "development"
