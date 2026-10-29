@@ -6,18 +6,18 @@ Front-end em Angular do **NogVita**, uma plataforma de nutrição que conecta pa
 
 As telas estão sendo construídas uma por vez, de ponta a ponta (visual, integração com a API e testes).
 
-| Tela                                                                                                  | Situação                         |
-| ----------------------------------------------------------------------------------------------------- | -------------------------------- |
-| Login, cadastro do paciente, esqueci/redefinir senha, confirmação de e-mail, convite do nutricionista | Prontas                          |
-| Escolha de área (contas com mais de um papel)                                                         | Pronta                           |
-| Início do paciente, do nutricionista e do admin                                                       | Prontos, com dados reais da API  |
-| Perfis do paciente e do nutricionista                                                                 | Prontos                          |
-| Paciente: encontrar nutricionista, minhas solicitações, meu nutricionista, meu peso                   | Prontas                          |
-| Nutricionista: solicitações, meus pacientes e detalhe do paciente (com o peso)                        | Prontas                          |
-| Nutricionista: alimentos (busca TACO/Open Food Facts, ficha e importação por código de barras)        | Prontas                          |
-| Nutricionista: planos alimentares (criar, refeições, alimentos, meta diária, ativar/finalizar, PDF)   | Prontas                          |
-| Paciente: plano alimentar (atual e anteriores, baixar PDF, receber por e-mail)                        | Prontas                          |
-| Telas do admin                                                                                        | Aparecem no menu como "Em breve" |
+| Tela                                                                                                  | Situação                        |
+| ----------------------------------------------------------------------------------------------------- | ------------------------------- |
+| Login, cadastro do paciente, esqueci/redefinir senha, confirmação de e-mail, convite do nutricionista | Prontas                         |
+| Escolha de área (contas com mais de um papel)                                                         | Pronta                          |
+| Início do paciente, do nutricionista e do admin                                                       | Prontos, com dados reais da API |
+| Perfis do paciente e do nutricionista                                                                 | Prontos                         |
+| Paciente: encontrar nutricionista, minhas solicitações, meu nutricionista, meu peso                   | Prontas                         |
+| Nutricionista: solicitações, meus pacientes e detalhe do paciente (com o peso)                        | Prontas                         |
+| Nutricionista: alimentos (busca TACO/Open Food Facts, ficha e importação por código de barras)        | Prontas                         |
+| Nutricionista: planos alimentares (criar, refeições, alimentos, meta diária, ativar/finalizar, PDF)   | Prontas                         |
+| Paciente: plano alimentar (atual e anteriores, baixar PDF, receber por e-mail)                        | Prontas                         |
+| Admin: usuários, nutricionistas (convite), pacientes e moderação de alimentos                         | Prontas                         |
 
 A sessão fica no `sessionStorage` (sobrevive ao recarregar, some ao fechar a aba) e o token é renovado automaticamente, uma renovação por vez.
 
