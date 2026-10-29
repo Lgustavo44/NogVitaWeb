@@ -1,184 +1,146 @@
-<div class="flex h-dvh overflow-hidden">
-  <aside
-    class="fixed inset-y-0 left-0 z-30 flex -translate-x-full flex-col border-r border-divider bg-surface text-ink shadow-2 transition-[transform,width] lg:static lg:translate-x-0"
-    [class.w-24]="sidebarCollapsed()"
-    [class.w-64]="!sidebarCollapsed()"
-    [class.translate-x-0]="menuOpen()"
-  >
-    <div class="flex h-20 items-center justify-between px-6">
-      @if (!sidebarCollapsed()) {
-        <a routerLink="/" aria-label="Ir para a página inicial">
-          <app-logo class="h-8" tone="auto" priority />
-        </a>
-      } @else {
-        <app-logo class="h-10 w-10" tone="auto" compact priority />
-      }
-      <button type="button" class="hidden rounded-control p-1 text-ink-muted hover:bg-surface-muted hover:text-ink lg:block" [attr.aria-label]="sidebarCollapsed() ? 'Expandir menu lateral' : 'Recolher menu lateral'" (click)="toggleSidebar()">
-        <svg lucidePanelLeft class="size-5"></svg>
-      </button>
-      <button type="button" class="rounded-control p-2 lg:hidden" aria-label="Fechar menu" (click)="toggleMenu()">
-        <svg lucideX class="size-5"></svg>
-      </button>
-    </div>
-    <nav class="flex flex-1 flex-col gap-1 px-4" aria-label="Navegação do paciente">
-      <a class="flex items-center gap-3 rounded-control bg-primary px-4 py-3 text-on-primary" aria-label="Painel geral" routerLink="/inicio">
-        <svg lucidePanelLeft class="size-5"></svg>@if (!sidebarCollapsed()) { <span>Painel geral</span> }
-      </a>
-      @for (item of navigation; track item.label) {
-        <a
-          [routerLink]="item.route"
-          class="flex items-center gap-3 rounded-control px-4 py-3 text-label-lg text-ink-muted hover:bg-surface-muted hover:text-ink"
-        >
-          @if (!sidebarCollapsed()) { {{ item.label }} }
-        </a>
-      }
-    </nav>
-    <div class="m-4 flex items-center justify-center gap-3 rounded-container bg-surface-muted p-3">
-      <div class="flex size-9 items-center justify-center rounded-full bg-soft text-soft-ink">
-        <svg lucideUserRound class="size-5"></svg>
-      </div>
-      @if (!sidebarCollapsed()) { <div class="min-w-0">
-        <p class="truncate text-label-lg">{{ profile()?.name ?? 'Paciente' }}</p>
-        <p class="text-body-sm text-ink-muted">Paciente</p>
-      </div> }
-      <button type="button" class="ml-auto p-1" aria-label="Sair" (click)="logout()">
-        <svg lucideLogOut class="size-5"></svg>
-      </button>
-    </div>
-  </aside>
-
-  @if (menuOpen()) {
-    <button class="fixed inset-0 z-20 bg-ink/30 lg:hidden" aria-label="Fechar menu" (click)="toggleMenu()"></button>
+<header class="flex flex-col gap-1">
+  <p class="text-body-sm text-ink-muted">Hoje, {{ today | date: "d 'de' MMMM" }}</p>
+  @if (firstName(); as firstName) {
+    <h1 class="text-headline-xl text-ink sm:text-display-lg-mobile">Olá, {{ firstName }}!</h1>
+  } @else {
+    <h1 class="text-headline-xl text-ink sm:text-display-lg-mobile">Olá!</h1>
   }
+  <p class="text-body-lg text-ink-muted">Acompanhe sua jornada de saúde e nutrição.</p>
+</header>
 
-  <div class="flex min-h-0 min-w-0 flex-1 flex-col">
-    <header class="z-20 flex h-20 shrink-0 items-center gap-4 border-b border-divider bg-surface/95 px-4 shadow-1 backdrop-blur sm:px-8">
-      <button type="button" class="rounded-control p-2 lg:hidden" aria-label="Abrir menu" (click)="toggleMenu()">
-        <svg lucideMenu class="size-6"></svg>
-      </button>
-      <label class="relative hidden max-w-xl flex-1 items-center gap-3 rounded-control bg-surface-muted px-4 py-3 sm:flex">
-        <svg lucideSearch class="size-5 text-ink-muted"></svg>
-        <input
-          type="search"
-          class="min-w-0 flex-1 bg-transparent text-body-md text-ink outline-none placeholder:text-ink-muted"
-          placeholder="Buscar refeições, metas, exames..."
-          aria-label="Buscar no painel"
-          [value]="searchQuery()"
-          (input)="updateSearch($event)"
-        />
-        @if (searchResults().length > 0) {
-          <div class="absolute left-0 right-0 top-full z-40 mt-2 overflow-hidden rounded-container bg-surface p-2 shadow-3">
-            @for (result of searchResults(); track result.label) {
-              <a
-                [href]="result.target"
-                class="block rounded-control px-3 py-2 hover:bg-surface-muted"
-                (click)="searchQuery.set('')"
-              >
-                <strong class="block text-label-md">{{ result.label }}</strong>
-                <span class="text-body-sm text-ink-muted">{{ result.description }}</span>
-              </a>
-            }
-          </div>
-        } @else if (searchQuery().trim()) {
-          <div class="absolute left-0 right-0 top-full z-40 mt-2 rounded-container bg-surface p-4 text-body-sm text-ink-muted shadow-3">
-            Nenhum resultado encontrado.
-          </div>
-        }
-      </label>
-      <div class="ml-auto flex items-center gap-4">
-        @if (availableRoles().length > 1) {
-          <app-access-switcher [roles]="availableRoles()" active="Patient" (roleChange)="switchRole($event)" />
-        }
-        <app-theme-toggle />
-        <button type="button" class="relative rounded-control p-2" aria-label="Notificações">
-          <svg lucideBell class="size-5"></svg><span class="absolute right-2 top-1 size-2 rounded-full bg-primary"></span>
-        </button>
-        <button type="button" class="hidden items-center gap-2 sm:flex" aria-label="Menu da conta">
-          <span class="flex size-9 items-center justify-center rounded-full bg-soft text-soft-ink"><svg lucideUserRound class="size-5"></svg></span>
-          <span class="text-left"><strong class="block text-label-lg">{{ profile()?.name ?? 'Paciente' }}</strong><small class="text-body-sm text-ink-muted">Paciente</small></span>
-          <svg lucideChevronDown class="size-4"></svg>
-        </button>
+<div class="grid gap-6 lg:grid-cols-2">
+  <!-- Nutricionista -->
+  <section
+    class="flex flex-col gap-4 rounded-container bg-surface p-5 shadow-1"
+    aria-labelledby="nutri-titulo"
+  >
+    <h2 id="nutri-titulo" class="flex items-center gap-2 text-title-md text-ink">
+      <svg lucideStethoscope class="size-5 text-link"></svg>
+      Seu nutricionista
+    </h2>
+    @if (care.isLoading()) {
+      <div
+        class="h-16 rounded-control bg-surface-muted motion-safe:animate-pulse"
+        aria-hidden="true"
+      ></div>
+      <span class="sr-only">Carregando…</span>
+    } @else if (careMissing()) {
+      <p class="text-body-md text-ink-muted">
+        Você ainda não está em acompanhamento. Em breve você poderá encontrar um nutricionista por
+        aqui.
+      </p>
+    } @else if (care.error()) {
+      <app-load-error [error]="care.error()" (retry)="care.reload()" />
+    } @else if (care.hasValue()) {
+      <div class="flex flex-col gap-1">
+        <p class="text-title-md text-ink">{{ care.value().nutritionistName }}</p>
+        <p class="text-body-md text-ink-muted">
+          CRN-{{ care.value().crnRegion }} {{ care.value().crnNumber }} · desde
+          {{ care.value().startedAtUtc | date: 'dd/MM/yyyy' }}
+        </p>
       </div>
-    </header>
+    }
+  </section>
 
-    <main class="min-h-0 flex-1 overflow-y-auto px-4 pb-8 pt-8 sm:px-8">
-      <div class="mx-auto max-w-[1400px]">
-      @if (failure(); as failure) {
-        <app-alert tone="danger" class="mb-6">{{ failure.message }}</app-alert>
-      }
-      @if (loading()) {
-        <div class="flex flex-col gap-6" aria-busy="true">
-          <div class="h-12 w-72 animate-pulse rounded-control bg-surface-muted"></div>
-          <div class="grid gap-6 lg:grid-cols-3">
-            @for (item of [1, 2, 3]; track item) {
-              <div class="h-52 animate-pulse rounded-container bg-surface-muted"></div>
-            }
-          </div>
-        </div>
-      } @else {
-        <div class="mb-8 flex flex-wrap items-end justify-between gap-4">
-          <div>
-            <div class="mb-2 inline-flex items-center gap-2 rounded-pill bg-info-soft px-3 py-1 text-label-sm text-info-ink">
-              <span class="size-2 rounded-full bg-primary"></span> Painel diário conectado
-            </div>
-            <p class="text-body-sm text-ink-muted">Hoje, {{ today }}</p>
-            <h1 class="mt-2 text-4xl font-semibold tracking-tight sm:text-5xl">Olá, {{ firstName() }}! 👋</h1>
-            <p class="mt-2 max-w-2xl text-body-lg text-ink-muted">
-              Que bom ter você aqui. Acompanhe sua jornada de saúde e nutrição.
-            </p>
-          </div>
-          <div class="flex gap-3 rounded-container bg-surface p-3 shadow-1">
-            <div class="rounded-control bg-surface-muted px-4 py-2"><span class="block text-body-sm text-ink-muted">Rotina preenchida</span><strong>{{ routineCount() }}/3 horários</strong></div>
-            <div class="rounded-control bg-surface-muted px-4 py-2"><span class="block text-body-sm text-ink-muted">Altura</span><strong>{{ profile()?.heightInCm }} cm</strong></div>
-          </div>
-        </div>
-
-        <div class="grid gap-6 xl:grid-cols-[minmax(0,1.6fr)_minmax(320px,1fr)]">
-          <div class="flex flex-col gap-6">
-            <section id="acompanhamento" class="rounded-container bg-surface p-6 shadow-1">
-              <div class="mb-5 flex items-center justify-between gap-4">
-                <h2 class="flex items-center gap-2 text-2xl font-semibold"><svg lucideScale class="size-6 text-primary"></svg> Meu acompanhamento</h2>
-                <span class="rounded-pill bg-success-soft px-3 py-1 text-label-sm text-success-ink">Perfil ativo</span>
-              </div>
-              <div class="flex flex-wrap items-center gap-5 rounded-container bg-surface-muted p-5">
-                <div class="flex size-16 items-center justify-center rounded-full bg-soft text-soft-ink"><svg lucideUserRound class="size-8"></svg></div>
-                <div class="flex-1"><h3 class="text-xl font-semibold">Seu acompanhamento NogVita</h3><p class="text-body-md text-ink-muted">Perfil pronto para receber seu plano alimentar personalizado.</p></div>
-              </div>
-              <div class="mt-5 flex flex-wrap gap-3">
-                <a routerLink="/inicio" class="rounded-control bg-primary px-5 py-3 text-label-lg font-semibold text-on-primary">Ver meu plano</a>
-                <a routerLink="/inicio" class="rounded-control bg-soft/30 px-5 py-3 text-label-lg font-semibold text-soft-ink">Atualizar rotina</a>
-              </div>
-            </section>
-
-            <section id="objetivo" class="rounded-container bg-surface p-6 shadow-1">
-              <div class="mb-4 flex items-center gap-3"><span class="rounded-control bg-info-soft p-3"><svg lucideClipboardList class="size-6 text-info-ink"></svg></span><div><span class="text-label-sm uppercase tracking-wide text-info-ink">Objetivo ativo</span><h2 class="text-2xl font-semibold">{{ goalLabel() }}</h2></div></div>
-              <p class="text-body-lg text-ink-muted">Seu objetivo está registrado. Complete sua rotina para que o acompanhamento seja ainda mais personalizado.</p>
-              <div class="mt-5 grid gap-3 sm:grid-cols-3">
-                <div class="rounded-control bg-surface-muted p-4"><span class="text-body-sm text-ink-muted">Acordar</span><strong class="mt-1 block">{{ formatTime(profile()?.wakeUpTime ?? null) }}</strong></div>
-                <div class="rounded-control bg-surface-muted p-4"><span class="text-body-sm text-ink-muted">Dormir</span><strong class="mt-1 block">{{ formatTime(profile()?.bedTime ?? null) }}</strong></div>
-                <div class="rounded-control bg-surface-muted p-4"><span class="text-body-sm text-ink-muted">Treino</span><strong class="mt-1 block">{{ formatTime(profile()?.trainingTime ?? null) }}</strong></div>
-              </div>
-            </section>
-          </div>
-
-          <aside class="flex flex-col gap-6">
-            <section id="avisos" class="rounded-container bg-surface p-6 shadow-1">
-              <h2 class="mb-5 flex items-center gap-2 text-2xl font-semibold"><svg lucideBell class="size-6 text-primary"></svg> Avisos</h2>
-              <div class="rounded-container bg-info-soft p-4"><div class="flex gap-3"><svg lucideCircleHelp class="size-5 shrink-0 text-info-ink"></svg><div><strong class="block">Próximo passo</strong><p class="mt-1 text-body-md text-ink-muted">Mantenha seus dados e sua rotina atualizados para aproveitar melhor o NogVita.</p></div></div></div>
-            </section>
-            <section class="rounded-container bg-surface p-6 shadow-1">
-              <h2 class="mb-5 text-2xl font-semibold">Acesso rápido</h2>
-              <div class="grid grid-cols-2 gap-3">
-                <a id="plano-alimentar" routerLink="/inicio" class="rounded-container bg-surface-muted p-4 hover:bg-soft/20"><svg lucideUtensils class="mb-4 size-6 text-primary"></svg><strong class="block">Plano alimentar</strong><span class="text-body-sm text-ink-muted">Refeições e metas</span></a>
-                <a id="diario-nutricional" routerLink="/inicio" class="rounded-container bg-surface-muted p-4 hover:bg-soft/20"><svg lucideBookOpen class="mb-4 size-6 text-primary"></svg><strong class="block">Diário nutricional</strong><span class="text-body-sm text-ink-muted">Registre seu dia</span></a>
-                <a id="evolucao" routerLink="/inicio" class="rounded-container bg-surface-muted p-4 hover:bg-soft/20"><svg lucideChartNoAxesCombined class="mb-4 size-6 text-primary"></svg><strong class="block">Evolução</strong><span class="text-body-sm text-ink-muted">Peso e medidas</span></a>
-                <a id="agenda" routerLink="/inicio" class="rounded-container bg-surface-muted p-4 hover:bg-soft/20"><svg lucideCalendarDays class="mb-4 size-6 text-primary"></svg><strong class="block">Agenda</strong><span class="text-body-sm text-ink-muted">Acompanhe consultas</span></a>
-              </div>
-            </section>
-          </aside>
-        </div>
-      }
+  <!-- Plano atual -->
+  <section
+    class="flex flex-col gap-4 rounded-container bg-surface p-5 shadow-1"
+    aria-labelledby="plano-titulo"
+  >
+    <h2 id="plano-titulo" class="flex items-center gap-2 text-title-md text-ink">
+      <svg lucideUtensils class="size-5 text-link"></svg>
+      Plano alimentar
+    </h2>
+    @if (plan.isLoading()) {
+      <div
+        class="h-16 rounded-control bg-surface-muted motion-safe:animate-pulse"
+        aria-hidden="true"
+      ></div>
+      <span class="sr-only">Carregando…</span>
+    } @else if (planMissing()) {
+      <p class="text-body-md text-ink-muted">
+        Você não tem um plano ativo. Quando seu nutricionista ativar um plano, ele aparece aqui.
+      </p>
+    } @else if (plan.error()) {
+      <app-load-error [error]="plan.error()" (retry)="plan.reload()" />
+    } @else if (plan.hasValue()) {
+      <div class="flex flex-col gap-1">
+        <p class="text-title-md text-ink">{{ plan.value().plan.name }}</p>
+        <p class="text-body-md text-ink-muted">
+          {{ plan.value().meals.length }} refeições · desde
+          {{ plan.value().plan.startDate | date: 'dd/MM/yyyy' }}
+          @if (plan.value().plan.endDate; as endDate) {
+            até {{ endDate | date: 'dd/MM/yyyy' }}
+          }
+        </p>
       </div>
-    </main>
-  </div>
+    }
+  </section>
+
+  <!-- Perfil e rotina -->
+  <section
+    class="flex flex-col gap-4 rounded-container bg-surface p-5 shadow-1 lg:col-span-2"
+    aria-labelledby="perfil-titulo"
+  >
+    <h2 id="perfil-titulo" class="flex items-center gap-2 text-title-md text-ink">
+      <svg lucideTarget class="size-5 text-link"></svg>
+      Seu objetivo e sua rotina
+    </h2>
+    @if (profile.isLoading()) {
+      <div class="grid gap-3 sm:grid-cols-3" aria-hidden="true">
+        @for (item of [1, 2, 3]; track item) {
+          <div class="h-16 rounded-control bg-surface-muted motion-safe:animate-pulse"></div>
+        }
+      </div>
+      <span class="sr-only">Carregando…</span>
+    } @else if (profile.error()) {
+      <app-load-error [error]="profile.error()" (retry)="profile.reload()" />
+    } @else if (profile.hasValue()) {
+      <dl class="grid grid-cols-2 gap-3 sm:grid-cols-4">
+        <div class="rounded-control bg-surface-muted p-3">
+          <dt class="text-body-sm text-ink-muted">Objetivo</dt>
+          <dd class="text-label-lg text-ink">{{ goalLabels[profile.value().goal] }}</dd>
+        </div>
+        <div class="rounded-control bg-surface-muted p-3">
+          <dt class="text-body-sm text-ink-muted">Idade</dt>
+          <dd class="text-label-lg text-ink">{{ profile.value().age }} anos</dd>
+        </div>
+        <div class="rounded-control bg-surface-muted p-3">
+          <dt class="text-body-sm text-ink-muted">Altura</dt>
+          <dd class="text-label-lg text-ink">{{ profile.value().heightInCm }} cm</dd>
+        </div>
+        <div class="rounded-control bg-surface-muted p-3">
+          <dt class="text-body-sm text-ink-muted">Sexo biológico</dt>
+          <dd class="text-label-lg text-ink">{{ sexLabels[profile.value().biologicalSex] }}</dd>
+        </div>
+      </dl>
+      <div class="flex flex-col gap-2">
+        <h3 class="flex items-center gap-2 text-label-lg text-ink">
+          <svg lucideClock class="size-4 text-ink-muted"></svg>
+          Rotina
+        </h3>
+        <dl class="grid grid-cols-3 gap-3">
+          <div class="rounded-control bg-surface-muted p-3">
+            <dt class="text-body-sm text-ink-muted">Acordar</dt>
+            <dd class="text-label-lg text-ink tabular-nums">
+              {{ time(profile.value().wakeUpTime) }}
+            </dd>
+          </div>
+          <div class="rounded-control bg-surface-muted p-3">
+            <dt class="text-body-sm text-ink-muted">Dormir</dt>
+            <dd class="text-label-lg text-ink tabular-nums">{{ time(profile.value().bedTime) }}</dd>
+          </div>
+          <div class="rounded-control bg-surface-muted p-3">
+            <dt class="text-body-sm text-ink-muted">Treino</dt>
+            <dd class="text-label-lg text-ink tabular-nums">
+              {{ time(profile.value().trainingTime) }}
+            </dd>
+          </div>
+        </dl>
+        <p class="text-body-sm text-ink-muted">
+          Os horários ajudam seu nutricionista a distribuir as refeições ao longo do dia.
+        </p>
+      </div>
+    }
+  </section>
 </div>
