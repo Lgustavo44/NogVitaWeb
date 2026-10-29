@@ -1,0 +1,199 @@
+<app-modal
+  [heading]="current() ? 'Alterar quantidade' : 'Adicionar alimento'"
+  [subtitle]="mealName()"
+  [busy]="busy()"
+  (closed)="closed.emit()"
+>
+  @if (selected(); as food) {
+    <form [formRoot]="portionForm" id="form-porcao" class="flex flex-col gap-4">
+      <div class="flex flex-col gap-2 rounded-control bg-surface-muted p-4">
+        <div class="flex items-start justify-between gap-3">
+          <div class="min-w-0">
+            <p class="text-label-lg text-ink">{{ food.name }}</p>
+            @if (food.brand) {
+              <p class="text-body-sm text-ink-muted">{{ food.brand }}</p>
+            }
+          </div>
+          <app-source-badge [source]="food.source" class="shrink-0" />
+        </div>
+        <p class="text-body-sm text-ink-muted">
+          Por 100 g: {{ food.energyKcalPer100g | nutrient: 'kcal' }} · P
+          {{ food.proteinPer100g | nutrient: 'g' }} · C
+          {{ food.carbohydratePer100g | nutrient: 'g' }} · G {{ food.fatPer100g | nutrient: 'g' }}
+        </p>
+        @if (!current()) {
+          <button
+            type="button"
+            class="inline-flex cursor-pointer items-center gap-1.5 self-start text-label-md text-link hover:underline"
+            (click)="backToSearch()"
+          >
+            <svg lucideArrowLeft class="size-4"></svg>
+            Trocar alimento
+          </button>
+        }
+      </div>
+
+      <app-field label="Quantidade">
+        <input
+          #quantidade
+          appInput
+          cdkFocusInitial
+          [formField]="portionForm.quantityInGrams"
+          type="number"
+          inputmode="decimal"
+          step="any"
+          class="pr-10"
+        />
+        <span class="pointer-events-none absolute right-3 text-label-md text-ink-muted">g</span>
+      </app-field>
+
+      @if (preview(); as portion) {
+        <div aria-live="polite">
+          <p class="text-label-md text-ink-muted">Nesta porção (estimativa)</p>
+          <dl class="mt-2 grid grid-cols-2 gap-2 sm:grid-cols-4">
+            <div class="rounded-control border border-divider p-2.5">
+              <dt class="text-body-sm text-ink-muted">Energia</dt>
+              <dd class="text-label-lg text-ink tabular-nums">
+                {{ portion.energy | nutrient: 'kcal' }}
+              </dd>
+            </div>
+            <div class="rounded-control border border-divider p-2.5">
+              <dt class="text-body-sm text-ink-muted">Proteínas</dt>
+              <dd class="text-label-lg text-ink tabular-nums">
+                {{ portion.protein | nutrient: 'g' }}
+              </dd>
+            </div>
+            <div class="rounded-control border border-divider p-2.5">
+              <dt class="text-body-sm text-ink-muted">Carboidratos</dt>
+              <dd class="text-label-lg text-ink tabular-nums">
+                {{ portion.carbohydrate | nutrient: 'g' }}
+              </dd>
+            </div>
+            <div class="rounded-control border border-divider p-2.5">
+              <dt class="text-body-sm text-ink-muted">Gorduras</dt>
+              <dd class="text-label-lg text-ink tabular-nums">
+                {{ portion.fat | nutrient: 'g' }}
+              </dd>
+            </div>
+          </dl>
+        </div>
+      }
+
+      @if (food.isComplete === false) {
+        <app-alert tone="warning">
+          A fonte não informa algum nutriente deste alimento ("—"). Os totais do plano vão indicar
+          que estão incompletos.
+        </app-alert>
+      }
+      @if (food.attribution) {
+        <app-food-attribution [attributions]="[food.attribution]" />
+      }
+      @if (error(); as message) {
+        <app-alert tone="danger">{{ message }}</app-alert>
+      }
+    </form>
+  } @else {
+    <div class="flex flex-col gap-3">
+      <label class="relative flex items-center">
+        <span class="sr-only">Buscar alimento pelo nome</span>
+        <svg lucideSearch class="pointer-events-none absolute left-3 size-5 text-ink-muted"></svg>
+        <input
+          #busca
+          cdkFocusInitial
+          type="search"
+          placeholder="Buscar pelo nome, ex.: arroz integral"
+          class="h-11 w-full rounded-control border border-line bg-surface pr-3 pl-10 text-body-lg text-ink placeholder:text-ink-muted/70 focus:border-focus focus:ring-4 focus:ring-primary/20 focus:outline-none [&::-webkit-search-cancel-button]:hidden"
+          aria-describedby="dica-busca-alimento"
+          [value]="searchInput()"
+          (input)="onSearch($event)"
+        />
+      </label>
+      <p id="dica-busca-alimento" class="text-body-sm text-ink-muted">
+        Pelo menos {{ minLength }} letras, sem acento e em qualquer ordem.
+      </p>
+      <div class="flex flex-wrap gap-2" role="group" aria-label="Filtrar por fonte">
+        @for (option of sources; track option.label) {
+          <button
+            type="button"
+            class="min-h-9 cursor-pointer rounded-pill border border-divider px-3 text-label-md text-ink-muted hover:text-ink aria-pressed:border-primary aria-pressed:bg-primary aria-pressed:text-on-primary"
+            [attr.aria-pressed]="source() === option.value"
+            (click)="source.set(option.value)"
+          >
+            {{ option.label }}
+          </button>
+        }
+      </div>
+
+      @if (tooShort()) {
+        <p class="rounded-control bg-surface-muted p-4 text-center text-body-md text-ink-muted">
+          Digite o nome do alimento para buscar na base.
+        </p>
+      } @else if (foods.isLoading() && !foods.hasValue()) {
+        <div class="flex flex-col gap-2" aria-hidden="true">
+          @for (row of [1, 2, 3]; track row) {
+            <div class="h-14 rounded-control bg-surface-muted motion-safe:animate-pulse"></div>
+          }
+        </div>
+        <span class="sr-only" role="status">Buscando alimentos…</span>
+      } @else if (foods.error()) {
+        <app-alert tone="danger">Não foi possível buscar agora. Tente de novo.</app-alert>
+      } @else if (foods.hasValue()) {
+        @if (foods.value().items.length === 0) {
+          <p
+            class="rounded-control bg-surface-muted p-4 text-center text-body-md text-ink-muted"
+            role="status"
+          >
+            Nenhum alimento encontrado. Tente menos palavras ou outra grafia.
+          </p>
+        } @else {
+          <ul
+            class="flex flex-col divide-y divide-divider rounded-control border border-divider"
+            [attr.aria-busy]="foods.isLoading()"
+            aria-label="Resultados da busca"
+          >
+            @for (food of foods.value().items; track food.id) {
+              <li>
+                <button
+                  type="button"
+                  class="flex w-full cursor-pointer items-center gap-3 px-3 py-2.5 text-left hover:bg-surface-muted"
+                  (click)="choose(food)"
+                >
+                  <span class="flex min-w-0 flex-1 flex-col">
+                    <span class="text-label-lg text-ink">{{ food.name }}</span>
+                    <span class="text-body-sm text-ink-muted">
+                      {{ food.energyKcalPer100g | nutrient: 'kcal' }} em 100 g
+                      @if (!food.isComplete) {
+                        <span class="text-warning-ink">· Dados incompletos</span>
+                      }
+                    </span>
+                  </span>
+                  <app-source-badge [source]="food.source" class="shrink-0" />
+                  <svg lucidePlus class="size-5 shrink-0 text-link"></svg>
+                  <span class="sr-only">Escolher</span>
+                </button>
+              </li>
+            }
+          </ul>
+          @if (foods.value().totalItems > foods.value().items.length) {
+            <p class="text-body-sm text-ink-muted">
+              Mostrando {{ foods.value().items.length }} de {{ foods.value().totalItems }}. Refine a
+              busca para achar mais rápido.
+            </p>
+          }
+        }
+      }
+    </div>
+  }
+
+  <ng-container modalActions>
+    <button appButton variant="soft" type="button" [disabled]="busy()" (click)="closed.emit()">
+      Cancelar
+    </button>
+    @if (selected()) {
+      <button appButton type="submit" form="form-porcao" [loading]="busy()">
+        <svg lucidePlus class="size-5"></svg>
+        {{ current() ? 'Salvar quantidade' : 'Adicionar à refeição' }}
+      </button>
+    }
+  </ng-container>
+</app-modal>

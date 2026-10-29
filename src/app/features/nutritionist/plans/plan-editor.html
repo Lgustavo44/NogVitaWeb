@@ -1,0 +1,245 @@
+<a
+  [routerLink]="backLink()"
+  class="inline-flex items-center gap-2 self-start text-label-lg text-link hover:underline"
+>
+  <svg lucideArrowLeft class="size-4"></svg>
+  @if (plan(); as plan) {
+    Voltar para {{ plan.patientName }}
+  } @else {
+    Voltar
+  }
+</a>
+
+@if (detail.hasValue()) {
+  @let current = plan()!;
+
+  <section
+    class="flex flex-col gap-4 rounded-container bg-surface p-5 shadow-2 sm:p-7"
+    aria-labelledby="plano-titulo"
+  >
+    <div class="flex flex-wrap items-center gap-2 text-body-sm text-ink-muted">
+      <app-plan-status-badge [status]="current.status" />
+      <span>Plano de {{ current.patientName }}</span>
+    </div>
+    <div class="flex flex-col gap-1">
+      <h1 id="plano-titulo" class="text-headline-xl text-ink">{{ current.name }}</h1>
+      <p class="text-body-md text-ink-muted">
+        @if (current.endDate) {
+          De {{ date(current.startDate) | date: 'dd/MM/yyyy' }} a
+          {{ date(current.endDate) | date: 'dd/MM/yyyy' }}
+        } @else {
+          Desde {{ date(current.startDate) | date: 'dd/MM/yyyy' }} · sem data de término
+        }
+      </p>
+    </div>
+    @if (current.description) {
+      <p class="max-w-3xl text-body-lg whitespace-pre-line text-ink">{{ current.description }}</p>
+    }
+
+    @switch (current.status) {
+      @case ('Draft') {
+        <app-alert tone="info">
+          Rascunho: o paciente ainda não vê este plano. Ative quando estiver pronto.
+        </app-alert>
+      }
+      @case ('Finished') {
+        <app-alert tone="info">Plano finalizado: só leitura.</app-alert>
+      }
+      @case ('Cancelled') {
+        <app-alert tone="info">Rascunho cancelado: só leitura.</app-alert>
+      }
+    }
+
+    <div class="flex flex-col gap-2 sm:flex-row sm:flex-wrap">
+      @if (current.status === 'Draft') {
+        <button appButton type="button" (click)="askActivate()">
+          <svg lucideCircleCheck class="size-5"></svg>
+          Ativar plano
+        </button>
+      }
+      @if (editable()) {
+        <button appButton variant="soft" type="button" (click)="open({ kind: 'plan' })">
+          <svg lucidePencil class="size-5"></svg>
+          Editar dados
+        </button>
+      }
+      <button
+        appButton
+        variant="soft"
+        type="button"
+        [loading]="downloading()"
+        (click)="downloadPdf()"
+      >
+        <svg lucideFileDown class="size-5"></svg>
+        Baixar PDF
+      </button>
+      @if (current.status === 'Active') {
+        <button appButton variant="danger" type="button" (click)="askFinish()">
+          <svg lucideFlag class="size-5"></svg>
+          Finalizar plano
+        </button>
+      }
+      @if (current.status === 'Draft') {
+        <button appButton variant="danger" type="button" (click)="askCancel()">
+          <svg lucideBan class="size-5"></svg>
+          Cancelar rascunho
+        </button>
+      }
+    </div>
+  </section>
+
+  <div class="grid gap-6 lg:grid-cols-[minmax(0,1fr)_22rem] lg:items-start">
+    <aside
+      class="flex flex-col gap-4 rounded-container bg-surface p-5 shadow-1 lg:sticky lg:top-24 lg:order-last"
+      aria-labelledby="resumo-titulo"
+    >
+      <div class="flex items-center justify-between gap-2">
+        <h2 id="resumo-titulo" class="text-title-md text-ink">Resumo do dia</h2>
+        @if (editable()) {
+          <button appButton variant="ghost" type="button" (click)="open({ kind: 'target' })">
+            <svg lucideTarget class="size-4"></svg>
+            {{ hasTarget() ? 'Editar meta' : 'Definir meta' }}
+          </button>
+        }
+      </div>
+      <app-plan-day-summary
+        [totals]="detail.value().dailyTotals"
+        [target]="detail.value().target"
+      />
+      @if (hasTarget() && editable()) {
+        <button
+          type="button"
+          class="cursor-pointer self-start text-label-md text-danger-ink hover:underline"
+          (click)="askRemoveTarget()"
+        >
+          Remover meta
+        </button>
+      }
+    </aside>
+
+    <section class="flex flex-col gap-4" aria-labelledby="refeicoes-titulo">
+      <div class="flex flex-wrap items-center justify-between gap-3">
+        <div>
+          <h2 id="refeicoes-titulo" class="text-headline-lg text-ink">Refeições</h2>
+          <p class="text-body-sm text-ink-muted">
+            {{ meals().length }} de {{ maxMeals }} · na ordem do dia
+          </p>
+        </div>
+        @if (editable()) {
+          <button
+            appButton
+            type="button"
+            [disabled]="meals().length >= maxMeals"
+            [attr.aria-describedby]="meals().length >= maxMeals ? 'limite-refeicoes' : null"
+            (click)="open({ kind: 'meal', meal: null })"
+          >
+            <svg lucidePlus class="size-5"></svg>
+            Adicionar refeição
+          </button>
+        }
+      </div>
+      @if (editable() && meals().length >= maxMeals) {
+        <p id="limite-refeicoes" class="text-body-sm text-ink-muted">
+          O plano chegou ao limite de {{ maxMeals }} refeições.
+        </p>
+      }
+
+      @if (meals().length === 0) {
+        <div
+          class="flex flex-col items-center gap-3 rounded-container bg-surface p-8 text-center shadow-1"
+        >
+          <svg lucideUtensils class="size-10 text-ink-muted"></svg>
+          <h3 class="text-title-md text-ink">Nenhuma refeição ainda</h3>
+          <p class="max-w-md text-body-md text-ink-muted">
+            Comece pelo café da manhã e monte o dia em ordem. Cada refeição recebe alimentos da base
+            TACO e do Open Food Facts.
+          </p>
+        </div>
+      } @else {
+        <ol class="flex flex-col gap-4" [attr.aria-busy]="reordering() || detail.isLoading()">
+          @for (meal of meals(); track meal.id; let index = $index, first = $first, last = $last) {
+            <li>
+              <app-meal-card
+                [meal]="meal"
+                [editable]="editable()"
+                [first]="first"
+                [last]="last"
+                [busy]="reordering() || detail.isLoading()"
+                (moveUp)="move(index, -1)"
+                (moveDown)="move(index, 1)"
+                (edit)="open({ kind: 'meal', meal })"
+                (remove)="askDeleteMeal(meal)"
+                (addFood)="open({ kind: 'food', meal, food: null })"
+                (editFood)="open({ kind: 'food', meal, food: $event })"
+                (removeFood)="askDeleteFood(meal, $event)"
+              />
+            </li>
+          }
+        </ol>
+      }
+
+      <app-food-attribution [attributions]="attributions()" />
+    </section>
+  </div>
+} @else if (detail.error()) {
+  <app-load-error [error]="detail.error()" (retry)="detail.reload()" />
+} @else {
+  <div
+    class="h-64 rounded-container bg-surface-muted motion-safe:animate-pulse"
+    aria-hidden="true"
+  ></div>
+  <div
+    class="h-96 rounded-container bg-surface-muted motion-safe:animate-pulse"
+    aria-hidden="true"
+  ></div>
+  <span class="sr-only" role="status">Carregando plano…</span>
+}
+
+@if (dialog(); as active) {
+  @if (active.kind === 'plan') {
+    <app-plan-form-modal
+      [plan]="plan()"
+      [busy]="busy()"
+      [error]="error()"
+      (saved)="savePlan($event)"
+      (closed)="close()"
+    />
+  } @else if (active.kind === 'target') {
+    <app-target-form-modal
+      [plan]="plan()!"
+      [busy]="busy()"
+      [error]="error()"
+      (saved)="saveTarget($event)"
+      (closed)="close()"
+    />
+  } @else if (active.kind === 'meal') {
+    <app-meal-form-modal
+      [meal]="active.meal"
+      [busy]="busy()"
+      [error]="error()"
+      (saved)="saveMeal(active.meal, $event)"
+      (closed)="close()"
+    />
+  } @else if (active.kind === 'food') {
+    <app-food-picker-modal
+      [mealName]="active.meal.name"
+      [current]="active.food"
+      [busy]="busy()"
+      [error]="error()"
+      (saved)="saveFood(active.meal, active.food, $event)"
+      (closed)="close()"
+    />
+  } @else if (active.kind === 'confirm') {
+    <app-confirm-dialog
+      [heading]="active.confirmation.heading"
+      [confirmLabel]="active.confirmation.confirmLabel"
+      [tone]="active.confirmation.tone"
+      [busy]="busy()"
+      [error]="error()"
+      (confirmed)="runConfirmation(active.confirmation)"
+      (closed)="close()"
+    >
+      <p>{{ active.confirmation.body }}</p>
+    </app-confirm-dialog>
+  }
+}

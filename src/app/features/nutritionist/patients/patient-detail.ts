@@ -12,6 +12,7 @@ import { PageHeader } from '../../../shared/ui/page-header/page-header';
 import { Toaster } from '../../../shared/ui/toast/toaster';
 import { WeightPanel } from '../../../shared/weight/weight-panel';
 import { NutritionistApi, followedPatientResource } from '../nutritionist-api';
+import { PatientPlans } from '../plans/patient-plans';
 
 @Component({
   selector: 'app-patient-detail',
@@ -26,6 +27,7 @@ import { NutritionistApi, followedPatientResource } from '../nutritionist-api';
     LucideUserX,
     Modal,
     PageHeader,
+    PatientPlans,
     RouterLink,
     WeightPanel,
   ],

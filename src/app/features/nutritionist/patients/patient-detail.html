@@ -112,6 +112,8 @@
     </section>
   </div>
 
+  <app-patient-plans [patientId]="patient.value().patientId" />
+
   <app-weight-panel
     heading="Peso e evolução"
     [recordsPath]="'/nutritionists/me/patients/' + patientId + '/weight-records'"

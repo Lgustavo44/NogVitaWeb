@@ -30,6 +30,16 @@ export const NUTRITIONIST_ROUTES: Routes = [
       import('./requests/nutritionist-requests').then((m) => m.NutritionistRequestsPage),
   },
   {
+    path: 'planos',
+    title: 'Planos alimentares · NogVita',
+    loadComponent: () => import('./plans/plans-page').then((m) => m.PlansPage),
+  },
+  {
+    path: 'planos/:planId',
+    title: 'Plano alimentar · NogVita',
+    loadComponent: () => import('./plans/plan-editor').then((m) => m.PlanEditorPage),
+  },
+  {
     path: 'alimentos',
     title: 'Alimentos · NogVita',
     loadComponent: () => import('./foods/food-search').then((m) => m.FoodSearchPage),
