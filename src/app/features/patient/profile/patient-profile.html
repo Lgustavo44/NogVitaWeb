@@ -1,0 +1,222 @@
+<app-page-header
+  badge="Meu perfil"
+  title="Meu perfil"
+  subtitle="Mantenha seus dados atualizados: eles ajudam seu nutricionista a montar um plano preciso."
+/>
+
+@if (profile.isLoading() && !profile.hasValue()) {
+  <div class="grid gap-6 lg:grid-cols-[minmax(0,1.4fr)_minmax(0,1fr)]" aria-hidden="true">
+    <div class="flex flex-col gap-6">
+      <div class="h-44 rounded-container bg-surface-muted motion-safe:animate-pulse"></div>
+      <div class="h-56 rounded-container bg-surface-muted motion-safe:animate-pulse"></div>
+    </div>
+    <div class="h-80 rounded-container bg-surface-muted motion-safe:animate-pulse"></div>
+  </div>
+  <span class="sr-only" role="status">Carregando seu perfil…</span>
+} @else if (profile.error()) {
+  <app-load-error [error]="profile.error()" (retry)="profile.reload()" />
+} @else if (profile.hasValue()) {
+  <app-alert tone="warning" heading="Dados protegidos">
+    Por segurança, nome completo, e-mail e CPF não podem ser alterados pelo aplicativo. Para
+    corrigir algum deles, fale com o suporte.
+  </app-alert>
+
+  <form [formRoot]="profileForm" class="flex flex-col gap-6">
+    <div class="grid gap-6 lg:grid-cols-[minmax(0,1.4fr)_minmax(0,1fr)]">
+      <div class="flex flex-col gap-6">
+        <!-- Somente leitura -->
+        <section
+          class="flex flex-col gap-4 rounded-container bg-surface p-5 shadow-1"
+          aria-labelledby="cadastro-titulo"
+        >
+          <div class="flex items-start justify-between gap-3">
+            <h2 id="cadastro-titulo" class="flex items-center gap-2 text-title-md text-ink">
+              <svg lucideIdCard class="size-5 text-link"></svg>
+              Dados cadastrais
+            </h2>
+            <span
+              class="inline-flex shrink-0 items-center gap-1 rounded-pill bg-surface-muted px-2.5 py-1 text-label-sm text-ink-muted"
+            >
+              <svg lucideLock class="size-3"></svg>
+              Somente leitura
+            </span>
+          </div>
+          <dl class="grid gap-3 sm:grid-cols-2">
+            <div class="min-w-0 rounded-control bg-surface-muted p-3">
+              <dt class="text-label-sm text-ink-muted uppercase">Nome completo</dt>
+              <dd class="truncate text-label-lg text-ink">{{ profile.value().name }}</dd>
+            </div>
+            <div class="min-w-0 rounded-control bg-surface-muted p-3">
+              <dt class="text-label-sm text-ink-muted uppercase">CPF</dt>
+              <dd class="text-label-lg text-ink tabular-nums">{{ profile.value().cpf }}</dd>
+            </div>
+            <div class="min-w-0 rounded-control bg-surface-muted p-3">
+              <dt class="text-label-sm text-ink-muted uppercase">E-mail</dt>
+              <dd class="truncate text-label-lg text-ink">{{ profile.value().email }}</dd>
+            </div>
+            <div class="min-w-0 rounded-control bg-surface-muted p-3">
+              <dt class="text-label-sm text-ink-muted uppercase">Idade</dt>
+              <dd class="text-label-lg text-ink">
+                {{ profile.value().age }} anos
+                <span class="text-body-sm text-ink-muted">
+                  ({{ profile.value().birthDate | date: 'dd/MM/yyyy' }})
+                </span>
+              </dd>
+            </div>
+          </dl>
+        </section>
+
+        <!-- Editáveis -->
+        <section
+          class="flex flex-col gap-4 rounded-container bg-surface p-5 shadow-1"
+          aria-labelledby="pessoais-titulo"
+        >
+          <h2 id="pessoais-titulo" class="flex items-center gap-2 text-title-md text-ink">
+            <svg lucideRuler class="size-5 text-link"></svg>
+            Dados pessoais
+          </h2>
+          <div class="grid gap-4 sm:grid-cols-2">
+            <app-field label="Data de nascimento">
+              <input
+                appInput
+                [formField]="profileForm.birthDate"
+                type="date"
+                [max]="maxBirthDate"
+              />
+            </app-field>
+            <app-field label="Altura">
+              <input
+                appInput
+                [formField]="profileForm.heightInCm"
+                type="number"
+                inputmode="numeric"
+                placeholder="170"
+                class="pr-12"
+              />
+              <span class="pointer-events-none absolute right-3 text-label-md text-ink-muted"
+                >cm</span
+              >
+            </app-field>
+          </div>
+          <fieldset class="flex flex-col gap-1.5">
+            <legend class="mb-1.5 text-label-md text-ink">Sexo biológico</legend>
+            <div class="grid grid-cols-2 gap-1 rounded-control bg-surface-muted p-1">
+              @for (sex of sexes; track sex.value) {
+                <label
+                  class="flex min-h-10 cursor-pointer items-center justify-center rounded-control text-label-lg text-ink-muted has-checked:bg-surface has-checked:text-link has-checked:shadow-1 has-[:focus-visible]:outline-2 has-[:focus-visible]:outline-focus"
+                >
+                  <input
+                    type="radio"
+                    name="biologicalSex"
+                    class="sr-only"
+                    [value]="sex.value"
+                    [checked]="model().biologicalSex === sex.value"
+                    (change)="setSex(sex.value)"
+                  />
+                  {{ sex.label }}
+                </label>
+              }
+            </div>
+          </fieldset>
+        </section>
+
+        <section
+          class="flex flex-col gap-4 rounded-container bg-surface p-5 shadow-1"
+          aria-labelledby="rotina-titulo"
+        >
+          <div class="flex flex-col gap-1">
+            <h2 id="rotina-titulo" class="flex items-center gap-2 text-title-md text-ink">
+              <svg lucideClock class="size-5 text-link"></svg>
+              Rotina
+            </h2>
+            <p class="text-body-sm text-ink-muted">
+              Os horários ajudam a distribuir as refeições ao longo do dia. Deixe em branco o que
+              não se aplica.
+            </p>
+          </div>
+          <div class="grid gap-4 sm:grid-cols-3">
+            <app-field label="Acordar">
+              <input appInput [formField]="profileForm.wakeUpTime" type="time" />
+            </app-field>
+            <app-field label="Dormir">
+              <input appInput [formField]="profileForm.bedTime" type="time" />
+            </app-field>
+            <app-field label="Treino">
+              <input appInput [formField]="profileForm.trainingTime" type="time" />
+            </app-field>
+          </div>
+        </section>
+      </div>
+
+      <!-- Objetivo -->
+      <section
+        class="flex flex-col gap-4 self-start rounded-container bg-surface p-5 shadow-1"
+        aria-labelledby="objetivo-titulo"
+      >
+        <h2 id="objetivo-titulo" class="flex items-center gap-2 text-title-md text-ink">
+          <svg lucideTarget class="size-5 text-link"></svg>
+          Objetivo nutricional
+        </h2>
+        <fieldset class="flex flex-col gap-3">
+          <legend class="sr-only">Objetivo nutricional</legend>
+          @for (goal of goals; track goal.value) {
+            <label
+              class="flex cursor-pointer flex-col gap-1 rounded-container border-2 border-transparent bg-surface-muted p-4 transition-colors hover:border-primary/40 has-checked:border-primary has-checked:bg-soft/15 has-[:focus-visible]:outline-2 has-[:focus-visible]:outline-offset-2 has-[:focus-visible]:outline-focus"
+            >
+              <input
+                type="radio"
+                name="goal"
+                class="sr-only"
+                [value]="goal.value"
+                [checked]="model().goal === goal.value"
+                (change)="setGoal(goal.value)"
+              />
+              <span class="flex items-center justify-between gap-2">
+                <span class="text-label-lg text-ink">{{ goal.label }}</span>
+                @if (model().goal === goal.value) {
+                  <span
+                    class="rounded-pill bg-primary px-2 py-0.5 text-label-sm text-on-primary"
+                    aria-hidden="true"
+                  >
+                    Meta atual
+                  </span>
+                }
+              </span>
+              <span class="text-body-sm text-ink-muted">{{ goal.description }}</span>
+            </label>
+          }
+        </fieldset>
+      </section>
+    </div>
+
+    <!-- Barra de salvar: fica visível no fim da tela enquanto houver mudanças -->
+    <div
+      class="bottom-0 flex flex-col gap-3 rounded-container bg-surface p-4 max-md:bottom-16 sm:flex-row sm:items-center sm:justify-between"
+      [class.sticky]="changed()"
+      [class.shadow-3]="changed()"
+      [class.shadow-1]="!changed()"
+    >
+      <p class="text-body-sm text-ink-muted" role="status">
+        @if (changed()) {
+          Você tem alterações que ainda não foram salvas.
+        } @else {
+          Tudo salvo.
+        }
+      </p>
+      <div class="flex gap-2">
+        <button appButton variant="soft" type="button" [disabled]="!changed()" (click)="discard()">
+          Descartar
+        </button>
+        <button
+          appButton
+          type="submit"
+          [disabled]="!changed()"
+          [loading]="profileForm().submitting()"
+        >
+          <svg lucideSave class="size-5"></svg>
+          Salvar alterações
+        </button>
+      </div>
+    </div>
+  </form>
+}

@@ -16,6 +16,17 @@ export interface PatientProfile {
   trainingTime: string | null;
 }
 
+/** Horários enviados como "HH:mm". Nome, e-mail e CPF não podem ser alterados. */
+export interface UpdatePatientProfileRequest {
+  birthDate: string;
+  biologicalSex: BiologicalSex;
+  heightInCm: number;
+  goal: Goal;
+  wakeUpTime: string | null;
+  bedTime: string | null;
+  trainingTime: string | null;
+}
+
 export interface MyCareRelationship {
   relationshipId: string;
   nutritionistId: string;

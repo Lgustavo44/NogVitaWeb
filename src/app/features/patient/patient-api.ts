@@ -1,6 +1,24 @@
-import { httpResource } from '@angular/common/http';
+import { HttpClient, httpResource } from '@angular/common/http';
+import { Service, inject } from '@angular/core';
+import { Observable } from 'rxjs';
 import { apiUrl } from '../../core/http/api-url';
-import { MyCareRelationship, NutritionPlanDetail, PatientProfile } from './patient.models';
+import {
+  MyCareRelationship,
+  NutritionPlanDetail,
+  PatientProfile,
+  UpdatePatientProfileRequest,
+} from './patient.models';
+
+/** Escritas da área do paciente. As leituras são os httpResource abaixo. */
+@Service()
+export class PatientApi {
+  private readonly http = inject(HttpClient);
+
+  /** Envie sempre os três horários: horário omitido ou null apaga o valor salvo. */
+  updateProfile(body: UpdatePatientProfileRequest): Observable<unknown> {
+    return this.http.put(apiUrl('/patients/me'), body);
+  }
+}
 
 /*
  * Recursos da área do paciente. Cada função cria um httpResource e deve ser chamada

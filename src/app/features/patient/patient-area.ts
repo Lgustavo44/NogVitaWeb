@@ -1,10 +1,12 @@
 import { Component, computed, inject } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
 import {
+  LucideClipboardList,
   LucideHouse,
   LucideScale,
   LucideStethoscope,
   LucideUserRound,
+  LucideUserSearch,
   LucideUtensils,
 } from '@lucide/angular';
 import { AppShell, NavItem } from '../../shared/layout/app-shell/app-shell';
@@ -28,16 +30,18 @@ export class PatientArea {
     this.profile.hasValue() ? this.profile.value().name : null,
   );
   protected readonly navigation: NavItem[] = [
+    { label: 'Início', icon: LucideHouse, link: '/paciente', exact: true, bottom: true },
+    { label: 'Plano alimentar', shortLabel: 'Plano', icon: LucideUtensils, bottom: true },
+    { label: 'Peso', icon: LucideScale, bottom: true },
+    { label: 'Encontrar nutricionista', icon: LucideUserSearch },
+    { label: 'Minhas solicitações', icon: LucideClipboardList },
+    { label: 'Meu nutricionista', shortLabel: 'Nutri', icon: LucideStethoscope, bottom: true },
     {
-      label: 'Painel geral',
-      shortLabel: 'Início',
-      icon: LucideHouse,
-      link: '/paciente',
-      exact: true,
+      label: 'Meu perfil',
+      shortLabel: 'Perfil',
+      icon: LucideUserRound,
+      link: '/paciente/perfil',
+      bottom: true,
     },
-    { label: 'Plano alimentar', shortLabel: 'Plano', icon: LucideUtensils },
-    { label: 'Peso', icon: LucideScale },
-    { label: 'Nutricionista', shortLabel: 'Nutri', icon: LucideStethoscope },
-    { label: 'Perfil', icon: LucideUserRound },
   ];
 }
