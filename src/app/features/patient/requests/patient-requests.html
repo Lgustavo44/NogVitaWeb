@@ -1,0 +1,239 @@
+<app-page-header
+  badge="Acompanhamento"
+  title="Minhas solicitações"
+  subtitle="Acompanhe os pedidos enviados aos nutricionistas, as respostas e os cancelamentos."
+>
+  <div class="mt-2 flex flex-wrap gap-2">
+    <a
+      routerLink="/paciente/encontrar-nutricionista"
+      class="inline-flex min-h-11 items-center gap-2 rounded-control bg-primary px-5 text-label-lg font-semibold text-on-primary shadow-1 hover:bg-primary-hover"
+    >
+      <svg lucideUserPlus class="size-5"></svg>
+      Nova solicitação
+    </a>
+    <button
+      appButton
+      variant="soft"
+      type="button"
+      [loading]="requests.isLoading()"
+      (click)="requests.reload()"
+    >
+      <svg lucideRefreshCw class="size-5"></svg>
+      Atualizar
+    </button>
+  </div>
+</app-page-header>
+
+<div
+  class="flex gap-1 overflow-x-auto rounded-container bg-surface-muted p-1.5"
+  role="group"
+  aria-label="Filtrar por situação"
+>
+  @for (filter of filters; track filter.value) {
+    <button
+      type="button"
+      class="flex min-h-10 shrink-0 cursor-pointer items-center gap-2 rounded-control px-3 text-label-lg text-ink-muted transition-colors hover:text-ink aria-pressed:bg-surface aria-pressed:text-ink aria-pressed:shadow-1"
+      [attr.aria-pressed]="activeFilter() === filter.value"
+      (click)="selectFilter(filter.value)"
+    >
+      {{ filter.label }}
+      <span class="rounded-pill bg-surface-muted px-2 text-label-sm tabular-nums">{{
+        counts()[filter.value]
+      }}</span>
+    </button>
+  }
+</div>
+
+@if (requests.isLoading() && !requests.hasValue()) {
+  <div class="flex flex-col gap-4" aria-hidden="true">
+    @for (item of [1, 2]; track item) {
+      <div class="h-40 rounded-container bg-surface-muted motion-safe:animate-pulse"></div>
+    }
+  </div>
+  <span class="sr-only" role="status">Carregando solicitações…</span>
+} @else if (requests.error()) {
+  <app-load-error [error]="requests.error()" (retry)="requests.reload()" />
+} @else if (pendingItems().length === 0 && historyItems().length === 0) {
+  <section
+    class="flex flex-col items-center gap-3 rounded-container bg-surface p-8 text-center shadow-1"
+  >
+    <svg lucideHistory class="size-10 text-ink-muted"></svg>
+    <h2 class="text-title-md text-ink">Nenhuma solicitação aqui</h2>
+    <p class="text-body-md text-ink-muted">
+      Quando você pedir acompanhamento a um nutricionista, o pedido aparece nesta tela.
+    </p>
+    <a
+      routerLink="/paciente/encontrar-nutricionista"
+      class="font-semibold text-link hover:underline"
+    >
+      Encontrar nutricionista
+    </a>
+  </section>
+} @else {
+  @for (request of pendingItems(); track request.id) {
+    <article class="flex flex-col gap-4 rounded-container bg-surface p-5 shadow-2">
+      <div class="flex flex-wrap items-center gap-2">
+        <span
+          class="rounded-pill px-3 py-1 text-label-md uppercase"
+          [class]="statusClasses(request.status)"
+        >
+          Pendente de avaliação
+        </span>
+        <span class="flex items-center gap-1 text-body-sm text-ink-muted">
+          <svg lucideClock class="size-4"></svg>
+          Enviada em {{ request.createdAt | date: "dd/MM/yyyy 'às' HH:mm" }}
+        </span>
+      </div>
+      <div class="grid gap-4 md:grid-cols-[minmax(0,0.8fr)_minmax(0,1.2fr)]">
+        <div class="flex items-center gap-3 rounded-container bg-surface-muted p-4">
+          <span
+            class="flex size-12 shrink-0 items-center justify-center rounded-full bg-soft text-title-md text-on-soft"
+            aria-hidden="true"
+          >
+            {{ request.nutritionistName.charAt(0) }}
+          </span>
+          <p class="min-w-0 truncate text-title-md text-ink">{{ request.nutritionistName }}</p>
+        </div>
+        <div class="flex flex-col gap-1.5">
+          <p class="text-label-sm text-ink-muted uppercase">Mensagem enviada</p>
+          @if (request.message) {
+            <p class="rounded-container border border-divider p-3 text-body-md text-ink">
+              “{{ request.message }}”
+            </p>
+          } @else {
+            <p class="text-body-md text-ink-muted italic">Sem mensagem.</p>
+          }
+        </div>
+      </div>
+      <div
+        class="flex flex-col gap-3 border-t border-divider pt-4 sm:flex-row sm:items-center sm:justify-between"
+      >
+        <p class="flex items-center gap-2 text-body-sm text-ink-muted">
+          <svg lucideInfo class="size-4 shrink-0"></svg>
+          Você pode cancelar enquanto o pedido estiver pendente.
+        </p>
+        <button appButton variant="danger" type="button" (click)="openCancel(request)">
+          <svg lucideX class="size-5"></svg>
+          Cancelar solicitação
+        </button>
+      </div>
+    </article>
+  }
+
+  @if (historyItems().length > 0) {
+    <section class="flex flex-col gap-3" aria-labelledby="historico-titulo">
+      <h2 id="historico-titulo" class="flex items-center gap-2 text-title-md text-ink">
+        <svg lucideHistory class="size-5 text-link"></svg>
+        Histórico de solicitações
+      </h2>
+      <div class="rounded-container bg-surface shadow-1">
+        <!-- Celular: cards -->
+        <ul class="flex flex-col divide-y divide-divider md:hidden">
+          @for (request of historyItems(); track request.id) {
+            <li class="flex flex-col gap-1.5 p-4">
+              <div class="flex items-center justify-between gap-2">
+                <p class="truncate text-label-lg text-ink">{{ request.nutritionistName }}</p>
+                <span
+                  class="shrink-0 rounded-pill px-2.5 py-0.5 text-label-md"
+                  [class]="statusClasses(request.status)"
+                >
+                  {{ statusLabels[request.status] }}
+                </span>
+              </div>
+              <p class="text-body-sm text-ink-muted">
+                Enviada em {{ request.createdAt | date: 'dd/MM/yyyy' }}
+                @if (request.respondedAtUtc) {
+                  · respondida em {{ request.respondedAtUtc | date: 'dd/MM/yyyy' }}
+                }
+              </p>
+              @if (request.message) {
+                <p class="line-clamp-2 text-body-sm text-ink-muted">“{{ request.message }}”</p>
+              }
+            </li>
+          }
+        </ul>
+        <!-- Tablet e desktop: tabela -->
+        <table class="hidden w-full text-left md:table">
+          <thead>
+            <tr class="border-b border-divider text-label-md text-ink-muted">
+              <th scope="col" class="px-4 py-3 font-semibold">Nutricionista</th>
+              <th scope="col" class="px-4 py-3 font-semibold">Mensagem enviada</th>
+              <th scope="col" class="px-4 py-3 font-semibold">Envio</th>
+              <th scope="col" class="px-4 py-3 font-semibold">Resposta</th>
+              <th scope="col" class="px-4 py-3 font-semibold">Situação</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-divider text-body-md">
+            @for (request of historyItems(); track request.id) {
+              <tr>
+                <td class="max-w-48 truncate px-4 py-3 text-ink">{{ request.nutritionistName }}</td>
+                <td class="max-w-72 truncate px-4 py-3 text-ink-muted">
+                  {{ request.message ? '“' + request.message + '”' : 'Sem mensagem' }}
+                </td>
+                <td class="px-4 py-3 text-ink-muted tabular-nums">
+                  {{ request.createdAt | date: 'dd/MM/yyyy' }}
+                </td>
+                <td class="px-4 py-3 text-ink-muted tabular-nums">
+                  {{ request.respondedAtUtc ? (request.respondedAtUtc | date: 'dd/MM/yyyy') : '—' }}
+                </td>
+                <td class="px-4 py-3">
+                  <span
+                    class="rounded-pill px-2.5 py-0.5 text-label-md"
+                    [class]="statusClasses(request.status)"
+                  >
+                    {{ statusLabels[request.status] }}
+                  </span>
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    </section>
+  }
+}
+
+@if (cancelTarget(); as request) {
+  <app-modal
+    heading="Cancelar solicitação?"
+    size="sm"
+    alert
+    [busy]="cancelling()"
+    (closed)="closeCancel()"
+  >
+    <span
+      modalIcon
+      class="flex size-10 shrink-0 items-center justify-center rounded-full bg-danger-soft text-danger-ink"
+    >
+      <svg lucideTriangleAlert class="size-5"></svg>
+    </span>
+    <p class="text-body-md text-ink-muted">
+      O pedido para <strong class="text-ink">{{ request.nutritionistName }}</strong> será cancelado
+      e não poderá ser retomado. Você poderá enviar um novo pedido depois.
+    </p>
+    @if (cancelError(); as error) {
+      <app-alert tone="danger">{{ error }}</app-alert>
+    }
+    <ng-container modalActions>
+      <button
+        appButton
+        variant="soft"
+        type="button"
+        cdkFocusInitial
+        [disabled]="cancelling()"
+        (click)="closeCancel()"
+      >
+        Voltar
+      </button>
+      <button
+        appButton
+        variant="danger"
+        type="button"
+        [loading]="cancelling()"
+        (click)="confirmCancel()"
+      >
+        Sim, cancelar
+      </button>
+    </ng-container>
+  </app-modal>
+}
