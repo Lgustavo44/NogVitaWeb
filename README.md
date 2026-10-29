@@ -53,15 +53,17 @@ Em desenvolvimento, o `ng serve` usa um proxy (`proxy.conf.json`): as chamadas p
 
 ## Scripts
 
-| Comando                     | O que faz                                     |
-| --------------------------- | --------------------------------------------- |
-| `npm start`                 | Servidor de desenvolvimento com o proxy       |
-| `npm run build`             | Build de produção em `dist/`                  |
-| `npm test`                  | Testes unitários (Vitest), em modo observação |
-| `npx ng test --watch=false` | Testes unitários uma vez só (como na CI)      |
-| `npm run lint`              | ESLint                                        |
-| `npm run format`            | Formata o código com o Prettier               |
-| `npm run format:check`      | Confere a formatação sem alterar nada         |
+| Comando                     | O que faz                                      |
+| --------------------------- | ---------------------------------------------- |
+| `npm start`                 | Servidor de desenvolvimento com o proxy        |
+| `npm run build`             | Build de produção em `dist/`                   |
+| `npm test`                  | Testes unitários (Vitest), em modo observação  |
+| `npx ng test --watch=false` | Testes unitários uma vez só (como na CI)       |
+| `npm run lint`              | ESLint                                         |
+| `npm run format`            | Formata o código com o Prettier                |
+| `npm run format:check`      | Confere a formatação sem alterar nada          |
+| `npm run e2e`               | E2E e auditoria de acessibilidade (Playwright) |
+| `npm run e2e:a11y`          | Só a auditoria de acessibilidade (axe)         |
 
 ## Estrutura
 
@@ -84,6 +86,25 @@ src/environments/       URL da API por ambiente (público: nada de segredos aqui
 ```
 
 Regras: uma feature não importa de outra; `shared` não importa de `features`.
+
+## Testes de ponta a ponta e acessibilidade
+
+Os testes em `e2e/` usam o [Playwright](https://playwright.dev) com uma **API simulada** (`e2e/support/fake-api.ts`), só com dados fictícios: nunca rodam contra o staging. O Playwright sobe um `ng serve` próprio na porta 4300, então dá para rodar com o `npm start` aberto na 4200.
+
+- `e2e/a11y.spec.ts`: passa o [axe](https://github.com/dequelabs/axe-core) (WCAG 2.2, níveis A e AA) em todas as telas, nos temas claro e escuro e em 360 px.
+- `e2e/flows.spec.ts`: fluxos de cada papel (login pelo teclado, montar e ativar um plano, receber o plano por e-mail, desativar uma conta), com foco e Esc nos modais.
+
+Na máquina, os testes usam o Microsoft Edge instalado. Na CI, o Chromium do Playwright (`npx playwright install chromium`).
+
+## Publicação (Vercel)
+
+O `vercel.json` define o build, a reescrita da SPA (toda rota abre o `index.html`), o cache dos arquivos com hash e os cabeçalhos de segurança, inclusive a Content Security Policy (`connect-src` libera só a própria origem e a API).
+
+1. Na Vercel, importe o repositório. Em _Framework Preset_, deixe **Other**: o resto vem do `vercel.json`.
+2. Não há variáveis de ambiente: a URL da API fica em `src/environments/environment.ts` (é pública; nada de segredos no front).
+3. Depois do primeiro deploy, a API precisa liberar a origem do front no CORS e apontar `Frontend__BaseUrl` para ele (os links dos e-mails usam esse endereço). Isso é feito na API.
+
+> Se a URL da API mudar, atualize também o `connect-src` da CSP no `vercel.json`.
 
 ## Design system
 
