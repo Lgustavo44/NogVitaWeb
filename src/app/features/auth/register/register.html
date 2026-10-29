@@ -13,9 +13,7 @@
         Ir para o login
         <svg lucideArrowRight class="size-5"></svg>
       </a>
-      <p class="text-body-sm text-ink-muted">
-        Não recebeu a mensagem? Confira a caixa de spam.
-      </p>
+      <p class="text-body-sm text-ink-muted">Não recebeu a mensagem? Confira a caixa de spam.</p>
     </div>
   </div>
 } @else {
@@ -33,7 +31,9 @@
     <app-alert tone="danger">
       {{ failure.message }}
       @if (failure.traceId) {
-        <span class="mt-1 block text-body-sm opacity-80">Código do erro: {{ failure.traceId }}</span>
+        <span class="mt-1 block text-body-sm opacity-80"
+          >Código do erro: {{ failure.traceId }}</span
+        >
       }
     </app-alert>
   }
@@ -43,13 +43,18 @@
       <div class="flex items-center gap-2">
         <span class="h-4 w-2 rounded-full bg-primary" aria-hidden="true"></span>
         <h2 class="text-title-md text-ink">1. Dados pessoais</h2>
-        <span class="ml-auto rounded-pill bg-surface-muted px-2 py-0.5 text-label-sm text-ink-muted">
+        <span
+          class="ml-auto rounded-pill bg-surface-muted px-2 py-0.5 text-label-sm text-ink-muted"
+        >
           Essencial
         </span>
       </div>
 
       <app-field label="Nome completo">
-        <svg lucideUserRound class="pointer-events-none absolute left-3 size-5 text-ink-muted"></svg>
+        <svg
+          lucideUserRound
+          class="pointer-events-none absolute left-3 size-5 text-ink-muted"
+        ></svg>
         <input
           appInput
           [formField]="registerForm.name"
@@ -75,7 +80,7 @@
 
       <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
         <app-field label="CPF">
-          <svg lucideBadge class="pointer-events-none absolute left-3 size-5 text-ink-muted"></svg>
+          <svg lucideIdCard class="pointer-events-none absolute left-3 size-5 text-ink-muted"></svg>
           <input
             appInput
             [formField]="registerForm.cpf"
@@ -146,7 +151,6 @@
             inputmode="numeric"
             placeholder="170"
             class="pl-10 pr-12"
-            (input)="formatHeight($event)"
           />
           <span class="pointer-events-none absolute right-3 text-label-sm text-ink-muted">cm</span>
         </app-field>
@@ -171,9 +175,15 @@
             (click)="selectGoal(goal.value)"
           >
             @switch (goal.icon) {
-              @case ('goal') { <svg lucideGoal class="size-6 text-primary"></svg> }
-              @case ('scale') { <svg lucideScale class="size-6 text-primary"></svg> }
-              @default { <svg lucideDumbbell class="size-6 text-primary"></svg> }
+              @case ('goal') {
+                <svg lucideGoal class="size-6 text-primary"></svg>
+              }
+              @case ('scale') {
+                <svg lucideScale class="size-6 text-primary"></svg>
+              }
+              @default {
+                <svg lucideDumbbell class="size-6 text-primary"></svg>
+              }
             }
             <span class="text-label-md text-ink">{{ goal.label }}</span>
             @if (isGoalSelected(goal.value)) {
@@ -188,9 +198,14 @@
       <div class="flex items-center gap-2">
         <span class="h-4 w-2 rounded-full bg-primary" aria-hidden="true"></span>
         <h2 class="text-title-md text-ink">3. Segurança e senha</h2>
-        <span class="ml-auto text-label-sm text-ink-muted">{{ passwordLength() }}/15 caracteres</span>
+        <span class="ml-auto text-label-sm text-ink-muted"
+          >{{ passwordLength() }}/15 caracteres</span
+        >
       </div>
-      <app-field label="Senha segura" hint="Use uma frase longa e fácil de lembrar. Não é necessário usar símbolos.">
+      <app-field
+        label="Senha segura"
+        hint="Use uma frase longa e fácil de lembrar. Não é necessário usar símbolos."
+      >
         <svg lucideLock class="pointer-events-none absolute left-3 size-5 text-ink-muted"></svg>
         <input
           appInput
@@ -207,12 +222,18 @@
           [attr.aria-pressed]="showPassword()"
           (click)="togglePassword()"
         >
-          @if (showPassword()) { <svg lucideEyeOff class="size-5"></svg> }
-          @else { <svg lucideEye class="size-5"></svg> }
+          @if (showPassword()) {
+            <svg lucideEyeOff class="size-5"></svg>
+          } @else {
+            <svg lucideEye class="size-5"></svg>
+          }
         </button>
       </app-field>
       <div class="h-1.5 overflow-hidden rounded-pill bg-surface-muted" aria-hidden="true">
-        <div class="h-full bg-primary transition-[width]" [style.width.%]="passwordProgress()"></div>
+        <div
+          class="h-full bg-primary transition-[width]"
+          [style.width.%]="passwordProgress()"
+        ></div>
       </div>
     </section>
 

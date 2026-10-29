@@ -15,7 +15,7 @@ import {
 import { RouterLink } from '@angular/router';
 import {
   LucideArrowRight,
-  LucideBadge,
+  LucideIdCard,
   LucideCalendarDays,
   LucideDumbbell,
   LucideEye,
@@ -29,11 +29,11 @@ import {
 } from '@lucide/angular';
 import { firstValueFrom } from 'rxjs';
 import { AuthApi } from '../../../core/auth/auth-api';
-import {
-  BiologicalSex,
-  PatientGoal,
-  PatientRegistrationRequest,
-} from '../../../core/auth/auth.models';
+import { PatientRegistrationRequest } from '../../../core/auth/auth.models';
+
+/** O formulário aceita altura vazia (null) enquanto a pessoa não preenche. */
+type RegisterModel = Omit<PatientRegistrationRequest, 'heightInCm'> & { heightInCm: number | null };
+import { BiologicalSex, Goal as PatientGoal } from '../../../shared/domain/patient-enums';
 import { ApiError, toApiError, toFieldErrors } from '../../../core/http/api-error';
 import { Alert } from '../../../shared/ui/alert/alert';
 import { Button } from '../../../shared/ui/button/button';
@@ -52,7 +52,7 @@ import { Logo } from '../../../shared/ui/logo/logo';
     FormRoot,
     Logo,
     LucideArrowRight,
-    LucideBadge,
+    LucideIdCard,
     LucideCalendarDays,
     LucideDumbbell,
     LucideEye,
@@ -71,14 +71,14 @@ import { Logo } from '../../../shared/ui/logo/logo';
 export class Register {
   private readonly authApi = inject(AuthApi);
 
-  protected readonly model = signal<PatientRegistrationRequest>({
+  protected readonly model = signal<RegisterModel>({
     name: '',
     email: '',
     cpf: '',
     password: '',
     birthDate: '',
     biologicalSex: 'Female',
-    heightInCm: 0,
+    heightInCm: null,
     goal: 'WeightLoss',
   });
 
@@ -103,17 +103,16 @@ export class Register {
           return undefined;
         }
         const validationMessage = birthDateError(value());
-        return validationMessage
-          ? { kind: 'birth-date', message: validationMessage }
-          : undefined;
+        return validationMessage ? { kind: 'birth-date', message: validationMessage } : undefined;
       });
       required(path.heightInCm, { message: 'Informe sua altura.' });
       min(path.heightInCm, 1, { message: 'A altura deve ser maior que zero.' });
-      validate(path.heightInCm, ({ value }) =>
-        Number.isInteger(value()) && value() <= 999
+      validate(path.heightInCm, ({ value }) => {
+        const height = value();
+        return height === null || (Number.isInteger(height) && height <= 999)
           ? undefined
-          : { kind: 'height', message: 'Informe uma altura de até 3 dígitos.' },
-      );
+          : { kind: 'height', message: 'Informe uma altura de até 3 dígitos.' };
+      });
       required(path.password, { message: 'Crie uma senha.' });
       minLength(path.password, 15, { message: 'A senha deve ter pelo menos 15 caracteres.' });
       maxLength(path.password, 128, { message: 'A senha deve ter no máximo 128 caracteres.' });
@@ -210,27 +209,19 @@ export class Register {
     }
   }
 
-  protected formatHeight(event: Event): void {
-    const input = event.target as HTMLInputElement;
-    const digits = input.value.replace(/\D/g, '').slice(0, 3);
-    input.value = digits;
-    this.model.update((current) => ({ ...current, heightInCm: Number(digits) || 0 }));
-  }
-
-  private async register(
-    fieldTree: FieldTree<PatientRegistrationRequest>,
-  ): Promise<TreeValidationResult> {
+  private async register(fieldTree: FieldTree<RegisterModel>): Promise<TreeValidationResult> {
     this.failure.set(null);
     this.successMessage.set(null);
 
     try {
-      const request = this.model();
-      const response = await firstValueFrom(
-        this.authApi.registerPatient({
-          ...request,
-          birthDate: toIsoDate(request.birthDate),
-        }),
-      );
+      const model = this.model();
+      const request: PatientRegistrationRequest = {
+        ...model,
+        // A validação do formulário já garantiu a altura; o "?? 0" só satisfaz o tipo.
+        heightInCm: model.heightInCm ?? 0,
+        birthDate: toIsoDate(model.birthDate),
+      };
+      const response = await firstValueFrom(this.authApi.registerPatient(request));
       this.successMessage.set(response.message);
       return undefined;
     } catch (error) {
@@ -248,7 +239,6 @@ export class Register {
       });
     }
   }
-
 }
 
 function isValidCpf(value: string): boolean {
@@ -298,8 +288,7 @@ function birthDateError(value: string): string | undefined {
 
   let age = today.getFullYear() - year;
   const birthdayHasNotHappened =
-    today.getMonth() < month - 1 ||
-    (today.getMonth() === month - 1 && today.getDate() < day);
+    today.getMonth() < month - 1 || (today.getMonth() === month - 1 && today.getDate() < day);
   if (birthdayHasNotHappened) {
     age--;
   }
