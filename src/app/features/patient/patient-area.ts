@@ -28,8 +28,14 @@ export class PatientArea {
     this.profile.hasValue() ? this.profile.value().name : null,
   );
   protected readonly navigation: NavItem[] = [
-    { label: 'Início', icon: LucideHouse, link: '/paciente', exact: true },
-    { label: 'Plano', icon: LucideUtensils },
+    {
+      label: 'Painel geral',
+      shortLabel: 'Início',
+      icon: LucideHouse,
+      link: '/paciente',
+      exact: true,
+    },
+    { label: 'Plano alimentar', shortLabel: 'Plano', icon: LucideUtensils },
     { label: 'Peso', icon: LucideScale },
     { label: 'Nutricionista', shortLabel: 'Nutri', icon: LucideStethoscope },
     { label: 'Perfil', icon: LucideUserRound },

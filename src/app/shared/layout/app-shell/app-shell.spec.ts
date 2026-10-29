@@ -42,15 +42,15 @@ describe('AppShell', () => {
     expect(soon?.textContent).toContain('Em breve');
   });
 
-  it('mostra as iniciais do nome no botão da conta', async () => {
+  it('mostra no cabeçalho o nome, as iniciais, a área e o botão Sair', async () => {
     const fixture = TestBed.createComponent(Host);
     await fixture.whenStable();
-    const account = (fixture.nativeElement as HTMLElement).querySelector(
-      '[aria-label^="Conta de"]',
-    );
+    const header = (fixture.nativeElement as HTMLElement).querySelector('header')!;
 
-    expect(account?.getAttribute('aria-label')).toBe('Conta de Ana Souza');
-    expect(account?.textContent).toContain('AS');
+    expect(header.textContent).toContain('Ana Souza');
+    expect(header.textContent).toContain('AS');
+    expect(header.textContent).toContain('Área: Paciente');
+    expect(header.querySelector('button[aria-label="Sair"]')).not.toBeNull();
   });
 
   it('oferece trocar só para as outras áreas que a pessoa tem', async () => {

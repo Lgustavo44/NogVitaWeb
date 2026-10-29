@@ -35,6 +35,12 @@
   --nv-forest: #1d2a24;
   --nv-on-forest: #ffffff;
 
+  /* Menu lateral das áreas: floresta nos dois temas (texto apagado 7,1:1) */
+  --nv-sidebar: #1d2a24;
+  --nv-on-sidebar: #fffbf5;
+  --nv-on-sidebar-muted: #a3b8ae;
+  --nv-sidebar-hover: rgb(255 255 255 / 0.07);
+
   --nv-line: #9c8778;
   --nv-divider: rgb(29 42 36 / 0.08);
 
@@ -80,6 +86,9 @@
   /* O botão floresta some no fundo floresta: no escuro ele inverte */
   --nv-forest: #fffbf5;
   --nv-on-forest: #1d2a24;
+
+  /* Um pouco mais escuro que o fundo, para o menu se destacar */
+  --nv-sidebar: #16211c;
 
   --nv-line: #7a8f85;
   --nv-divider: rgb(255 255 255 / 0.08);
@@ -132,6 +141,10 @@
   --color-on-soft: var(--nv-on-soft);
   --color-forest: var(--nv-forest);
   --color-on-forest: var(--nv-on-forest);
+  --color-sidebar: var(--nv-sidebar);
+  --color-on-sidebar: var(--nv-on-sidebar);
+  --color-on-sidebar-muted: var(--nv-on-sidebar-muted);
+  --color-sidebar-hover: var(--nv-sidebar-hover);
   --color-line: var(--nv-line);
   --color-divider: var(--nv-divider);
   --color-success: var(--nv-success);

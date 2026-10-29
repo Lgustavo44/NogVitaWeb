@@ -98,6 +98,10 @@ export class AppShell {
   readonly area = input.required<Role>();
   readonly navigation = input.required<NavItem[]>();
   readonly userName = input<string | null>(null);
+  /** Linha abaixo do nome (ex.: o CRN do nutricionista). Sem ela, mostra o nome da área. */
+  readonly userDetail = input<string | null>(null);
+  /** Título acima dos itens do menu lateral (ex.: "Menu clínico"). */
+  readonly menuTitle = input('Menu');
   readonly mobileNav = input<MobileNav>('drawer');
 
   protected readonly drawerOpen = signal(false);
@@ -110,6 +114,8 @@ export class AppShell {
   );
 
   protected readonly currentArea = computed(() => AREAS[this.area()]);
+  protected readonly currentAreaIcon = computed(() => AREA_ICONS[this.area()]);
+  protected readonly subtitle = computed(() => this.userDetail() ?? this.currentArea().label);
   protected readonly homeLink = computed(() => this.currentArea().path);
   protected readonly otherAreas = computed(() =>
     this.currentUser

@@ -14,9 +14,10 @@
     ></div>
   }
 
+  <!-- Menu lateral: floresta nos dois temas (DESIGN.md) -->
   <aside
     id="menu-da-area"
-    class="fixed inset-y-0 left-0 z-40 flex w-72 flex-col border-r border-divider bg-surface shadow-3 transition-transform duration-200 motion-reduce:transition-none lg:static lg:z-auto lg:translate-x-0 lg:shadow-none"
+    class="fixed inset-y-0 left-0 z-40 flex w-72 flex-col bg-sidebar text-on-sidebar shadow-3 transition-transform duration-200 motion-reduce:transition-none lg:static lg:z-auto lg:translate-x-0 lg:shadow-none [&_:focus-visible]:outline-primary"
     [class.-translate-x-full]="!drawerOpen()"
     [class.max-lg:invisible]="!drawerOpen()"
     [class.lg:w-20]="compactSidebar()"
@@ -25,15 +26,15 @@
     [attr.aria-label]="'Menu da área: ' + currentArea().label"
   >
     <div
-      class="flex h-16 shrink-0 items-center gap-2 border-b border-divider px-4"
+      class="flex h-16 shrink-0 items-center gap-2 px-5"
       [class.lg:justify-center]="compactSidebar()"
       [class.lg:px-2]="compactSidebar()"
     >
-      <app-logo class="h-8" [compact]="compactSidebar()" [link]="homeLink()" />
+      <app-logo class="h-8" tone="on-dark" [compact]="compactSidebar()" [link]="homeLink()" />
       <button
         #closeButton
         type="button"
-        class="ml-auto inline-flex size-10 cursor-pointer items-center justify-center rounded-control text-ink-muted hover:bg-surface-muted hover:text-ink lg:hidden"
+        class="ml-auto inline-flex size-10 cursor-pointer items-center justify-center rounded-control text-on-sidebar-muted hover:bg-sidebar-hover hover:text-on-sidebar lg:hidden"
         aria-label="Fechar menu"
         (click)="closeDrawer()"
       >
@@ -41,7 +42,13 @@
       </button>
     </div>
 
-    <nav class="flex-1 overflow-y-auto p-3" [attr.aria-label]="'Navegação: ' + currentArea().label">
+    <nav
+      class="flex-1 overflow-y-auto px-3 py-2"
+      [attr.aria-label]="'Navegação: ' + currentArea().label"
+    >
+      @if (!compactSidebar()) {
+        <p class="px-3 pb-2 text-label-sm text-on-sidebar-muted uppercase">{{ menuTitle() }}</p>
+      }
       <ul class="flex flex-col gap-1">
         @for (item of navigation(); track item.label) {
           <li>
@@ -51,7 +58,7 @@
                 routerLinkActive="is-active"
                 [routerLinkActiveOptions]="{ exact: item.exact ?? false }"
                 ariaCurrentWhenActive="page"
-                class="flex min-h-11 items-center gap-3 rounded-control px-3 text-label-lg text-ink-muted transition-colors hover:bg-surface-muted hover:text-ink aria-[current=page]:bg-primary aria-[current=page]:font-semibold aria-[current=page]:text-on-primary aria-[current=page]:hover:bg-primary-hover"
+                class="flex min-h-11 items-center gap-3 rounded-control px-3 text-label-lg text-on-sidebar-muted transition-colors hover:bg-sidebar-hover hover:text-on-sidebar aria-[current=page]:bg-primary aria-[current=page]:font-semibold aria-[current=page]:text-on-primary aria-[current=page]:hover:bg-primary-hover"
                 [class.lg:justify-center]="compactSidebar()"
                 [attr.title]="compactSidebar() ? item.label : null"
               >
@@ -60,15 +67,17 @@
               </a>
             } @else {
               <span
-                class="flex min-h-11 cursor-not-allowed items-center gap-3 rounded-control px-3 text-label-lg text-ink-muted/70"
+                class="flex min-h-11 cursor-not-allowed items-center gap-3 rounded-control px-3 text-label-lg text-on-sidebar-muted"
                 [class.lg:justify-center]="compactSidebar()"
                 [attr.title]="compactSidebar() ? item.label + ' (em breve)' : null"
                 aria-disabled="true"
               >
-                <svg [lucideIcon]="item.icon" class="size-5 shrink-0"></svg>
-                <span [class.lg:sr-only]="compactSidebar()">{{ item.label }}</span>
+                <svg [lucideIcon]="item.icon" class="size-5 shrink-0 opacity-70"></svg>
+                <span class="opacity-80" [class.lg:sr-only]="compactSidebar()">{{
+                  item.label
+                }}</span>
                 <span
-                  class="ml-auto rounded-pill bg-surface-muted px-2 py-0.5 text-label-sm"
+                  class="ml-auto shrink-0 rounded-pill bg-sidebar-hover px-2 py-0.5 text-label-sm whitespace-nowrap"
                   [class.lg:sr-only]="compactSidebar()"
                 >
                   Em breve
@@ -80,10 +89,10 @@
       </ul>
     </nav>
 
-    <div class="hidden border-t border-divider p-3 lg:block">
+    <div class="hidden p-3 lg:block">
       <button
         type="button"
-        class="flex min-h-11 w-full cursor-pointer items-center gap-3 rounded-control px-3 text-label-lg text-ink-muted hover:bg-surface-muted hover:text-ink"
+        class="flex min-h-11 w-full cursor-pointer items-center gap-3 rounded-control px-3 text-label-lg text-on-sidebar-muted hover:bg-sidebar-hover hover:text-on-sidebar"
         [class.justify-center]="compactSidebar()"
         [attr.aria-label]="compactSidebar() ? 'Expandir menu lateral' : 'Recolher menu lateral'"
         [attr.aria-expanded]="!compactSidebar()"
@@ -101,12 +110,12 @@
 
   <div class="flex min-w-0 flex-1 flex-col">
     <header
-      class="flex h-16 shrink-0 items-center gap-2 border-b border-divider bg-surface px-3 sm:px-6"
+      class="flex h-16 shrink-0 items-center gap-2 border-b border-divider bg-surface px-3 sm:gap-3 sm:px-6"
     >
       <button
         #menuButton
         type="button"
-        class="size-10 cursor-pointer items-center justify-center rounded-control text-ink-muted hover:bg-surface-muted hover:text-ink lg:hidden"
+        class="size-10 shrink-0 cursor-pointer items-center justify-center rounded-control text-ink-muted hover:bg-surface-muted hover:text-ink lg:hidden"
         [class.inline-flex]="mobileNav() === 'drawer'"
         [class.hidden]="mobileNav() === 'bottom'"
         [class.md:inline-flex]="mobileNav() === 'bottom'"
@@ -117,28 +126,55 @@
       >
         <svg lucideMenu class="size-6"></svg>
       </button>
-      <app-logo class="size-8 lg:hidden" compact [link]="homeLink()" />
-      <p class="truncate text-label-lg text-ink-muted">{{ currentArea().label }}</p>
+      <app-logo class="size-8 shrink-0 lg:hidden" compact [link]="homeLink()" />
 
-      <div class="ml-auto flex items-center gap-1">
-        <app-theme-toggle />
+      <!-- Seletor de área: só abre um menu se a pessoa tiver mais de uma -->
+      @if (otherAreas().length > 0) {
         <button
           type="button"
-          class="flex min-h-11 cursor-pointer items-center gap-2 rounded-pill p-1 text-left hover:bg-surface-muted md:pr-3"
-          [cdkMenuTriggerFor]="accountMenu"
-          [attr.aria-label]="'Conta de ' + displayName()"
+          class="inline-flex min-h-10 min-w-0 cursor-pointer items-center gap-2 rounded-pill bg-soft/40 px-3 text-label-lg text-ink hover:bg-soft/60"
+          [cdkMenuTriggerFor]="areaMenu"
+          [attr.aria-label]="'Área: ' + currentArea().label + '. Trocar de área'"
         >
+          <svg [lucideIcon]="currentAreaIcon()" class="size-4 shrink-0 text-link"></svg>
+          <span class="truncate"
+            ><span class="hidden sm:inline">Área: </span>{{ currentArea().label }}</span
+          >
+          <svg lucideChevronDown class="size-4 shrink-0 text-ink-muted"></svg>
+        </button>
+      } @else {
+        <span
+          class="inline-flex min-h-10 min-w-0 items-center gap-2 rounded-pill bg-soft/40 px-3 text-label-lg text-ink"
+        >
+          <svg [lucideIcon]="currentAreaIcon()" class="size-4 shrink-0 text-link"></svg>
+          <span class="truncate"
+            ><span class="hidden sm:inline">Área: </span>{{ currentArea().label }}</span
+          >
+        </span>
+      }
+
+      <div class="ml-auto flex shrink-0 items-center gap-1 sm:gap-2">
+        <app-theme-toggle />
+        <div class="hidden items-center gap-2 border-l border-divider pl-3 sm:flex">
           <span
             class="flex size-9 items-center justify-center rounded-full bg-soft text-label-lg font-semibold text-on-soft"
             aria-hidden="true"
           >
             {{ initials() }}
           </span>
-          <span class="hidden min-w-0 md:block" aria-hidden="true">
+          <span class="min-w-0">
             <span class="block max-w-40 truncate text-label-lg text-ink">{{ displayName() }}</span>
-            <span class="block text-body-sm text-ink-muted">{{ currentArea().label }}</span>
+            <span class="block truncate text-body-sm text-ink-muted">{{ subtitle() }}</span>
           </span>
-          <svg lucideChevronDown class="hidden size-4 text-ink-muted md:block"></svg>
+        </div>
+        <button
+          type="button"
+          class="inline-flex min-h-10 cursor-pointer items-center gap-2 rounded-control px-2 text-label-lg text-ink-muted hover:bg-surface-muted hover:text-ink"
+          aria-label="Sair"
+          (click)="logout()"
+        >
+          <svg lucideLogOut class="size-5"></svg>
+          <span class="hidden md:inline" aria-hidden="true">Sair</span>
         </button>
       </div>
     </header>
@@ -195,41 +231,22 @@
   </nav>
 }
 
-<ng-template #accountMenu>
+<ng-template #areaMenu>
   <div
     cdkMenu
-    class="mt-2 flex min-w-64 flex-col rounded-container border border-divider bg-surface-raised p-1.5 shadow-3"
+    class="mt-2 flex min-w-60 flex-col rounded-container border border-divider bg-surface-raised p-1.5 shadow-3"
   >
-    <div class="px-3 py-2">
-      <p class="truncate text-label-lg text-ink">{{ displayName() }}</p>
-      <p class="text-body-sm text-ink-muted">Área: {{ currentArea().label }}</p>
-    </div>
-
-    @if (otherAreas().length > 0) {
-      <div class="my-1 border-t border-divider" role="separator"></div>
-      <p class="px-3 pt-1 pb-1 text-label-sm text-ink-muted uppercase">Trocar de área</p>
-      @for (other of otherAreas(); track other.role) {
-        <button
-          cdkMenuItem
-          type="button"
-          class="flex min-h-11 cursor-pointer items-center gap-3 rounded-control px-3 text-left text-label-lg text-ink outline-none hover:bg-surface-muted focus:bg-surface-muted"
-          (cdkMenuItemTriggered)="goTo(other)"
-        >
-          <svg [lucideIcon]="other.icon" class="size-5 text-ink-muted"></svg>
-          {{ other.label }}
-        </button>
-      }
+    <p class="px-3 pt-1.5 pb-1 text-label-sm text-ink-muted uppercase">Trocar de área</p>
+    @for (other of otherAreas(); track other.role) {
+      <button
+        cdkMenuItem
+        type="button"
+        class="flex min-h-11 cursor-pointer items-center gap-3 rounded-control px-3 text-left text-label-lg text-ink outline-none hover:bg-surface-muted focus:bg-surface-muted"
+        (cdkMenuItemTriggered)="goTo(other)"
+      >
+        <svg [lucideIcon]="other.icon" class="size-5 text-ink-muted"></svg>
+        {{ other.label }}
+      </button>
     }
-
-    <div class="my-1 border-t border-divider" role="separator"></div>
-    <button
-      cdkMenuItem
-      type="button"
-      class="flex min-h-11 cursor-pointer items-center gap-3 rounded-control px-3 text-left text-label-lg text-danger-ink outline-none hover:bg-danger-soft focus:bg-danger-soft"
-      (cdkMenuItemTriggered)="logout()"
-    >
-      <svg lucideLogOut class="size-5"></svg>
-      Sair
-    </button>
   </div>
 </ng-template>

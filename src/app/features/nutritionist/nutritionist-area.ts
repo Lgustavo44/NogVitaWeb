@@ -17,7 +17,13 @@ import { NutritionistProfileStore } from './nutritionist-profile-store';
   imports: [AppShell, RouterOutlet],
   providers: [NutritionistProfileStore],
   template: `
-    <app-shell area="Nutritionist" [navigation]="navigation" [userName]="userName()">
+    <app-shell
+      area="Nutritionist"
+      menuTitle="Menu clínico"
+      [navigation]="navigation"
+      [userName]="userName()"
+      [userDetail]="crn()"
+    >
       <router-outlet />
     </app-shell>
   `,
@@ -27,6 +33,11 @@ export class NutritionistArea {
 
   protected readonly userName = computed(() =>
     this.profile.hasValue() ? this.profile.value().name : null,
+  );
+  protected readonly crn = computed(() =>
+    this.profile.hasValue()
+      ? `CRN-${this.profile.value().crnRegion} ${this.profile.value().crnNumber}`
+      : null,
   );
   protected readonly navigation: NavItem[] = [
     { label: 'Início', icon: LucideHouse, link: '/nutricionista', exact: true },
