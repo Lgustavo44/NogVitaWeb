@@ -18,9 +18,9 @@ import {
   LucideMailCheck,
 } from '@lucide/angular';
 import { firstValueFrom } from 'rxjs';
+import { Auth } from '../../../core/auth/auth';
 import { AuthApi } from '../../../core/auth/auth-api';
 import { LoginRequest } from '../../../core/auth/auth.models';
-import { Session } from '../../../core/auth/session';
 import { ApiError, toApiError, toFieldErrors } from '../../../core/http/api-error';
 import { Alert } from '../../../shared/ui/alert/alert';
 import { Button } from '../../../shared/ui/button/button';
@@ -52,8 +52,8 @@ type ResendState = 'idle' | 'sending' | 'sent';
   templateUrl: './login.html',
 })
 export class Login {
+  private readonly auth = inject(Auth);
   private readonly authApi = inject(AuthApi);
-  private readonly session = inject(Session);
   private readonly router = inject(Router);
 
   protected readonly model = signal<LoginRequest>({ email: '', password: '' });
@@ -94,7 +94,7 @@ export class Login {
 
     try {
       const tokens = await firstValueFrom(this.authApi.login(this.model()));
-      this.session.start(tokens);
+      this.auth.start(tokens);
       await this.router.navigateByUrl('/inicio');
       return undefined;
     } catch (error) {

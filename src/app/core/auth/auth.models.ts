@@ -1,45 +1,11 @@
+import { BiologicalSex, Goal } from '../../shared/domain/patient-enums';
+
+/** Papéis que a API devolve em `GET /auth/me`. Um usuário pode ter mais de um. */
+export type Role = 'Patient' | 'Nutritionist' | 'Admin';
+
 export interface LoginRequest {
   email: string;
   password: string;
-}
-
-export type BiologicalSex = 'Male' | 'Female';
-export type PatientGoal = 'WeightLoss' | 'Maintenance' | 'MuscleGain';
-
-export interface PatientRegistrationRequest {
-  name: string;
-  email: string;
-  cpf: string;
-  password: string;
-  birthDate: string;
-  biologicalSex: BiologicalSex;
-  heightInCm: number;
-  goal: PatientGoal;
-}
-
-export interface PasswordResetConfirmRequest {
-  token: string;
-  newPassword: string;
-}
-
-export interface InvitationAcceptRequest {
-  token: string;
-  password: string | null;
-}
-
-export interface PatientProfile {
-  userId: string;
-  name: string;
-  email: string;
-  cpf: string;
-  birthDate: string;
-  age: number;
-  biologicalSex: BiologicalSex;
-  heightInCm: number;
-  goal: PatientGoal;
-  wakeUpTime: string | null;
-  bedTime: string | null;
-  trainingTime: string | null;
 }
 
 export interface AuthResponse {
@@ -54,38 +20,25 @@ export interface MeResponse {
   roles: string[];
 }
 
-export interface PagedResponse<T> {
-  items: T[];
-  page: number;
-  pageSize: number;
-  totalItems: number;
-}
-
-export interface AdminUserSummary {
-  id: string;
+export interface PatientRegistrationRequest {
   name: string;
   email: string;
-  isActive: boolean;
-  isAdmin: boolean;
-  isPatient: boolean;
-  isNutritionist: boolean;
-  createdAt: string;
+  cpf: string;
+  password: string;
+  birthDate: string;
+  biologicalSex: BiologicalSex;
+  heightInCm: number;
+  goal: Goal;
 }
 
-export interface NutritionistPatientSummary {
-  patientId: string;
-  name: string;
-  goal: string;
-  startedAtUtc: string;
+export interface PasswordResetConfirmRequest {
+  token: string;
+  newPassword: string;
 }
 
-export interface NutritionistProfile {
-  userId: string;
-  name: string;
-  email: string;
-  crnRegion: number;
-  crnNumber: string;
-  bio: string | null;
+export interface InvitationAcceptRequest {
+  token: string;
+  password: string | null;
 }
 
 export interface MessageResponse {

@@ -1,57 +1,70 @@
-import { DOCUMENT } from '@angular/common';
-import { Service, computed, inject, signal } from '@angular/core';
+import { DOCUMENT, Service, computed, inject, signal } from '@angular/core';
 import { AuthResponse } from './auth.models';
 
+const STORAGE_KEY = 'nogvita-session';
+
 /**
- * Os tokens da sessão atual ficam na aba para sobreviver a recarregamentos.
- * Ao fechar a aba, o sessionStorage é descartado.
+ * Os tokens da sessão atual (D15: sessionStorage).
+ * Sobrevivem ao recarregar a página e somem ao fechar a aba.
+ * Quem inicia e encerra a sessão é o serviço `Auth`; aqui só se guarda e se lê.
  */
 @Service()
 export class Session {
-  private readonly document = inject(DOCUMENT);
-  private readonly tokens = signal<AuthResponse | null>(this.readStoredTokens());
+  private readonly storage = sessionStorageOf(inject(DOCUMENT));
+  private readonly tokens = signal<AuthResponse | null>(this.read());
 
   readonly isAuthenticated = computed(() => this.tokens() !== null);
   readonly accessToken = computed(() => this.tokens()?.accessToken ?? null);
   readonly refreshToken = computed(() => this.tokens()?.refreshToken ?? null);
 
-  start(tokens: AuthResponse): void {
+  /** Se o access token vence nos próximos `marginMs` (renova antes de a API recusar). */
+  accessTokenExpiresSoon(marginMs = 30_000): boolean {
+    const tokens = this.tokens();
+    return tokens !== null && Date.parse(tokens.accessTokenExpiresAtUtc) - Date.now() < marginMs;
+  }
+
+  store(tokens: AuthResponse): void {
     this.tokens.set(tokens);
-    this.persist(tokens);
+    try {
+      this.storage?.setItem(STORAGE_KEY, JSON.stringify(tokens));
+    } catch {
+      // Armazenamento cheio ou bloqueado: a sessão vale só enquanto a página estiver aberta.
+    }
   }
 
   clear(): void {
     this.tokens.set(null);
-    this.document.defaultView?.sessionStorage.removeItem(STORAGE_KEY);
+    try {
+      this.storage?.removeItem(STORAGE_KEY);
+    } catch {
+      // Nada a fazer: o estado em memória já foi limpo.
+    }
   }
 
-  private readStoredTokens(): AuthResponse | null {
-    const stored = this.document.defaultView?.sessionStorage.getItem(STORAGE_KEY);
-    if (!stored) {
-      return null;
-    }
-
+  private read(): AuthResponse | null {
     try {
-      const tokens: unknown = JSON.parse(stored);
+      const stored = this.storage?.getItem(STORAGE_KEY);
+      const tokens: unknown = stored ? JSON.parse(stored) : null;
       return isAuthResponse(tokens) ? tokens : null;
     } catch {
-      this.document.defaultView?.sessionStorage.removeItem(STORAGE_KEY);
       return null;
     }
-  }
-
-  private persist(tokens: AuthResponse): void {
-    this.document.defaultView?.sessionStorage.setItem(STORAGE_KEY, JSON.stringify(tokens));
   }
 }
 
-const STORAGE_KEY = 'nogvita-session';
+/** Em navegação privada ou com cookies bloqueados, só acessar o sessionStorage já pode lançar erro. */
+function sessionStorageOf(document: Document): Storage | null {
+  try {
+    return document.defaultView?.sessionStorage ?? null;
+  } catch {
+    return null;
+  }
+}
 
 function isAuthResponse(value: unknown): value is AuthResponse {
   if (typeof value !== 'object' || value === null) {
     return false;
   }
-
   const tokens = value as Record<string, unknown>;
   return (
     typeof tokens['accessToken'] === 'string' &&

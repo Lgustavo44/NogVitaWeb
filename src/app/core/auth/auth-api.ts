@@ -1,22 +1,18 @@
-import { HttpClient, HttpParams } from '@angular/common/http';
+import { HttpClient } from '@angular/common/http';
 import { Service, inject } from '@angular/core';
 import { Observable } from 'rxjs';
 import { apiUrl } from '../http/api-url';
 import {
   AuthResponse,
-  AdminUserSummary,
   InvitationAcceptRequest,
   LoginRequest,
   MeResponse,
   MessageResponse,
   PasswordResetConfirmRequest,
-  PatientProfile,
   PatientRegistrationRequest,
-  NutritionistPatientSummary,
-  NutritionistProfile,
-  PagedResponse,
 } from './auth.models';
 
+/** Só os endpoints de `/auth`. Os de cada área ficam na pasta da própria área. */
 @Service()
 export class AuthApi {
   private readonly http = inject(HttpClient);
@@ -26,29 +22,32 @@ export class AuthApi {
     return this.http.post<AuthResponse>(apiUrl('/auth/login'), body);
   }
 
-  getCurrentUser(): Observable<MeResponse> {
+  /** Devolve um par novo. Reusar um refresh token já trocado encerra todas as sessões do usuário. */
+  refresh(refreshToken: string): Observable<AuthResponse> {
+    return this.http.post<AuthResponse>(apiUrl('/auth/refresh'), { refreshToken });
+  }
+
+  me(): Observable<MeResponse> {
     return this.http.get<MeResponse>(apiUrl('/auth/me'));
   }
 
-  getAdminUsers(): Observable<PagedResponse<AdminUserSummary>> {
-    const params = new HttpParams().set('page', 1).set('pageSize', 10);
-    return this.http.get<PagedResponse<AdminUserSummary>>(apiUrl('/admin/users'), { params });
+  /** Idempotente: 204 mesmo se o token já não valer. */
+  logout(refreshToken: string): Observable<void> {
+    return this.http.post<void>(apiUrl('/auth/logout'), { refreshToken });
   }
 
-  getNutritionistProfile(): Observable<NutritionistProfile> {
-    return this.http.get<NutritionistProfile>(apiUrl('/nutritionists/me'));
-  }
-
-  getNutritionistPatients(): Observable<PagedResponse<NutritionistPatientSummary>> {
-    const params = new HttpParams().set('page', 1).set('pageSize', 10);
-    return this.http.get<PagedResponse<NutritionistPatientSummary>>(
-      apiUrl('/nutritionists/me/patients'),
-      { params },
-    );
-  }
-
+  /** Responde sempre 202 com a mesma mensagem, mesmo se o e-mail ou o CPF já existirem. */
   registerPatient(body: PatientRegistrationRequest): Observable<MessageResponse> {
     return this.http.post<MessageResponse>(apiUrl('/auth/register/patient'), body);
+  }
+
+  confirmEmail(token: string): Observable<void> {
+    return this.http.post<void>(apiUrl('/auth/email-confirmation/confirm'), { token });
+  }
+
+  /** Responde sempre 202, exista ou não um cadastro pendente com esse e-mail. */
+  resendEmailConfirmation(email: string): Observable<MessageResponse> {
+    return this.http.post<MessageResponse>(apiUrl('/auth/email-confirmation/resend'), { email });
   }
 
   requestPasswordReset(email: string): Observable<MessageResponse> {
@@ -61,23 +60,5 @@ export class AuthApi {
 
   acceptNutritionistInvitation(body: InvitationAcceptRequest): Observable<void> {
     return this.http.post<void>(apiUrl('/auth/invitations/accept'), body);
-  }
-
-  confirmEmail(token: string): Observable<void> {
-    return this.http.post<void>(apiUrl('/auth/email-confirmation/confirm'), { token });
-  }
-
-  getPatientProfile(): Observable<PatientProfile> {
-    return this.http.get<PatientProfile>(apiUrl('/patients/me'));
-  }
-
-  /** Responde sempre 202, exista ou não um cadastro pendente com esse e-mail. */
-  resendEmailConfirmation(email: string): Observable<MessageResponse> {
-    return this.http.post<MessageResponse>(apiUrl('/auth/email-confirmation/resend'), { email });
-  }
-
-  /** Idempotente: 204 mesmo se o token já não valer. */
-  logout(refreshToken: string): Observable<void> {
-    return this.http.post<void>(apiUrl('/auth/logout'), { refreshToken });
   }
 }
