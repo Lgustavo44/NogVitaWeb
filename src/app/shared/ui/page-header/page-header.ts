@@ -8,7 +8,8 @@ import { Component, booleanAttribute, input } from '@angular/core';
 @Component({
   selector: 'app-page-header',
   imports: [DatePipe],
-  host: { class: 'flex flex-col gap-2' },
+  // items-start: botões projetados no cabeçalho ficam do tamanho do conteúdo, sem esticar.
+  host: { class: 'flex flex-col items-start gap-2' },
   template: `
     <div class="flex flex-wrap items-center gap-2 text-body-sm text-ink-muted">
       @if (badge()) {
