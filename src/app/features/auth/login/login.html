@@ -1,0 +1,97 @@
+<div class="flex flex-col items-center gap-4 text-center">
+  <app-logo class="h-10" priority />
+  <div class="flex flex-col gap-1">
+    <h1 class="text-headline-lg text-ink">Bem-vindo(a) de volta</h1>
+    <p class="mx-auto max-w-xs text-body-md text-ink-muted">
+      Acesse sua conta para continuar sua jornada de saúde e nutrição.
+    </p>
+  </div>
+</div>
+
+@if (needsEmailConfirmation()) {
+  <app-alert tone="info" heading="Confirmação pendente">
+    Confirme seu e-mail antes de entrar. Enviamos um link para o endereço cadastrado.
+    <div alertActions class="flex pl-5">
+      @if (resendState() === 'sent') {
+        <p class="text-body-md font-medium">
+          Enviamos um novo link. Confira sua caixa de entrada e o spam.
+        </p>
+      } @else {
+        <button
+          appButton
+          variant="ghost"
+          type="button"
+          [loading]="resendState() === 'sending'"
+          (click)="resendConfirmation()"
+        >
+          <svg lucideMailCheck class="size-4"></svg>
+          Reenviar link de confirmação
+        </button>
+      }
+    </div>
+  </app-alert>
+}
+
+@if (failure(); as failure) {
+  <app-alert tone="danger">
+    {{ failure.message }}
+    @if (failure.traceId) {
+      <span class="mt-1 block text-body-sm opacity-80">Código do erro: {{ failure.traceId }}</span>
+    }
+  </app-alert>
+}
+
+<form [formRoot]="loginForm" class="flex flex-col gap-4">
+  <app-field label="E-mail">
+    <svg lucideMail class="pointer-events-none absolute left-3 size-5 text-ink-muted"></svg>
+    <input
+      appInput
+      [formField]="loginForm.email"
+      type="email"
+      inputmode="email"
+      autocomplete="email"
+      placeholder="seu@email.com"
+      class="pl-10"
+    />
+  </app-field>
+
+  <app-field label="Senha">
+    <a fieldAction routerLink="/esqueci-senha" class="text-label-md text-link hover:underline">
+      Esqueci minha senha
+    </a>
+    <svg lucideLock class="pointer-events-none absolute left-3 size-5 text-ink-muted"></svg>
+    <input
+      appInput
+      [formField]="loginForm.password"
+      [type]="showPassword() ? 'text' : 'password'"
+      autocomplete="current-password"
+      placeholder="Digite sua senha"
+      class="pr-12 pl-10"
+    />
+    <button
+      type="button"
+      class="absolute right-1 inline-flex size-10 cursor-pointer items-center justify-center rounded-control text-ink-muted hover:text-ink"
+      [attr.aria-label]="showPassword() ? 'Ocultar senha' : 'Mostrar senha'"
+      [attr.aria-pressed]="showPassword()"
+      (click)="togglePassword()"
+    >
+      @if (showPassword()) {
+        <svg lucideEyeOff class="size-5"></svg>
+      } @else {
+        <svg lucideEye class="size-5"></svg>
+      }
+    </button>
+  </app-field>
+
+  <button appButton type="submit" block class="mt-2" [loading]="loginForm().submitting()">
+    Entrar na plataforma
+    <svg lucideLogIn class="size-5"></svg>
+  </button>
+</form>
+
+<p class="text-center text-body-md text-ink-muted">
+  Ainda não tem conta?
+  <a routerLink="/cadastro" class="font-semibold text-link hover:underline"
+    >Criar conta de paciente</a
+  >
+</p>
