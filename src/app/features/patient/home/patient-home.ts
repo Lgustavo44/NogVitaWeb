@@ -6,6 +6,7 @@ import { isNotFound } from '../../../core/http/resource-status';
 import { BIOLOGICAL_SEX_LABELS, GOAL_LABELS } from '../../../shared/domain/patient-enums';
 import { LoadError } from '../../../shared/ui/load-error/load-error';
 import { PageHeader } from '../../../shared/ui/page-header/page-header';
+import { parseIsoDate } from '../../../shared/util/dates';
 import { careRelationshipResource, currentPlanResource } from '../patient-api';
 import { PatientProfileStore } from '../patient-profile-store';
 
@@ -38,6 +39,11 @@ export class PatientHome {
   /** 404 aqui significa "ainda não tem": vira estado vazio, não erro. */
   protected readonly careMissing = computed(() => isNotFound(this.care.error()));
   protected readonly planMissing = computed(() => isNotFound(this.plan.error()));
+
+  /** Data sem hora: `| date` direto na string ISO mostraria o dia anterior no horário de Brasília. */
+  protected date(iso: string): Date {
+    return parseIsoDate(iso);
+  }
 
   protected time(value: string | null): string {
     return value ? value.slice(0, 5) : 'Não informado';

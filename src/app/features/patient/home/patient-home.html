@@ -68,12 +68,17 @@
         <p class="text-title-md text-ink">{{ plan.value().plan.name }}</p>
         <p class="text-body-md text-ink-muted">
           {{ plan.value().meals.length }} refeições · desde
-          {{ plan.value().plan.startDate | date: 'dd/MM/yyyy' }}
+          {{ date(plan.value().plan.startDate) | date: 'dd/MM/yyyy' }}
           @if (plan.value().plan.endDate; as endDate) {
-            até {{ endDate | date: 'dd/MM/yyyy' }}
+            até {{ date(endDate) | date: 'dd/MM/yyyy' }}
           }
         </p>
       </div>
+      <a
+        routerLink="/paciente/plano"
+        class="inline-flex items-center gap-1 self-start text-label-lg text-link hover:underline"
+        >Ver plano completo</a
+      >
     }
   </section>
 
