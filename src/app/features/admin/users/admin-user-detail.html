@@ -1,0 +1,264 @@
+<a
+  routerLink="/admin/usuarios"
+  class="inline-flex items-center gap-2 self-start text-label-lg text-link hover:underline"
+>
+  <svg lucideArrowLeft class="size-4"></svg>
+  Voltar para usuários
+</a>
+
+@if (user.hasValue()) {
+  @let account = user.value();
+
+  <section
+    class="flex flex-col gap-5 rounded-container bg-surface p-5 shadow-2 sm:p-7"
+    aria-labelledby="conta-titulo"
+  >
+    <div class="flex flex-wrap items-center gap-2">
+      <app-account-badge [active]="account.isActive" />
+      @if (account.isAdmin) {
+        <span
+          class="inline-flex items-center gap-1 rounded-pill bg-sidebar px-2.5 py-0.5 text-label-sm text-on-sidebar"
+          ><svg lucideShieldCheck class="size-3.5"></svg> Admin</span
+        >
+      }
+      @if (account.patient) {
+        <span class="rounded-pill bg-surface-muted px-2.5 py-0.5 text-label-sm text-ink"
+          >Paciente</span
+        >
+      }
+      @if (account.nutritionist) {
+        <span class="rounded-pill bg-surface-muted px-2.5 py-0.5 text-label-sm text-ink"
+          >Nutricionista</span
+        >
+      }
+    </div>
+    <div>
+      <h1 id="conta-titulo" class="text-headline-xl text-ink">{{ account.name }}</h1>
+      <p class="text-body-md break-all text-ink-muted">{{ account.email }}</p>
+    </div>
+    <dl class="grid gap-3 sm:grid-cols-3">
+      <div class="rounded-control bg-surface-muted p-3">
+        <dt class="text-label-sm text-ink-muted uppercase">CPF</dt>
+        <dd class="text-label-lg text-ink tabular-nums">{{ account.cpf }}</dd>
+      </div>
+      <div class="rounded-control bg-surface-muted p-3">
+        <dt class="text-label-sm text-ink-muted uppercase">Criada em</dt>
+        <dd class="text-label-lg text-ink">{{ account.createdAt | date: 'dd/MM/yyyy HH:mm' }}</dd>
+      </div>
+      <div class="rounded-control bg-surface-muted p-3">
+        <dt class="text-label-sm text-ink-muted uppercase">Última alteração</dt>
+        <dd class="text-label-lg text-ink">
+          {{ account.updatedAt ? (account.updatedAt | date: 'dd/MM/yyyy HH:mm') : '—' }}
+        </dd>
+      </div>
+    </dl>
+  </section>
+
+  @if (account.patient || account.nutritionist) {
+    <div class="grid gap-6 md:grid-cols-2">
+      @if (account.patient; as patient) {
+        <section
+          class="flex flex-col gap-4 rounded-container bg-surface p-5 shadow-1"
+          aria-labelledby="perfil-paciente"
+        >
+          <h2 id="perfil-paciente" class="flex items-center gap-2 text-title-md text-ink">
+            <svg lucideUserRound class="size-5 text-link"></svg>
+            Perfil de paciente
+          </h2>
+          <dl class="grid grid-cols-2 gap-3">
+            <div>
+              <dt class="text-label-sm text-ink-muted uppercase">Nascimento</dt>
+              <dd class="text-label-lg text-ink">
+                {{ date(patient.birthDate) | date: 'dd/MM/yyyy' }} ({{ age(patient.birthDate) }}
+                anos)
+              </dd>
+            </div>
+            <div>
+              <dt class="text-label-sm text-ink-muted uppercase">Sexo biológico</dt>
+              <dd class="text-label-lg text-ink">{{ sexLabels[patient.biologicalSex] }}</dd>
+            </div>
+            <div>
+              <dt class="text-label-sm text-ink-muted uppercase">Altura</dt>
+              <dd class="text-label-lg text-ink">{{ patient.heightInCm }} cm</dd>
+            </div>
+            <div>
+              <dt class="text-label-sm text-ink-muted uppercase">Objetivo</dt>
+              <dd class="text-label-lg text-ink">{{ goalLabel(patient.goal) }}</dd>
+            </div>
+          </dl>
+        </section>
+      }
+      @if (account.nutritionist; as nutritionist) {
+        <section
+          class="flex flex-col gap-4 rounded-container bg-surface p-5 shadow-1"
+          aria-labelledby="perfil-nutri"
+        >
+          <h2 id="perfil-nutri" class="flex items-center gap-2 text-title-md text-ink">
+            <svg lucideStethoscope class="size-5 text-link"></svg>
+            Perfil de nutricionista
+          </h2>
+          <dl class="grid grid-cols-2 gap-3">
+            <div>
+              <dt class="text-label-sm text-ink-muted uppercase">Registro</dt>
+              <dd class="text-label-lg text-ink">
+                CRN-{{ nutritionist.crnRegion }} {{ nutritionist.crnNumber }}
+              </dd>
+            </div>
+            <div>
+              <dt class="text-label-sm text-ink-muted uppercase">Convite</dt>
+              <dd class="text-label-lg text-ink">
+                {{ nutritionist.isActive ? 'Aceito' : 'Pendente' }}
+              </dd>
+            </div>
+          </dl>
+          @if (!nutritionist.isActive) {
+            <p class="text-body-sm text-ink-muted">
+              Enquanto o convite não for aceito, a pessoa não tem senha para entrar. Se ela não
+              recebeu o e-mail, reenvie o convite. Para corrigir um e-mail errado, cancele o
+              pré-cadastro e cadastre de novo.
+            </p>
+            @if (emailFailed()) {
+              <app-alert tone="warning">
+                O convite novo foi gerado, mas o e-mail não foi enviado. Tente reenviar de novo em
+                instantes.
+              </app-alert>
+            }
+            <div class="flex flex-col gap-2 sm:flex-row sm:flex-wrap">
+              <button appButton variant="soft" type="button" (click)="ask('resend')">
+                <svg lucideMailPlus class="size-5"></svg>
+                Reenviar convite
+              </button>
+              <button appButton variant="danger" type="button" (click)="ask('cancel-invite')">
+                Cancelar pré-cadastro
+              </button>
+            </div>
+          }
+        </section>
+      }
+    </div>
+  }
+
+  <section
+    class="flex flex-col gap-3 rounded-container bg-surface p-5 shadow-1"
+    aria-labelledby="acesso-titulo"
+  >
+    <h2 id="acesso-titulo" class="text-title-md text-ink">Acesso à plataforma</h2>
+    @if (isSelf()) {
+      <p class="text-body-md text-ink-muted">
+        Esta é a sua conta. Você não pode desativar a própria conta.
+      </p>
+    } @else if (account.isActive) {
+      <p class="text-body-md text-ink-muted">
+        Desativar encerra todas as sessões da conta na hora. Confirmar o e-mail, redefinir a senha
+        ou aceitar um convite não reativam a conta.
+      </p>
+      <button
+        appButton
+        variant="danger"
+        type="button"
+        class="self-start"
+        (click)="ask('deactivate')"
+      >
+        <svg lucideUserX class="size-5"></svg>
+        Desativar conta
+      </button>
+    } @else {
+      <p class="text-body-md text-ink-muted">
+        Conta desativada: a pessoa não consegue entrar.
+        @if (account.nutritionist) {
+          Reativar não recria os acompanhamentos encerrados: os pacientes precisam pedir de novo.
+        }
+      </p>
+      <button appButton type="button" class="self-start" (click)="ask('activate')">
+        Reativar conta
+      </button>
+    }
+  </section>
+} @else if (user.error()) {
+  <app-load-error [error]="user.error()" (retry)="user.reload()" />
+} @else {
+  <div
+    class="h-56 rounded-container bg-surface-muted motion-safe:animate-pulse"
+    aria-hidden="true"
+  ></div>
+  <span class="sr-only" role="status">Carregando conta…</span>
+}
+
+@if (action(); as current) {
+  @switch (current) {
+    @case ('deactivate') {
+      <app-confirm-dialog
+        heading="Desativar conta?"
+        [subtitle]="user.value()?.name"
+        confirmLabel="Desativar conta"
+        tone="danger"
+        [busy]="busy()"
+        [error]="error()"
+        (confirmed)="confirm()"
+        (closed)="close()"
+      >
+        <p>Todas as sessões da conta são encerradas na hora.</p>
+        @if (user.value()?.nutritionist) {
+          <p class="font-semibold">Como esta conta é de nutricionista, também:</p>
+          <ul class="list-disc pl-5">
+            <li>os acompanhamentos ativos são encerrados, e cada paciente é avisado por e-mail;</li>
+            <li>
+              o plano ativo de cada paciente é finalizado hoje, e os rascunhos são cancelados;
+            </li>
+            <li>as solicitações pendentes são recusadas.</li>
+          </ul>
+        } @else if (user.value()?.patient) {
+          <p>
+            Enquanto estiver desativado, o paciente some da lista do nutricionista. O acompanhamento
+            não é encerrado.
+          </p>
+        }
+      </app-confirm-dialog>
+    }
+    @case ('activate') {
+      <app-confirm-dialog
+        heading="Reativar conta?"
+        [subtitle]="user.value()?.name"
+        confirmLabel="Reativar conta"
+        [busy]="busy()"
+        [error]="error()"
+        (confirmed)="confirm()"
+        (closed)="close()"
+      >
+        <p>A pessoa volta a conseguir entrar.</p>
+      </app-confirm-dialog>
+    }
+    @case ('resend') {
+      <app-confirm-dialog
+        heading="Reenviar convite?"
+        [subtitle]="user.value()?.email"
+        confirmLabel="Reenviar convite"
+        [busy]="busy()"
+        [error]="error()"
+        (confirmed)="confirm()"
+        (closed)="close()"
+      >
+        <p>Um link novo vai para o e-mail acima, e o link anterior deixa de funcionar.</p>
+      </app-confirm-dialog>
+    }
+    @case ('cancel-invite') {
+      <app-confirm-dialog
+        heading="Cancelar pré-cadastro?"
+        [subtitle]="user.value()?.name"
+        confirmLabel="Cancelar pré-cadastro"
+        cancelLabel="Manter"
+        tone="danger"
+        [busy]="busy()"
+        [error]="error()"
+        (confirmed)="confirm()"
+        (closed)="close()"
+      >
+        <p>
+          Os links de convite deixam de funcionar. Se a conta foi criada só pelo pré-cadastro, ela é
+          apagada e o CPF, o e-mail e o CRN ficam livres. Se a pessoa já era paciente, sai só o
+          perfil de nutricionista.
+        </p>
+      </app-confirm-dialog>
+    }
+  }
+}

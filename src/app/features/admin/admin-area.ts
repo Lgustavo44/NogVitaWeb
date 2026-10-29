@@ -33,9 +33,9 @@ export class AdminArea {
   protected readonly userName = computed(() => (this.me.hasValue() ? this.me.value().name : null));
   protected readonly navigation: NavItem[] = [
     { label: 'Visão geral', icon: LucideLayoutDashboard, link: '/admin', exact: true },
-    { label: 'Usuários', icon: LucideUsers },
-    { label: 'Nutricionistas', icon: LucideStethoscope },
-    { label: 'Pacientes', icon: LucideUserRound },
-    { label: 'Alimentos', icon: LucideUtensils },
+    { label: 'Usuários', icon: LucideUsers, link: '/admin/usuarios' },
+    { label: 'Nutricionistas', icon: LucideStethoscope, link: '/admin/nutricionistas' },
+    { label: 'Pacientes', icon: LucideUserRound, link: '/admin/pacientes' },
+    { label: 'Alimentos', icon: LucideUtensils, link: '/admin/alimentos' },
   ];
 }
