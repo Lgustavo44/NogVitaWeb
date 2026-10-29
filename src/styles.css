@@ -1,1 +1,206 @@
-/* You can add global styles to this file, and also import other style files */
+@import 'tailwindcss';
+
+/*
+ * Tokens do NogVita (D10: paleta da marca; o YAML do Stitch só complementa).
+ * Os componentes usam só os nomes de uso abaixo, nunca a cor direta.
+ * Contrastes conferidos no WCAG AA: texto >= 4,5:1; bordas e ícones >= 3:1.
+ */
+
+@custom-variant dark (&:where([data-theme='dark'], [data-theme='dark'] *));
+
+:root {
+  color-scheme: light;
+
+  --nv-canvas: #fffbf5;
+  --nv-surface: #ffffff;
+  --nv-surface-muted: #f7f3ed;
+  --nv-surface-raised: #ffffff;
+
+  --nv-ink: #1d2a24;
+  --nv-ink-muted: #554336;
+
+  /* D11: laranja com texto floresta (6,07:1) */
+  --nv-primary: #f28c28;
+  --nv-primary-hover: #de7a18;
+  --nv-on-primary: #1d2a24;
+
+  --nv-link: #914d00;
+  --nv-focus: #914d00;
+
+  --nv-soft: #ffd08a;
+  --nv-soft-ink: #1d2a24;
+
+  --nv-forest: #1d2a24;
+  --nv-on-forest: #ffffff;
+
+  --nv-line: #9c8778;
+  --nv-divider: rgb(29 42 36 / 0.08);
+
+  --nv-success: #16a34a;
+  --nv-success-ink: #15803d;
+  --nv-success-soft: #f0fdf4;
+  --nv-warning: #d97706;
+  --nv-warning-ink: #b45309;
+  --nv-warning-soft: #fff6e5;
+  --nv-danger: #dc2626;
+  --nv-danger-ink: #b91c1c;
+  --nv-danger-soft: #fef2f2;
+  --nv-info: #7a581e;
+  --nv-info-ink: #7a581e;
+  --nv-info-soft: #fff4e2;
+
+  --nv-shadow-1: 0 1px 3px 0 rgb(29 42 36 / 0.05), 0 1px 2px -1px rgb(29 42 36 / 0.05);
+  --nv-shadow-2: 0 4px 6px -1px rgb(29 42 36 / 0.07), 0 2px 4px -2px rgb(29 42 36 / 0.05);
+  --nv-shadow-3: 0 10px 15px -3px rgb(29 42 36 / 0.09), 0 4px 6px -4px rgb(29 42 36 / 0.05);
+}
+
+:root[data-theme='dark'] {
+  color-scheme: dark;
+
+  --nv-canvas: #1d2a24;
+  --nv-surface: #25352e;
+  --nv-surface-muted: #22302a;
+  --nv-surface-raised: #2d3f37;
+
+  --nv-ink: #fffbf5;
+  --nv-ink-muted: #a3b8ae;
+
+  --nv-primary: #f28c28;
+  --nv-primary-hover: #ffa04a;
+  --nv-on-primary: #1d2a24;
+
+  --nv-link: #f28c28;
+  --nv-focus: #f28c28;
+
+  --nv-soft: #ffd08a;
+  --nv-soft-ink: #ffd08a;
+
+  /* O botão floresta some no fundo floresta: no escuro ele inverte */
+  --nv-forest: #fffbf5;
+  --nv-on-forest: #1d2a24;
+
+  --nv-line: #7a8f85;
+  --nv-divider: rgb(255 255 255 / 0.08);
+
+  --nv-success: #4ade80;
+  --nv-success-ink: #4ade80;
+  --nv-success-soft: rgb(74 222 128 / 0.12);
+  --nv-warning: #fbbf24;
+  --nv-warning-ink: #fbbf24;
+  --nv-warning-soft: rgb(251 191 36 / 0.12);
+  --nv-danger: #f87171;
+  --nv-danger-ink: #f87171;
+  --nv-danger-soft: rgb(248 113 113 / 0.12);
+  --nv-info: #ffd08a;
+  --nv-info-ink: #ffd08a;
+  --nv-info-soft: rgb(255 208 138 / 0.12);
+
+  --nv-shadow-1: 0 1px 3px 0 rgb(0 0 0 / 0.35);
+  --nv-shadow-2: 0 4px 6px -1px rgb(0 0 0 / 0.35);
+  --nv-shadow-3: 0 10px 15px -3px rgb(0 0 0 / 0.35);
+}
+
+/* Antes do Angular iniciar (sem data-theme), evita o "flash" claro para quem usa o sistema no escuro */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme]) {
+    color-scheme: dark;
+    --nv-canvas: #1d2a24;
+  }
+}
+
+@theme inline {
+  --color-*: initial;
+  --color-white: #ffffff;
+  --color-transparent: transparent;
+  --color-current: currentColor;
+
+  --color-canvas: var(--nv-canvas);
+  --color-surface: var(--nv-surface);
+  --color-surface-muted: var(--nv-surface-muted);
+  --color-surface-raised: var(--nv-surface-raised);
+  --color-ink: var(--nv-ink);
+  --color-ink-muted: var(--nv-ink-muted);
+  --color-primary: var(--nv-primary);
+  --color-primary-hover: var(--nv-primary-hover);
+  --color-on-primary: var(--nv-on-primary);
+  --color-link: var(--nv-link);
+  --color-focus: var(--nv-focus);
+  --color-soft: var(--nv-soft);
+  --color-soft-ink: var(--nv-soft-ink);
+  --color-forest: var(--nv-forest);
+  --color-on-forest: var(--nv-on-forest);
+  --color-line: var(--nv-line);
+  --color-divider: var(--nv-divider);
+  --color-success: var(--nv-success);
+  --color-success-ink: var(--nv-success-ink);
+  --color-success-soft: var(--nv-success-soft);
+  --color-warning: var(--nv-warning);
+  --color-warning-ink: var(--nv-warning-ink);
+  --color-warning-soft: var(--nv-warning-soft);
+  --color-danger: var(--nv-danger);
+  --color-danger-ink: var(--nv-danger-ink);
+  --color-danger-soft: var(--nv-danger-soft);
+  --color-info: var(--nv-info);
+  --color-info-ink: var(--nv-info-ink);
+  --color-info-soft: var(--nv-info-soft);
+
+  --shadow-1: var(--nv-shadow-1);
+  --shadow-2: var(--nv-shadow-2);
+  --shadow-3: var(--nv-shadow-3);
+}
+
+@theme {
+  --font-sans: 'Inter Variable', ui-sans-serif, system-ui, sans-serif;
+
+  --radius-control: 0.5rem;
+  --radius-container: 0.75rem;
+  --radius-pill: 9999px;
+
+  --text-display-lg: 2.5rem;
+  --text-display-lg--line-height: 3rem;
+  --text-display-lg--letter-spacing: -0.02em;
+  --text-display-lg--font-weight: 700;
+  --text-display-lg-mobile: 2rem;
+  --text-display-lg-mobile--line-height: 2.5rem;
+  --text-display-lg-mobile--letter-spacing: -0.02em;
+  --text-display-lg-mobile--font-weight: 700;
+  --text-headline-xl: 1.75rem;
+  --text-headline-xl--line-height: 2.25rem;
+  --text-headline-xl--letter-spacing: -0.015em;
+  --text-headline-xl--font-weight: 600;
+  --text-headline-lg: 1.375rem;
+  --text-headline-lg--line-height: 1.875rem;
+  --text-headline-lg--letter-spacing: -0.01em;
+  --text-headline-lg--font-weight: 600;
+  --text-title-md: 1.125rem;
+  --text-title-md--line-height: 1.625rem;
+  --text-title-md--font-weight: 600;
+  --text-body-lg: 1rem;
+  --text-body-lg--line-height: 1.5rem;
+  --text-body-md: 0.875rem;
+  --text-body-md--line-height: 1.25rem;
+  --text-body-sm: 0.75rem;
+  --text-body-sm--line-height: 1.125rem;
+  --text-label-lg: 0.875rem;
+  --text-label-lg--line-height: 1.25rem;
+  --text-label-lg--font-weight: 500;
+  --text-label-md: 0.75rem;
+  --text-label-md--line-height: 1rem;
+  --text-label-md--letter-spacing: 0.02em;
+  --text-label-md--font-weight: 600;
+  --text-label-sm: 0.625rem;
+  --text-label-sm--line-height: 0.875rem;
+  --text-label-sm--letter-spacing: 0.04em;
+  --text-label-sm--font-weight: 600;
+}
+
+@layer base {
+  body {
+    @apply bg-canvas font-sans text-body-md text-ink antialiased;
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--nv-focus);
+    outline-offset: 2px;
+  }
+}
