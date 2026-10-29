@@ -2,18 +2,43 @@
   <div class="flex flex-col items-center gap-5 text-center">
     <app-logo class="h-10" priority />
     <div class="flex flex-col gap-2">
-      <h1 class="text-headline-lg text-ink">Confira seu e-mail</h1>
-      <p class="text-body-md text-ink-muted">{{ message }}</p>
+      <h1 class="text-headline-lg text-ink">Verifique sua caixa de entrada</h1>
+      <p class="text-body-md text-ink-muted">
+        {{ message }}
+        <span class="block font-semibold text-ink">{{ model().email }}</span>
+      </p>
     </div>
     <div class="flex w-full flex-col gap-3">
+      <button
+        appButton
+        variant="soft"
+        type="button"
+        block
+        [loading]="resendState() === 'sending'"
+        [disabled]="resendCooldown() > 0"
+        (click)="resendConfirmation()"
+      >
+        <svg lucideRefreshCw class="size-5"></svg>
+        @if (resendCooldown() > 0) {
+          Reenviar link (aguarde {{ resendCooldown() }}s)
+        } @else {
+          Reenviar link
+        }
+      </button>
+      @if (resendState() === 'sent') {
+        <p class="text-body-sm text-success-ink" role="status">Enviamos um novo link.</p>
+      }
+      <app-alert tone="warning">
+        Cada reenvio invalida os links anteriores. Use sempre o e-mail mais recente. Confira também
+        a caixa de spam.
+      </app-alert>
       <a
         routerLink="/login"
-        class="inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-control bg-primary px-5 py-2 text-label-lg font-semibold text-on-primary shadow-1"
+        class="inline-flex min-h-11 items-center justify-center gap-2 text-label-lg text-ink-muted hover:text-ink"
       >
-        Ir para o login
-        <svg lucideArrowRight class="size-5"></svg>
+        <svg lucideArrowLeft class="size-5"></svg>
+        Voltar para o login
       </a>
-      <p class="text-body-sm text-ink-muted">Não recebeu a mensagem? Confira a caixa de spam.</p>
     </div>
   </div>
 } @else {

@@ -1,4 +1,4 @@
-import { Component, computed, inject, signal } from '@angular/core';
+import { Component, DestroyRef, computed, inject, signal } from '@angular/core';
 import {
   FieldTree,
   FormField,
@@ -14,6 +14,7 @@ import {
 } from '@angular/forms/signals';
 import { RouterLink } from '@angular/router';
 import {
+  LucideArrowLeft,
   LucideArrowRight,
   LucideIdCard,
   LucideCalendarDays,
@@ -23,6 +24,7 @@ import {
   LucideGoal,
   LucideLock,
   LucideMail,
+  LucideRefreshCw,
   LucideRuler,
   LucideScale,
   LucideUserRound,
@@ -31,8 +33,6 @@ import { firstValueFrom } from 'rxjs';
 import { AuthApi } from '../../../core/auth/auth-api';
 import { PatientRegistrationRequest } from '../../../core/auth/auth.models';
 
-/** O formulário aceita altura vazia (null) enquanto a pessoa não preenche. */
-type RegisterModel = Omit<PatientRegistrationRequest, 'heightInCm'> & { heightInCm: number | null };
 import { BiologicalSex, Goal as PatientGoal } from '../../../shared/domain/patient-enums';
 import { ApiError, toApiError, toFieldErrors } from '../../../core/http/api-error';
 import { Alert } from '../../../shared/ui/alert/alert';
@@ -40,6 +40,12 @@ import { Button } from '../../../shared/ui/button/button';
 import { Field } from '../../../shared/ui/field/field';
 import { FieldInput } from '../../../shared/ui/field/field-input';
 import { Logo } from '../../../shared/ui/logo/logo';
+
+/** O formulário aceita altura vazia (null) enquanto a pessoa não preenche. */
+type RegisterModel = Omit<PatientRegistrationRequest, 'heightInCm'> & { heightInCm: number | null };
+
+/** Espera entre reenvios do link de confirmação. */
+const RESEND_COOLDOWN_SECONDS = 60;
 
 @Component({
   selector: 'app-register',
@@ -51,6 +57,7 @@ import { Logo } from '../../../shared/ui/logo/logo';
     FormField,
     FormRoot,
     Logo,
+    LucideArrowLeft,
     LucideArrowRight,
     LucideIdCard,
     LucideCalendarDays,
@@ -60,6 +67,7 @@ import { Logo } from '../../../shared/ui/logo/logo';
     LucideGoal,
     LucideLock,
     LucideMail,
+    LucideRefreshCw,
     LucideRuler,
     LucideScale,
     LucideUserRound,
@@ -70,6 +78,38 @@ import { Logo } from '../../../shared/ui/logo/logo';
 })
 export class Register {
   private readonly authApi = inject(AuthApi);
+  private cooldownTimer: ReturnType<typeof setInterval> | undefined;
+
+  protected readonly resendState = signal<'idle' | 'sending' | 'sent'>('idle');
+  protected readonly resendCooldown = signal(0);
+
+  constructor() {
+    inject(DestroyRef).onDestroy(() => clearInterval(this.cooldownTimer));
+  }
+
+  /** Reenvia o link (a API responde sempre 202) e espera um minuto para liberar de novo. */
+  protected async resendConfirmation(): Promise<void> {
+    this.resendState.set('sending');
+    try {
+      await firstValueFrom(this.authApi.resendEmailConfirmation(this.model().email));
+      this.resendState.set('sent');
+    } catch (error) {
+      this.resendState.set('idle');
+      this.failure.set(toApiError(error));
+    }
+    this.startCooldown();
+  }
+
+  private startCooldown(): void {
+    clearInterval(this.cooldownTimer);
+    this.resendCooldown.set(RESEND_COOLDOWN_SECONDS);
+    this.cooldownTimer = setInterval(() => {
+      this.resendCooldown.update((seconds) => Math.max(0, seconds - 1));
+      if (this.resendCooldown() === 0) {
+        clearInterval(this.cooldownTimer);
+      }
+    }, 1000);
+  }
 
   protected readonly model = signal<RegisterModel>({
     name: '',
@@ -223,6 +263,8 @@ export class Register {
       };
       const response = await firstValueFrom(this.authApi.registerPatient(request));
       this.successMessage.set(response.message);
+      // O e-mail acabou de sair: o reenvio só libera depois da espera.
+      this.startCooldown();
       return undefined;
     } catch (error) {
       const apiError = toApiError(error);
