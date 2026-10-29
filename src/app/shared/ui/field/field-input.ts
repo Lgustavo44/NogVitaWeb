@@ -1,20 +1,23 @@
-import { Directive, computed, inject, signal } from '@angular/core';
+import { Directive, ElementRef, computed, inject, signal } from '@angular/core';
 import { FormField } from '@angular/forms/signals';
 
 let nextId = 0;
 
 /**
- * Estilo e acessibilidade de um `<input>` ligado ao Signal Forms (`[formField]`).
+ * Estilo e acessibilidade de um `<input>` ou `<textarea>` ligado ao Signal Forms (`[formField]`).
  * Os erros só aparecem depois que a pessoa sai do campo ou tenta enviar o formulário.
  */
 @Directive({
-  selector: 'input[appInput]',
+  selector: 'input[appInput], textarea[appInput]',
   host: {
     class:
-      'h-11 w-full rounded-control border border-line bg-surface px-3 text-body-lg text-ink ' +
+      'w-full rounded-control border border-line bg-surface px-3 text-body-lg text-ink ' +
       'placeholder:text-ink-muted/70 transition-shadow ' +
       'focus:border-focus focus:outline-none focus:ring-4 focus:ring-primary/20 ' +
       'aria-invalid:border-danger disabled:opacity-60',
+    '[class.h-11]': '!isTextarea',
+    '[class.min-h-32]': 'isTextarea',
+    '[class.py-2]': 'isTextarea',
     '[id]': 'id',
     '[attr.aria-invalid]': 'showErrors() || null',
     '[attr.aria-describedby]': 'describedBy()',
@@ -22,6 +25,8 @@ let nextId = 0;
 })
 export class FieldInput {
   private readonly formField = inject(FormField, { self: true });
+  protected readonly isTextarea =
+    inject<ElementRef<HTMLElement>>(ElementRef).nativeElement.tagName === 'TEXTAREA';
 
   readonly id = `nv-field-${nextId++}`;
   readonly errorId = `${this.id}-error`;

@@ -45,6 +45,8 @@ export interface NavItem {
   link?: string;
   /** Destaca só na URL exata (para o "Início" não ficar ativo em todas as telas). */
   exact?: boolean;
+  /** Aparece na barra inferior do celular (até 5 itens). Sem nenhum marcado, usa os 5 primeiros. */
+  bottom?: boolean;
 }
 
 /** `bottom`: barra inferior no celular (paciente). `drawer`: menu em gaveta (nutricionista e admin). */
@@ -125,7 +127,10 @@ export class AppShell {
   );
   protected readonly displayName = computed(() => this.userName() ?? this.currentArea().label);
   protected readonly initials = computed(() => initialsOf(this.displayName()));
-  protected readonly bottomItems = computed(() => this.navigation().slice(0, 5));
+  protected readonly bottomItems = computed(() => {
+    const marked = this.navigation().filter((item) => item.bottom);
+    return (marked.length > 0 ? marked : this.navigation()).slice(0, 5);
+  });
   /** No desktop com o menu recolhido, os textos ficam só para o leitor de tela. */
   protected readonly compactSidebar = computed(() => this.isDesktop() && this.collapsed());
 

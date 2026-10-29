@@ -21,7 +21,7 @@
     [class.-translate-x-full]="!drawerOpen()"
     [class.max-lg:invisible]="!drawerOpen()"
     [class.lg:w-20]="compactSidebar()"
-    [class.lg:w-64]="!compactSidebar()"
+    [class.lg:w-72]="!compactSidebar()"
     [cdkTrapFocus]="drawerOpen()"
     [attr.aria-label]="'Menu da área: ' + currentArea().label"
   >
@@ -77,7 +77,7 @@
                   item.label
                 }}</span>
                 <span
-                  class="ml-auto shrink-0 rounded-pill bg-sidebar-hover px-2 py-0.5 text-label-sm whitespace-nowrap"
+                  class="ml-auto shrink-0 rounded-pill bg-sidebar-hover px-1.5 py-0.5 text-[0.625rem] leading-none font-semibold whitespace-nowrap"
                   [class.lg:sr-only]="compactSidebar()"
                 >
                   Em breve
