@@ -6,11 +6,14 @@ Front-end em Angular do **NogVita**, uma plataforma de nutrição que conecta pa
 
 As telas estão sendo construídas uma por vez, de ponta a ponta (visual, integração com a API e testes).
 
-| Tela                 | Situação                                                                                                                              |
-| -------------------- | ------------------------------------------------------------------------------------------------------------------------------------- |
-| Login                | Pronta: validação, erros da API, reenvio do link de confirmação. A sessão ainda fica só em memória (recarregar a página sai da conta) |
-| Cadastro do paciente | Próxima                                                                                                                               |
-| Demais telas         | Ainda não existem                                                                                                                     |
+| Tela                                                                                                  | Situação                         |
+| ----------------------------------------------------------------------------------------------------- | -------------------------------- |
+| Login, cadastro do paciente, esqueci/redefinir senha, confirmação de e-mail, convite do nutricionista | Prontas                          |
+| Escolha de área (contas com mais de um papel)                                                         | Pronta                           |
+| Início do paciente, do nutricionista e do admin                                                       | Prontos, com dados reais da API  |
+| Demais telas das áreas                                                                                | Aparecem no menu como "Em breve" |
+
+A sessão fica no `sessionStorage` (sobrevive ao recarregar, some ao fechar a aba) e o token é renovado automaticamente, uma renovação por vez.
 
 O app é responsivo (pensado primeiro para o celular) e tem tema claro, escuro ou igual ao do sistema.
 
@@ -61,7 +64,8 @@ src/app/
   core/                 serviços únicos do app (API, autenticação, interceptors, guards, tema)
   shared/
     ui/                 componentes do design system (botão, campo, alerta, logo...)
-    layout/             layouts das áreas (público, paciente, nutricionista, admin)
+    layout/             layout público (card) e AppShell (menu lateral, cabeçalho, menu da conta)
+    domain/             enums e tipos da API usados por mais de uma área
   features/
     auth/               login, cadastro, confirmação de e-mail, senha, convite
     patient/            área do paciente
