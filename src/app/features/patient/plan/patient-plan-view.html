@@ -1,0 +1,78 @@
+<section
+  class="flex flex-col gap-4 rounded-container bg-surface p-5 shadow-2 sm:p-7"
+  aria-labelledby="plano-titulo"
+>
+  <div class="flex flex-wrap items-center gap-2 text-body-sm text-ink-muted">
+    <app-plan-status-badge [status]="plan().status" />
+    <span>Por {{ plan().nutritionistName }}</span>
+  </div>
+  <div class="flex flex-col gap-1">
+    <h1 id="plano-titulo" class="text-headline-xl text-ink sm:text-display-lg">
+      {{ plan().name }}
+    </h1>
+    <p class="text-body-md text-ink-muted">
+      @if (plan().endDate; as endDate) {
+        De {{ date(plan().startDate) | date: 'dd/MM/yyyy' }} a
+        {{ date(endDate) | date: 'dd/MM/yyyy' }}
+      } @else {
+        Desde {{ date(plan().startDate) | date: 'dd/MM/yyyy' }}
+      }
+    </p>
+  </div>
+  @if (plan().description) {
+    <p class="max-w-3xl text-body-lg whitespace-pre-line text-ink">{{ plan().description }}</p>
+  }
+
+  <div class="flex flex-col gap-2 sm:flex-row sm:flex-wrap">
+    <button appButton type="button" [loading]="downloading()" (click)="downloadPdf()">
+      <svg lucideFileDown class="size-5"></svg>
+      Baixar PDF
+    </button>
+    <button
+      appButton
+      variant="soft"
+      type="button"
+      [loading]="sending()"
+      aria-describedby="dica-email"
+      (click)="sendByEmail()"
+    >
+      <svg lucideMail class="size-5"></svg>
+      Receber por e-mail
+    </button>
+  </div>
+  <p id="dica-email" class="text-body-sm text-ink-muted">
+    O PDF vai para o e-mail da sua conta. Até 3 envios por hora.
+  </p>
+  @if (emailProblem(); as problem) {
+    <app-alert [tone]="problem.tone">{{ problem.message }}</app-alert>
+  }
+</section>
+
+<div class="grid gap-6 lg:grid-cols-[minmax(0,1fr)_22rem] lg:items-start">
+  <aside
+    class="flex flex-col gap-4 rounded-container bg-surface p-5 shadow-1 lg:sticky lg:top-24 lg:order-last"
+    aria-labelledby="resumo-titulo"
+  >
+    <h2 id="resumo-titulo" class="text-title-md text-ink">Resumo do dia</h2>
+    <app-plan-day-summary [totals]="detail().dailyTotals" [target]="detail().target" />
+  </aside>
+
+  <section class="flex flex-col gap-4" aria-labelledby="refeicoes-titulo">
+    <div>
+      <h2 id="refeicoes-titulo" class="text-headline-lg text-ink">Suas refeições</h2>
+      <p class="text-body-sm text-ink-muted">Na ordem do dia, com a quantidade de cada alimento.</p>
+    </div>
+    @if (detail().meals.length === 0) {
+      <p class="rounded-container bg-surface p-6 text-body-md text-ink-muted shadow-1">
+        Este plano ainda não tem refeições. Fale com seu nutricionista.
+      </p>
+    } @else {
+      <ol class="flex flex-col gap-4">
+        @for (meal of detail().meals; track meal.id) {
+          <li><app-meal-card [meal]="meal" audience="patient" /></li>
+        }
+      </ol>
+    }
+    <app-food-attribution [attributions]="attributions()" />
+  </section>
+</div>

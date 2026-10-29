@@ -37,23 +37,6 @@ export interface MyCareRelationship {
   startedAtUtc: string;
 }
 
-export type NutritionPlanStatus = 'Draft' | 'Active' | 'Finished' | 'Cancelled';
-
-export interface NutritionPlanSummary {
-  id: string;
-  name: string;
-  description: string | null;
-  startDate: string;
-  endDate: string | null;
-  status: NutritionPlanStatus;
-  nutritionistName: string;
-}
-
-export interface NutritionPlanDetail {
-  plan: NutritionPlanSummary;
-  meals: unknown[];
-}
-
 export interface NutritionistListItem {
   userId: string;
   name: string;

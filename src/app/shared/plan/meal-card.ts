@@ -38,6 +38,8 @@ export class MealCard {
   readonly last = input(false, { transform: booleanAttribute });
   /** Reordenando: setas desabilitadas até a API responder. */
   readonly busy = input(false, { transform: booleanAttribute });
+  /** Quem lê: muda o texto do aviso de horário fora da rotina. */
+  readonly audience = input<'nutritionist' | 'patient'>('nutritionist');
 
   readonly edit = output();
   readonly remove = output();

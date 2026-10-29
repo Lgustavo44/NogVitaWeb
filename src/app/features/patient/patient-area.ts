@@ -31,7 +31,13 @@ export class PatientArea {
   );
   protected readonly navigation: NavItem[] = [
     { label: 'Início', icon: LucideHouse, link: '/paciente', exact: true, bottom: true },
-    { label: 'Plano alimentar', shortLabel: 'Plano', icon: LucideUtensils, bottom: true },
+    {
+      label: 'Plano alimentar',
+      shortLabel: 'Plano',
+      icon: LucideUtensils,
+      link: '/paciente/plano',
+      bottom: true,
+    },
     { label: 'Peso', icon: LucideScale, link: '/paciente/peso', bottom: true },
     {
       label: 'Encontrar nutricionista',

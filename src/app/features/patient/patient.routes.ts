@@ -18,6 +18,16 @@ export const PATIENT_ROUTES: Routes = [
       import('./find-nutritionist/find-nutritionist').then((m) => m.FindNutritionistPage),
   },
   {
+    path: 'plano',
+    title: 'Plano alimentar · NogVita',
+    loadComponent: () => import('./plan/patient-plan').then((m) => m.PatientPlanPage),
+  },
+  {
+    path: 'plano/:planId',
+    title: 'Plano alimentar · NogVita',
+    loadComponent: () => import('./plan/patient-plan-detail').then((m) => m.PatientPlanDetailPage),
+  },
+  {
     path: 'peso',
     title: 'Meu peso · NogVita',
     loadComponent: () => import('./weight/patient-weight').then((m) => m.PatientWeightPage),

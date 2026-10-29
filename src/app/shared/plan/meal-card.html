@@ -73,7 +73,12 @@
       class="flex items-start gap-2 rounded-control bg-warning-soft px-3 py-2 text-body-sm text-warning-ink"
     >
       <svg lucideMoonStar class="mt-0.5 size-4 shrink-0"></svg>
-      Este horário cai fora da rotina do paciente (no período de sono).
+      @if (audience() === 'patient') {
+        Este horário cai no seu período de sono. Se não fizer sentido na sua rotina, fale com seu
+        nutricionista.
+      } @else {
+        Este horário cai fora da rotina do paciente (no período de sono).
+      }
     </p>
   }
 
