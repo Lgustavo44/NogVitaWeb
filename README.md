@@ -15,7 +15,8 @@ As telas estão sendo construídas uma por vez, de ponta a ponta (visual, integr
 | Paciente: encontrar nutricionista, minhas solicitações, meu nutricionista, meu peso                   | Prontas                          |
 | Nutricionista: solicitações, meus pacientes e detalhe do paciente (com o peso)                        | Prontas                          |
 | Nutricionista: alimentos (busca TACO/Open Food Facts, ficha e importação por código de barras)        | Prontas                          |
-| Planos alimentares e telas do admin                                                                   | Aparecem no menu como "Em breve" |
+| Nutricionista: planos alimentares (criar, refeições, alimentos, meta diária, ativar/finalizar, PDF)   | Prontas                          |
+| Plano alimentar do paciente e telas do admin                                                          | Aparecem no menu como "Em breve" |
 
 A sessão fica no `sessionStorage` (sobrevive ao recarregar, some ao fechar a aba) e o token é renovado automaticamente, uma renovação por vez.
 
@@ -72,6 +73,7 @@ src/app/
     domain/             enums e tipos da API usados por mais de uma área
     weight/             painel de peso (gráfico, histórico, registro), usado pelo paciente e pelo nutricionista
     food/               peças de alimento (fonte, atribuição, nutrientes, divisão das calorias)
+    plan/               peças do plano (status, card da refeição, resumo do dia), usadas pelo nutricionista e pelo paciente
   features/
     auth/               login, cadastro, confirmação de e-mail, senha, convite
     patient/            área do paciente
