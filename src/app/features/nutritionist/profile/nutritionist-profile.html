@@ -1,0 +1,132 @@
+<app-page-header
+  badge="Área do nutricionista"
+  title="Meu perfil profissional"
+  subtitle="Personalize como o seu perfil aparece para os pacientes na busca por nutricionistas."
+/>
+
+@if (profile.isLoading() && !profile.hasValue()) {
+  <div class="grid gap-6 lg:grid-cols-[minmax(0,1.4fr)_minmax(0,1fr)]" aria-hidden="true">
+    <div class="h-96 rounded-container bg-surface-muted motion-safe:animate-pulse"></div>
+    <div class="h-64 rounded-container bg-surface-muted motion-safe:animate-pulse"></div>
+  </div>
+  <span class="sr-only" role="status">Carregando seu perfil…</span>
+} @else if (profile.error()) {
+  <app-load-error [error]="profile.error()" (retry)="profile.reload()" />
+} @else if (profile.hasValue()) {
+  <div class="grid gap-6 lg:grid-cols-[minmax(0,1.4fr)_minmax(0,1fr)]">
+    <div class="flex flex-col gap-6">
+      <section
+        class="flex flex-col gap-4 rounded-container bg-surface p-5 shadow-1"
+        aria-labelledby="oficiais-titulo"
+      >
+        <div class="flex flex-wrap items-start justify-between gap-3">
+          <h2 id="oficiais-titulo" class="flex items-center gap-2 text-title-md text-ink">
+            <svg lucideBadgeCheck class="size-5 text-link"></svg>
+            Dados cadastrais
+          </h2>
+          <span
+            class="inline-flex items-center gap-1 rounded-pill bg-surface-muted px-2.5 py-1 text-label-sm text-ink-muted"
+          >
+            <svg lucideLock class="size-3"></svg>
+            Somente leitura
+          </span>
+        </div>
+        <dl class="grid gap-3 sm:grid-cols-2">
+          <div class="min-w-0 rounded-control bg-surface-muted p-3">
+            <dt class="text-label-sm text-ink-muted uppercase">Nome completo</dt>
+            <dd class="truncate text-label-lg text-ink">{{ profile.value().name }}</dd>
+          </div>
+          <div class="min-w-0 rounded-control bg-surface-muted p-3">
+            <dt class="text-label-sm text-ink-muted uppercase">E-mail</dt>
+            <dd class="truncate text-label-lg text-ink">{{ profile.value().email }}</dd>
+          </div>
+          <div class="min-w-0 rounded-control bg-surface-muted p-3 sm:col-span-2">
+            <dt class="text-label-sm text-ink-muted uppercase">Registro profissional</dt>
+            <dd class="text-label-lg text-ink">{{ crn() }}</dd>
+          </div>
+        </dl>
+        <app-alert tone="info">
+          Para alterar nome, e-mail ou registro, fale com a administração do NogVita.
+        </app-alert>
+      </section>
+
+      <form
+        [formRoot]="profileForm"
+        class="flex flex-col gap-4 rounded-container bg-surface p-5 shadow-1"
+        aria-labelledby="bio-titulo"
+      >
+        <h2 id="bio-titulo" class="flex items-center gap-2 text-title-md text-ink">
+          <svg lucidePenLine class="size-5 text-link"></svg>
+          Apresentação profissional
+        </h2>
+        <app-field
+          label="Apresentação (bio)"
+          hint="Aparece para os pacientes na busca por nutricionistas. Deixe em branco para remover."
+        >
+          <span fieldAction class="text-label-md text-ink-muted tabular-nums" aria-hidden="true">
+            {{ bioLength() }}/{{ bioMax }}
+          </span>
+          <textarea
+            appInput
+            [formField]="profileForm.bio"
+            rows="5"
+            placeholder="Conte sua abordagem, especialidades e como você acompanha seus pacientes."
+          ></textarea>
+        </app-field>
+        <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-end">
+          <button
+            appButton
+            variant="soft"
+            type="button"
+            [disabled]="!changed()"
+            (click)="discard()"
+          >
+            Cancelar
+          </button>
+          <button
+            appButton
+            type="submit"
+            [disabled]="!changed()"
+            [loading]="profileForm().submitting()"
+          >
+            <svg lucideSave class="size-5"></svg>
+            Salvar alterações
+          </button>
+        </div>
+      </form>
+    </div>
+
+    <!-- Prévia pública: o card como o paciente verá na busca -->
+    <section class="flex flex-col gap-3 self-start" aria-labelledby="previa-titulo">
+      <div>
+        <h2 id="previa-titulo" class="flex items-center gap-2 text-title-md text-ink">
+          <svg lucideEye class="size-5 text-link"></svg>
+          Prévia pública
+        </h2>
+        <p class="text-body-sm text-ink-muted">Como os pacientes veem seu card na busca.</p>
+      </div>
+      <article class="flex flex-col gap-4 rounded-container bg-surface p-5 shadow-2">
+        <div class="flex items-center gap-3">
+          <span
+            class="flex size-14 shrink-0 items-center justify-center rounded-full bg-soft text-title-md text-on-soft"
+            aria-hidden="true"
+          >
+            {{ initials() }}
+          </span>
+          <div class="min-w-0">
+            <p class="truncate text-title-md text-ink">{{ profile.value().name }}</p>
+            <p class="text-body-sm text-link">{{ crn() }}</p>
+          </div>
+        </div>
+        @if (model().bio.trim()) {
+          <p class="text-body-md whitespace-pre-line text-ink-muted">{{ model().bio }}</p>
+        } @else {
+          <p class="text-body-md text-ink-muted italic">Sem apresentação.</p>
+        }
+        <button appButton variant="soft" type="button" disabled block>
+          Solicitar acompanhamento
+        </button>
+      </article>
+    </section>
+  </div>
+}

@@ -1,7 +1,20 @@
-import { httpResource } from '@angular/common/http';
+import { HttpClient, httpResource } from '@angular/common/http';
+import { Service, inject } from '@angular/core';
+import { Observable } from 'rxjs';
 import { apiUrl } from '../../core/http/api-url';
 import { PagedResponse } from '../../shared/domain/paged-response';
 import { MyPatientItem, NutritionistProfile, NutritionistRequestItem } from './nutritionist.models';
+
+/** Escritas da área do nutricionista. As leituras são os httpResource abaixo. */
+@Service()
+export class NutritionistApi {
+  private readonly http = inject(HttpClient);
+
+  /** Só a bio é editável (até 500 caracteres). `null` ou vazio apaga. */
+  updateBio(bio: string | null): Observable<unknown> {
+    return this.http.put(apiUrl('/nutritionists/me'), { bio });
+  }
+}
 
 /* Recursos da área do nutricionista (chamar no contexto de injeção). */
 
