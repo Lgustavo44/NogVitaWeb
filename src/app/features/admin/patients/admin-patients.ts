@@ -29,7 +29,6 @@ const PAGE_SIZE = 20;
   host: { class: 'flex flex-col gap-6' },
   template: `
     <app-page-header
-      badge="Administração"
       title="Pacientes"
       subtitle="Contas com perfil de paciente. Os dados de saúde ficam com o nutricionista: aqui só o cadastro."
     />

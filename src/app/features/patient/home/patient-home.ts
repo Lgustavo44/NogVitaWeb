@@ -5,6 +5,7 @@ import { LucideClock, LucideStethoscope, LucideTarget, LucideUtensils } from '@l
 import { isNotFound } from '../../../core/http/resource-status';
 import { BIOLOGICAL_SEX_LABELS, GOAL_LABELS } from '../../../shared/domain/patient-enums';
 import { LoadError } from '../../../shared/ui/load-error/load-error';
+import { DayPeriodIcon, dayPeriod, greetingText } from '../../../shared/ui/greeting/greeting';
 import { PageHeader } from '../../../shared/ui/page-header/page-header';
 import { parseIsoDate } from '../../../shared/util/dates';
 import { careRelationshipResource, currentPlanResource } from '../patient-api';
@@ -14,6 +15,7 @@ import { PatientProfileStore } from '../patient-profile-store';
   selector: 'app-patient-home',
   imports: [
     DatePipe,
+    DayPeriodIcon,
     LoadError,
     PageHeader,
     RouterLink,
@@ -36,6 +38,8 @@ export class PatientHome {
   protected readonly firstName = computed(() =>
     this.profile.hasValue() ? this.profile.value().name.split(' ')[0] : null,
   );
+  protected readonly period = dayPeriod(new Date());
+  protected readonly greeting = computed(() => greetingText(this.period, this.firstName()));
   /** 404 aqui significa "ainda não tem": vira estado vazio, não erro. */
   protected readonly careMissing = computed(() => isNotFound(this.care.error()));
   protected readonly planMissing = computed(() => isNotFound(this.plan.error()));

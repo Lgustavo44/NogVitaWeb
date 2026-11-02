@@ -13,8 +13,11 @@
 
   --nv-canvas: #fffbf5;
   --nv-surface: #ffffff;
-  --nv-surface-muted: #f7f3ed;
+  /* Um degrau real abaixo do card (blocos de dado, abas, cabeçalho de tabela) */
+  --nv-surface-muted: #f3ede4;
   --nv-surface-raised: #ffffff;
+  /* Linha fina quente que define o card em repouso (decorativa; controles usam --nv-line) */
+  --nv-hairline: #e9e1d6;
 
   --nv-ink: #1d2a24;
   --nv-ink-muted: #554336;
@@ -52,10 +55,11 @@
   --nv-macro-fat: #199e70;
 
   --nv-success: #16a34a;
-  --nv-success-ink: #15803d;
+  /* Texto de estado: >= 6:1 também sobre o surface-muted (o #15803d dava 4,3:1 ali) */
+  --nv-success-ink: #166534;
   --nv-success-soft: #f0fdf4;
   --nv-warning: #d97706;
-  --nv-warning-ink: #b45309;
+  --nv-warning-ink: #92400e;
   --nv-warning-soft: #fff6e5;
   --nv-danger: #dc2626;
   --nv-danger-ink: #b91c1c;
@@ -64,9 +68,13 @@
   --nv-info-ink: #7a581e;
   --nv-info-soft: #fff4e2;
 
-  --nv-shadow-1: 0 1px 3px 0 rgb(29 42 36 / 0.05), 0 1px 2px -1px rgb(29 42 36 / 0.05);
-  --nv-shadow-2: 0 4px 6px -1px rgb(29 42 36 / 0.07), 0 2px 4px -2px rgb(29 42 36 / 0.05);
-  --nv-shadow-3: 0 10px 15px -3px rgb(29 42 36 / 0.09), 0 4px 6px -4px rgb(29 42 36 / 0.05);
+  /*
+   * Elevação: em repouso o card é só a linha fina (anel de 1px, sem mexer no layout);
+   * sombra de verdade só no hover/menus (2) e nas janelas (3).
+   */
+  --nv-shadow-1: 0 0 0 1px var(--nv-hairline), 0 1px 2px 0 rgb(29 42 36 / 0.03);
+  --nv-shadow-2: 0 0 0 1px var(--nv-hairline), 0 6px 16px -4px rgb(29 42 36 / 0.1);
+  --nv-shadow-3: 0 0 0 1px var(--nv-hairline), 0 20px 40px -12px rgb(29 42 36 / 0.22);
 }
 
 :root[data-theme='dark'] {
@@ -121,9 +129,11 @@
   --nv-info-ink: #ffd08a;
   --nv-info-soft: rgb(255 208 138 / 0.12);
 
-  --nv-shadow-1: 0 1px 3px 0 rgb(0 0 0 / 0.35);
-  --nv-shadow-2: 0 4px 6px -1px rgb(0 0 0 / 0.35);
-  --nv-shadow-3: 0 10px 15px -3px rgb(0 0 0 / 0.35);
+  /* No escuro a profundidade vem da escada de superfícies e da linha fina; sombra quase não aparece */
+  --nv-hairline: rgb(255 255 255 / 0.08);
+  --nv-shadow-1: 0 0 0 1px var(--nv-hairline);
+  --nv-shadow-2: 0 0 0 1px rgb(255 255 255 / 0.12), 0 8px 24px -6px rgb(0 0 0 / 0.45);
+  --nv-shadow-3: 0 0 0 1px rgb(255 255 255 / 0.12), 0 24px 48px -12px rgb(0 0 0 / 0.6);
 }
 
 /* Antes do Angular iniciar (sem data-theme), evita o "flash" claro para quem usa o sistema no escuro */
@@ -161,6 +171,7 @@
   --color-on-sidebar-muted: var(--nv-on-sidebar-muted);
   --color-sidebar-hover: var(--nv-sidebar-hover);
   --color-line: var(--nv-line);
+  --color-hairline: var(--nv-hairline);
   --color-divider: var(--nv-divider);
   --color-chart-line: var(--nv-chart-line);
   --color-macro-carb: var(--nv-macro-carb);
@@ -191,17 +202,22 @@
   --radius-container: 0.75rem;
   --radius-pill: 9999px;
 
-  --text-display-lg: 2.5rem;
-  --text-display-lg--line-height: 3rem;
-  --text-display-lg--letter-spacing: -0.02em;
-  --text-display-lg--font-weight: 700;
+  /* Títulos em 600 com tracking negativo proporcional ao tamanho (como no Cal e no Linear) */
+  --text-display-lg: 2.25rem;
+  --text-display-lg--line-height: 2.75rem;
+  --text-display-lg--letter-spacing: -0.025em;
+  --text-display-lg--font-weight: 600;
+  --text-display-md: 2rem;
+  --text-display-md--line-height: 2.5rem;
+  --text-display-md--letter-spacing: -0.022em;
+  --text-display-md--font-weight: 600;
   --text-display-lg-mobile: 2rem;
   --text-display-lg-mobile--line-height: 2.5rem;
   --text-display-lg-mobile--letter-spacing: -0.02em;
   --text-display-lg-mobile--font-weight: 700;
   --text-headline-xl: 1.75rem;
   --text-headline-xl--line-height: 2.25rem;
-  --text-headline-xl--letter-spacing: -0.015em;
+  --text-headline-xl--letter-spacing: -0.02em;
   --text-headline-xl--font-weight: 600;
   --text-headline-lg: 1.375rem;
   --text-headline-lg--line-height: 1.875rem;
@@ -209,6 +225,7 @@
   --text-headline-lg--font-weight: 600;
   --text-title-md: 1.125rem;
   --text-title-md--line-height: 1.625rem;
+  --text-title-md--letter-spacing: -0.01em;
   --text-title-md--font-weight: 600;
   --text-body-lg: 1rem;
   --text-body-lg--line-height: 1.5rem;
@@ -223,8 +240,9 @@
   --text-label-md--line-height: 1rem;
   --text-label-md--letter-spacing: 0.02em;
   --text-label-md--font-weight: 600;
-  --text-label-sm: 0.625rem;
-  --text-label-sm--line-height: 0.875rem;
+  /* Rótulos curtos em maiúsculas: 11px é o mínimo confortável de leitura */
+  --text-label-sm: 0.6875rem;
+  --text-label-sm--line-height: 1rem;
   --text-label-sm--letter-spacing: 0.04em;
   --text-label-sm--font-weight: 600;
 }

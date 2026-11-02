@@ -115,7 +115,7 @@
         @for (option of sources; track option.label) {
           <button
             type="button"
-            class="min-h-9 cursor-pointer rounded-pill border border-divider px-3 text-label-md text-ink-muted hover:text-ink aria-pressed:border-primary aria-pressed:bg-primary aria-pressed:text-on-primary"
+            class="min-h-9 cursor-pointer rounded-pill border border-divider px-3 text-label-md text-ink-muted hover:text-ink aria-pressed:border-forest aria-pressed:bg-forest aria-pressed:font-semibold aria-pressed:text-on-forest"
             [attr.aria-pressed]="source() === option.value"
             (click)="source.set(option.value)"
           >

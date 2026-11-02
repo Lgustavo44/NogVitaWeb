@@ -1,9 +1,9 @@
 <app-page-header
-  badge="Consultório digital"
-  [title]="firstName() ? 'Olá, ' + firstName() + '!' : 'Olá!'"
+  [title]="greeting()"
   subtitle="Aqui está o resumo dos seus pacientes e das novas solicitações de acompanhamento."
-  wave
+  withDate
 >
+  <app-day-period-icon headerIcon [period]="period" />
   @if (profile.error()) {
     <app-load-error [error]="profile.error()" (retry)="profile.reload()" />
   }

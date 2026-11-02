@@ -1,9 +1,10 @@
 <app-page-header
-  badge="Painel do paciente"
-  [title]="firstName() ? 'Olá, ' + firstName() + '!' : 'Olá!'"
+  [title]="greeting()"
   subtitle="Que bom ter você aqui. Confira seu acompanhamento, seu objetivo e o seu plano alimentar."
-  wave
-/>
+  withDate
+>
+  <app-day-period-icon headerIcon [period]="period" />
+</app-page-header>
 
 <div class="grid gap-6 lg:grid-cols-2">
   <!-- Nutricionista -->

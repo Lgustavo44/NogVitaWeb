@@ -133,7 +133,7 @@ type StatusKind = 'not-found' | 'forbidden' | 'session-expired' | 'unavailable';
       <div class="flex flex-wrap justify-center gap-3">
         <a
           routerLink="/"
-          class="inline-flex min-h-11 items-center justify-center gap-2 rounded-control bg-primary px-5 py-2 text-label-lg font-semibold text-on-primary shadow-1 hover:bg-primary-hover"
+          class="inline-flex min-h-11 items-center justify-center gap-2 rounded-control bg-primary px-5 py-2 text-label-lg font-semibold text-on-primary hover:bg-primary-hover"
         >
           <svg lucideHome class="size-5"></svg>
           Voltar ao início
@@ -195,7 +195,7 @@ type StatusKind = 'not-found' | 'forbidden' | 'session-expired' | 'unavailable';
       <div class="flex flex-wrap justify-center gap-3">
         <a
           routerLink="/inicio"
-          class="inline-flex min-h-11 items-center justify-center gap-2 rounded-control bg-primary px-5 py-2 text-label-lg font-semibold text-on-primary shadow-1 hover:bg-primary-hover"
+          class="inline-flex min-h-11 items-center justify-center gap-2 rounded-control bg-primary px-5 py-2 text-label-lg font-semibold text-on-primary hover:bg-primary-hover"
         >
           <svg lucideHome class="size-5"></svg>
           Voltar para minha área
@@ -214,7 +214,7 @@ type StatusKind = 'not-found' | 'forbidden' | 'session-expired' | 'unavailable';
     } @else if (kind === 'unavailable') {
       <a
         routerLink="/inicio"
-        class="inline-flex min-h-11 items-center justify-center gap-2 rounded-control bg-primary px-5 py-2 text-label-lg font-semibold text-on-primary shadow-1 hover:bg-primary-hover"
+        class="inline-flex min-h-11 items-center justify-center gap-2 rounded-control bg-primary px-5 py-2 text-label-lg font-semibold text-on-primary hover:bg-primary-hover"
       >
         <svg lucideRefreshCw class="size-5"></svg>
         Tentar de novo
@@ -223,7 +223,7 @@ type StatusKind = 'not-found' | 'forbidden' | 'session-expired' | 'unavailable';
       <div class="flex w-full max-w-md flex-col gap-3">
         <a
           routerLink="/login"
-          class="inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-control bg-primary px-5 py-2 text-label-lg font-semibold text-on-primary shadow-1 hover:bg-primary-hover"
+          class="inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-control bg-primary px-5 py-2 text-label-lg font-semibold text-on-primary hover:bg-primary-hover"
         >
           <svg lucideLogIn class="size-5"></svg>
           Fazer login novamente

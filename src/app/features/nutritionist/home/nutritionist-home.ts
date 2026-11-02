@@ -4,13 +4,14 @@ import { RouterLink } from '@angular/router';
 import { LucideInbox, LucideUsers } from '@lucide/angular';
 import { goalLabel } from '../../../shared/domain/patient-enums';
 import { LoadError } from '../../../shared/ui/load-error/load-error';
+import { DayPeriodIcon, dayPeriod, greetingText } from '../../../shared/ui/greeting/greeting';
 import { PageHeader } from '../../../shared/ui/page-header/page-header';
 import { myPatientsResource, pendingRequestsResource } from '../nutritionist-api';
 import { NutritionistProfileStore } from '../nutritionist-profile-store';
 
 @Component({
   selector: 'app-nutritionist-home',
-  imports: [DatePipe, LoadError, PageHeader, LucideInbox, LucideUsers, RouterLink],
+  imports: [DatePipe, DayPeriodIcon, LoadError, PageHeader, LucideInbox, LucideUsers, RouterLink],
   host: { class: 'flex flex-col gap-6' },
   templateUrl: './nutritionist-home.html',
 })
@@ -24,4 +25,6 @@ export class NutritionistHome {
   protected readonly firstName = computed(() =>
     this.profile.hasValue() ? this.profile.value().name.split(' ')[0] : null,
   );
+  protected readonly period = dayPeriod(new Date());
+  protected readonly greeting = computed(() => greetingText(this.period, this.firstName()));
 }

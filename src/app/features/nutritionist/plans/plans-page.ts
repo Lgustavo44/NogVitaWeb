@@ -19,7 +19,6 @@ const PATIENTS_PAGE = 100;
   host: { class: 'flex flex-col gap-6' },
   template: `
     <app-page-header
-      badge="Planos alimentares"
       title="Planos alimentares"
       subtitle="Escolha o paciente para ver os planos ou criar um novo."
     />
@@ -38,12 +37,12 @@ const PATIENTS_PAGE = 100;
           </p>
         </section>
       } @else {
-        <section class="flex flex-col gap-2 rounded-container bg-surface p-5 shadow-1">
+        <div class="flex flex-col gap-2 sm:max-w-md">
           <label for="paciente-plano" class="text-label-md text-ink">Paciente</label>
           <select
             id="paciente-plano"
-            class="h-11 w-full rounded-control border border-line bg-surface px-3 text-body-lg text-ink focus:border-focus focus:ring-4 focus:ring-primary/20 focus:outline-none sm:max-w-md"
-            [value]="patientId() ?? ''"
+            class="h-11 w-full rounded-control border border-line bg-surface px-3 text-body-lg text-ink focus:border-focus focus:ring-4 focus:ring-primary/20 focus:outline-none"
+            [value]="selected()?.patientId ?? ''"
             (change)="choose($event)"
           >
             <option value="" disabled>Escolha um paciente</option>
@@ -51,7 +50,7 @@ const PATIENTS_PAGE = 100;
               <option [value]="patient.patientId">{{ patient.name }}</option>
             }
           </select>
-        </section>
+        </div>
 
         @if (selected(); as patient) {
           <app-patient-plans
@@ -78,11 +77,14 @@ export class PlansPage {
   protected readonly patientId = signal(
     inject(ActivatedRoute).snapshot.queryParamMap.get('paciente'),
   );
+  /** Com um paciente só, não há o que escolher: os planos dele já aparecem. */
   protected readonly selected = computed(() => {
+    if (!this.patients.hasValue()) return null;
+    const items = this.patients.value().items;
     const id = this.patientId();
-    return this.patients.hasValue()
-      ? (this.patients.value().items.find((patient) => patient.patientId === id) ?? null)
-      : null;
+    return (
+      items.find((patient) => patient.patientId === id) ?? (items.length === 1 ? items[0] : null)
+    );
   });
 
   constructor() {

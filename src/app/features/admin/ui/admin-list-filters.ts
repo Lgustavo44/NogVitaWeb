@@ -30,7 +30,7 @@ const STATUS_OPTIONS: readonly { value: AccountFilter; label: string }[] = [
       @for (option of options; track option.value) {
         <button
           type="button"
-          class="min-h-10 cursor-pointer rounded-pill border border-divider px-4 text-label-lg text-ink-muted hover:text-ink aria-pressed:border-primary aria-pressed:bg-primary aria-pressed:text-on-primary"
+          class="min-h-10 cursor-pointer rounded-pill border border-divider px-4 text-label-lg text-ink-muted hover:text-ink aria-pressed:border-forest aria-pressed:bg-forest aria-pressed:font-semibold aria-pressed:text-on-forest"
           [attr.aria-pressed]="status() === option.value"
           (click)="status.set(option.value)"
         >

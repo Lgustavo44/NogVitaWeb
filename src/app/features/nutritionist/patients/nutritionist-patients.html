@@ -1,11 +1,10 @@
 <app-page-header
-  badge="Menu clínico"
   title="Meus pacientes"
   subtitle="Acompanhe as pessoas que estão em acompanhamento com você."
 >
   <button
     appButton
-    variant="soft"
+    variant="ghost"
     type="button"
     [loading]="patients.isLoading()"
     (click)="patients.reload()"
@@ -59,7 +58,7 @@
         >
           <div class="flex items-start gap-4">
             <span
-              class="flex size-14 shrink-0 items-center justify-center rounded-control bg-sidebar text-title-md font-bold text-on-sidebar"
+              class="flex size-14 shrink-0 items-center justify-center rounded-control bg-soft text-title-md font-bold text-on-soft"
             >
               {{ initials(patient.name) }}
             </span>

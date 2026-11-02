@@ -1,19 +1,18 @@
 <app-page-header
-  badge="Acompanhamento"
   title="Minhas solicitações"
   subtitle="Acompanhe os pedidos enviados aos nutricionistas, as respostas e os cancelamentos."
 >
   <div class="mt-2 flex flex-wrap gap-2">
     <a
       routerLink="/paciente/encontrar-nutricionista"
-      class="inline-flex min-h-11 items-center gap-2 rounded-control bg-primary px-5 text-label-lg font-semibold text-on-primary shadow-1 hover:bg-primary-hover"
+      class="inline-flex min-h-11 items-center gap-2 rounded-control bg-primary px-5 text-label-lg font-semibold text-on-primary hover:bg-primary-hover"
     >
       <svg lucideUserPlus class="size-5"></svg>
       Nova solicitação
     </a>
     <button
       appButton
-      variant="soft"
+      variant="ghost"
       type="button"
       [loading]="requests.isLoading()"
       (click)="requests.reload()"

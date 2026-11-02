@@ -1,5 +1,4 @@
 <app-page-header
-  badge="Acompanhamento"
   title="Meu nutricionista"
   subtitle="O profissional que acompanha você e monta o seu plano alimentar."
 />
@@ -24,7 +23,7 @@
     </p>
     <a
       routerLink="/paciente/encontrar-nutricionista"
-      class="inline-flex min-h-11 items-center gap-2 rounded-control bg-primary px-5 text-label-lg font-semibold text-on-primary shadow-1 hover:bg-primary-hover"
+      class="inline-flex min-h-11 items-center gap-2 rounded-control bg-primary px-5 text-label-lg font-semibold text-on-primary hover:bg-primary-hover"
     >
       <svg lucideSearch class="size-5"></svg>
       Encontrar nutricionista
@@ -48,7 +47,7 @@
       <div class="relative flex flex-col gap-5">
         <div class="flex flex-col gap-4 sm:flex-row sm:items-center">
           <div
-            class="relative flex size-24 shrink-0 items-center justify-center rounded-container bg-sidebar text-display-lg font-bold text-on-sidebar shadow-1"
+            class="relative flex size-24 shrink-0 items-center justify-center rounded-container bg-soft text-display-lg font-bold text-on-soft"
           >
             {{ care.value().nutritionistName.charAt(0) }}
             <span

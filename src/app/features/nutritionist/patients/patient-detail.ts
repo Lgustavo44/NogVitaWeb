@@ -1,14 +1,14 @@
 import { DecimalPipe, DatePipe } from '@angular/common';
-import { Component, inject, signal } from '@angular/core';
+import { Component, computed, inject, signal } from '@angular/core';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { LucideArrowLeft, LucideClock3, LucideTriangleAlert, LucideUserX } from '@lucide/angular';
 import { firstValueFrom } from 'rxjs';
 import { toApiError } from '../../../core/http/api-error';
+import { bmiClassification } from '../../../shared/domain/bmi';
 import { BIOLOGICAL_SEX_LABELS, GOAL_LABELS } from '../../../shared/domain/patient-enums';
 import { Button } from '../../../shared/ui/button/button';
 import { LoadError } from '../../../shared/ui/load-error/load-error';
 import { Modal } from '../../../shared/ui/modal/modal';
-import { PageHeader } from '../../../shared/ui/page-header/page-header';
 import { Toaster } from '../../../shared/ui/toast/toaster';
 import { WeightPanel } from '../../../shared/weight/weight-panel';
 import { NutritionistApi, followedPatientResource } from '../nutritionist-api';
@@ -26,7 +26,6 @@ import { PatientPlans } from '../plans/patient-plans';
     LucideTriangleAlert,
     LucideUserX,
     Modal,
-    PageHeader,
     PatientPlans,
     RouterLink,
     WeightPanel,
@@ -44,6 +43,11 @@ export class PatientDetailPage {
   protected readonly patient = followedPatientResource(signal(this.patientId));
   protected readonly sexLabels = BIOLOGICAL_SEX_LABELS;
   protected readonly goalLabels = GOAL_LABELS;
+  protected readonly bmiLabel = computed(() => {
+    if (!this.patient.hasValue()) return null;
+    const { bodyMassIndex, age } = this.patient.value();
+    return bodyMassIndex ? bmiClassification(bodyMassIndex, age) : null;
+  });
   protected readonly confirming = signal(false);
   protected readonly ending = signal(false);
   protected readonly endError = signal<string | null>(null);

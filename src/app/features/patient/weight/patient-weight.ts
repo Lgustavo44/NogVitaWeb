@@ -8,7 +8,6 @@ import { WeightPanel } from '../../../shared/weight/weight-panel';
   host: { class: 'flex flex-col gap-6' },
   template: `
     <app-page-header
-      badge="Evolução"
       title="Meu peso"
       subtitle="Registre seu peso e acompanhe a evolução. Seu nutricionista também vê estes registros."
     />

@@ -30,7 +30,6 @@ import { PatientPlanView } from './patient-plan-view';
       <app-patient-plan-view [detail]="current.value()" />
     } @else if (withoutPlan()) {
       <app-page-header
-        badge="Plano alimentar"
         title="Plano alimentar"
         subtitle="O plano que seu nutricionista montou para você aparece aqui."
       />

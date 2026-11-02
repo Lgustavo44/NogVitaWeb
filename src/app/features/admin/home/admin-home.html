@@ -1,6 +1,6 @@
 <app-page-header
-  badge="Painel administrativo"
   title="Visão geral do sistema"
+  withDate
   subtitle="Números consolidados de usuários, pacientes e nutricionistas da plataforma."
 />
 
@@ -69,16 +69,7 @@
             <li class="flex flex-col gap-1 py-3 first:pt-0">
               <div class="flex items-center justify-between gap-2">
                 <p class="truncate text-label-lg text-ink">{{ user.name }}</p>
-                <span
-                  class="shrink-0 rounded-pill px-2.5 py-0.5 text-label-md"
-                  [class]="
-                    user.isActive
-                      ? 'bg-success-soft text-success-ink'
-                      : 'bg-surface-muted text-ink-muted'
-                  "
-                >
-                  {{ user.isActive ? 'Ativo' : 'Inativo' }}
-                </span>
+                <app-account-badge class="shrink-0" [active]="user.isActive" />
               </div>
               <p class="truncate text-body-sm text-ink-muted">{{ user.email }}</p>
               <p class="text-body-sm text-ink-muted">
@@ -109,16 +100,7 @@
                   {{ user.createdAt | date: 'dd/MM/yyyy' }}
                 </td>
                 <td class="py-3">
-                  <span
-                    class="rounded-pill px-2.5 py-0.5 text-label-md"
-                    [class]="
-                      user.isActive
-                        ? 'bg-success-soft text-success-ink'
-                        : 'bg-surface-muted text-ink-muted'
-                    "
-                  >
-                    {{ user.isActive ? 'Ativo' : 'Inativo' }}
-                  </span>
+                  <app-account-badge [active]="user.isActive" />
                 </td>
               </tr>
             }

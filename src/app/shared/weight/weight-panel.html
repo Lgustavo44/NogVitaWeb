@@ -17,7 +17,13 @@
         }
       </select>
     </label>
-    <button appButton type="button" (click)="openForm()">
+    <!-- Para o paciente é a ação principal; no detalhe do paciente, o primário é "Novo plano". -->
+    <button
+      appButton
+      type="button"
+      [variant]="perspective() === 'nutritionist' ? 'soft' : 'primary'"
+      (click)="openForm()"
+    >
       <svg lucidePlus class="size-5"></svg>
       Registrar peso
     </button>

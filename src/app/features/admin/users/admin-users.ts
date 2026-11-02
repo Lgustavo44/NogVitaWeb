@@ -28,7 +28,6 @@ const PAGE_SIZE = 20;
   host: { class: 'flex flex-col gap-6' },
   template: `
     <app-page-header
-      badge="Administração"
       title="Usuários"
       subtitle="Todas as contas da plataforma. Abra uma conta para ver os perfis e ativar ou desativar o acesso."
     />

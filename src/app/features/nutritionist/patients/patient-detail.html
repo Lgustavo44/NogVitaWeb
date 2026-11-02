@@ -15,36 +15,32 @@
 } @else if (patient.error()) {
   <app-load-error [error]="patient.error()" (retry)="patient.reload()" />
 } @else if (patient.hasValue()) {
-  <app-page-header
-    badge="Paciente em acompanhamento"
-    [title]="patient.value().name"
-    subtitle="Dados essenciais para preparar o plano alimentar e acompanhar a evolução."
-  >
-    <button appButton variant="danger" type="button" (click)="openConfirm()">
-      <svg lucideUserX class="size-5"></svg>
-      Encerrar acompanhamento
-    </button>
-  </app-page-header>
-
+  <!-- O card de identidade é o cabeçalho da página: o nome aparece uma vez só, no h1. -->
   <section
-    class="flex flex-col gap-5 rounded-container bg-surface p-5 shadow-2 sm:p-7"
+    class="flex flex-col gap-6 rounded-container bg-surface p-5 shadow-1 sm:p-7"
     aria-labelledby="perfil-paciente"
   >
-    <div class="flex flex-col gap-4 sm:flex-row sm:items-center">
+    <div class="flex items-center gap-4">
       <span
-        class="flex size-20 shrink-0 items-center justify-center rounded-container bg-sidebar text-headline-lg font-bold text-on-sidebar"
+        class="flex size-14 shrink-0 items-center justify-center rounded-container bg-soft text-title-md font-bold text-on-soft sm:size-16 sm:text-headline-lg"
+        aria-hidden="true"
       >
         {{ initials(patient.value().name) }}
       </span>
-      <div>
-        <h2 id="perfil-paciente" class="text-headline-lg text-ink">{{ patient.value().name }}</h2>
-        <p class="mt-1 text-body-md text-ink-muted">
+      <div class="min-w-0">
+        <h1
+          id="perfil-paciente"
+          class="text-headline-lg text-balance break-words text-ink sm:text-headline-xl"
+        >
+          {{ patient.value().name }}
+        </h1>
+        <p class="mt-0.5 text-body-md text-ink-muted">
           {{ patient.value().age }} anos · {{ sexLabels[patient.value().biologicalSex] }}
         </p>
       </div>
     </div>
 
-    <dl class="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+    <dl class="grid grid-cols-2 gap-3 lg:grid-cols-4">
       <div class="rounded-control bg-surface-muted p-4">
         <dt class="text-label-sm text-ink-muted uppercase">Objetivo</dt>
         <dd class="mt-1 text-label-lg font-semibold text-ink">
@@ -53,23 +49,26 @@
       </div>
       <div class="rounded-control bg-surface-muted p-4">
         <dt class="text-label-sm text-ink-muted uppercase">Altura</dt>
-        <dd class="mt-1 text-label-lg font-semibold text-ink">
+        <dd class="mt-1 text-label-lg font-semibold text-ink tabular-nums">
           {{ patient.value().heightInCm }} cm
         </dd>
       </div>
       <div class="rounded-control bg-surface-muted p-4">
         <dt class="text-label-sm text-ink-muted uppercase">IMC</dt>
-        <dd class="mt-1 text-label-lg font-semibold text-ink">
+        <dd class="mt-1 text-label-lg font-semibold text-ink tabular-nums">
           @if (patient.value().bodyMassIndex; as bmi) {
             {{ bmi | number: '1.1-1' }}
           } @else {
             —
           }
         </dd>
+        @if (bmiLabel(); as label) {
+          <dd class="text-body-sm text-ink-muted">{{ label }}</dd>
+        }
       </div>
       <div class="rounded-control bg-surface-muted p-4">
         <dt class="text-label-sm text-ink-muted uppercase">Último peso</dt>
-        <dd class="mt-1 text-label-lg font-semibold text-ink">
+        <dd class="mt-1 text-label-lg font-semibold text-ink tabular-nums">
           @if (patient.value().latestWeight; as weight) {
             {{ weight.weightKg | number: '1.0-1' }} kg
           } @else {
@@ -81,34 +80,34 @@
         }
       </div>
     </dl>
-  </section>
 
-  <div class="grid gap-6">
-    <section class="rounded-container bg-surface p-5 shadow-1" aria-labelledby="rotina-titulo">
-      <h2 id="rotina-titulo" class="flex items-center gap-2 text-title-md text-ink">
-        <svg lucideClock3 class="size-5 text-link"></svg>
-        Rotina do paciente
+    <div class="border-t border-divider pt-5">
+      <h2 id="rotina-titulo" class="flex items-center gap-2 text-label-lg font-semibold text-ink">
+        <svg lucideClock3 class="size-4 text-link" aria-hidden="true"></svg>
+        Rotina
       </h2>
-      <dl class="mt-4 grid gap-3 sm:grid-cols-3">
-        <div class="rounded-control bg-surface-muted p-3">
-          <dt class="text-label-sm text-ink-muted">Acordar</dt>
-          <dd class="text-label-lg font-semibold text-ink">
+      <dl class="mt-3 grid grid-cols-3 gap-3">
+        <div>
+          <dt class="text-label-sm text-ink-muted uppercase">Acorda</dt>
+          <dd class="text-label-lg font-semibold text-ink tabular-nums">
             {{ time(patient.value().wakeUpTime) }}
           </dd>
         </div>
-        <div class="rounded-control bg-surface-muted p-3">
-          <dt class="text-label-sm text-ink-muted">Dormir</dt>
-          <dd class="text-label-lg font-semibold text-ink">{{ time(patient.value().bedTime) }}</dd>
+        <div>
+          <dt class="text-label-sm text-ink-muted uppercase">Dorme</dt>
+          <dd class="text-label-lg font-semibold text-ink tabular-nums">
+            {{ time(patient.value().bedTime) }}
+          </dd>
         </div>
-        <div class="rounded-control bg-surface-muted p-3">
-          <dt class="text-label-sm text-ink-muted">Treino</dt>
-          <dd class="text-label-lg font-semibold text-ink">
+        <div>
+          <dt class="text-label-sm text-ink-muted uppercase">Treina</dt>
+          <dd class="text-label-lg font-semibold text-ink tabular-nums">
             {{ time(patient.value().trainingTime) }}
           </dd>
         </div>
       </dl>
-    </section>
-  </div>
+    </div>
+  </section>
 
   <app-patient-plans [patientId]="patient.value().patientId" />
 
@@ -119,6 +118,19 @@
     perspective="nutritionist"
     (changed)="patient.reload()"
   />
+
+  <!-- Ação destrutiva no fim, com a explicação ao lado (como o "Acesso à plataforma" do admin). -->
+  <section class="rounded-container bg-surface p-5 shadow-1" aria-labelledby="encerrar-titulo">
+    <h2 id="encerrar-titulo" class="text-title-md text-ink">Encerrar acompanhamento</h2>
+    <p class="mt-1 max-w-2xl text-body-md text-ink-muted">
+      O paciente deixará de aparecer na sua lista e poderá pedir acompanhamento a outro
+      nutricionista.
+    </p>
+    <button appButton variant="danger" type="button" class="mt-4" (click)="openConfirm()">
+      <svg lucideUserX class="size-5"></svg>
+      Encerrar acompanhamento
+    </button>
+  </section>
 }
 
 @if (confirming() && patient.hasValue()) {
