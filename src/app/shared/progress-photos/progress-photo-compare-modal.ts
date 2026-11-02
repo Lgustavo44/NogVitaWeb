@@ -59,11 +59,16 @@ const DAY_MS = 24 * 60 * 60 * 1000;
                 <span class="text-label-md text-ink">{{ side.label }}</span>
                 <select
                   class="h-11 w-full rounded-control border border-line bg-surface px-3 text-body-md text-ink focus:border-focus focus:ring-4 focus:ring-primary/20 focus:outline-none"
-                  [value]="side.key === 'before' ? before() : after()"
                   (change)="pick(side.key, $event)"
                 >
+                  <!-- [selected] na opção: um [value] no select chega antes das opções e cai na primeira -->
                   @for (date of dates(); track date) {
-                    <option [value]="date">{{ date | date: 'dd/MM/yyyy' }}</option>
+                    <option
+                      [value]="date"
+                      [selected]="date === (side.key === 'before' ? before() : after())"
+                    >
+                      {{ date | date: 'dd/MM/yyyy' }}
+                    </option>
                   }
                 </select>
               </label>

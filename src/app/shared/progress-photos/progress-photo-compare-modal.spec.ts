@@ -70,6 +70,9 @@ describe('ProgressPhotoCompareModal', () => {
 
     const images = [...element.querySelectorAll('img')].map((img) => img.getAttribute('src'));
     expect(images).toEqual(['https://s.test/f1.webp', 'https://s.test/f3.webp']);
+    // Os seletores mostram as mesmas datas das fotos (antes: a mais antiga; depois: a mais recente).
+    const selects = [...element.querySelectorAll('select')].map((select) => select.value);
+    expect(selects).toEqual(['2026-09-30', '2026-10-30']);
     expect(element.textContent).toContain('82,4 kg');
     expect(element.textContent).toContain('Sem peso no dia');
     expect(element.textContent).toContain('+30 dias');
