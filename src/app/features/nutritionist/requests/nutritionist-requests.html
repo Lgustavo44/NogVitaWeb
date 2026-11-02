@@ -73,10 +73,12 @@
       >
         <div class="flex flex-col justify-between gap-4 lg:flex-row lg:items-start">
           <div class="flex min-w-0 items-start gap-4">
-            <div
-              class="relative flex size-12 shrink-0 items-center justify-center rounded-control bg-soft text-on-soft text-title-md font-bold"
-            >
-              {{ initials(request.patientName) }}
+            <div class="relative shrink-0">
+              <app-avatar
+                [name]="request.patientName"
+                [photoUrl]="request.patientPhotoUrl"
+                size="lg"
+              />
               @if (request.status === 'Pending') {
                 <span
                   class="absolute -right-1 -bottom-1 size-3.5 rounded-full bg-primary ring-2 ring-surface"

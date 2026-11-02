@@ -7,6 +7,8 @@ export interface NutritionistProfile {
   crnRegion: number;
   crnNumber: string;
   bio: string | null;
+  /** Pública (não expira); nula sem foto. */
+  photoUrl?: string | null;
 }
 
 export interface MyPatientItem {
@@ -14,6 +16,7 @@ export interface MyPatientItem {
   name: string;
   goal: Goal;
   startedAtUtc: string;
+  photoUrl?: string | null;
 }
 
 export interface LatestWeight {
@@ -35,6 +38,7 @@ export interface FollowedPatient {
   trainingTime: string | null;
   bodyMassIndex: number | null;
   latestWeight: LatestWeight | null;
+  photoUrl?: string | null;
 }
 
 export type RequestStatus = 'Pending' | 'Accepted' | 'Rejected' | 'Cancelled';
@@ -43,6 +47,8 @@ export interface NutritionistRequestItem {
   id: string;
   patientId: string;
   patientName: string;
+  /** Só vem nos pedidos pendentes. */
+  patientPhotoUrl?: string | null;
   status: RequestStatus;
   message: string | null;
   createdAt: string;

@@ -13,6 +13,14 @@ const iso = (daysAgo: number): string => {
   return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
 };
 
+/** Fotos fictícias: servidas por uma rota própria, como o Supabase Storage. */
+const STORAGE = 'https://storage.nogvita.test';
+/** PNG 1x1, para as imagens fictícias. */
+const PIXEL = Buffer.from(
+  'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP4//r9fwAJGAPYrWWRxAAAAABJRU5ErkJggg==',
+  'base64',
+);
+
 const TACO = 'Tabela Brasileira de Composição de Alimentos (TACO), 4ª edição, NEPA/UNICAMP.';
 const OFF = 'Dados do Open Food Facts (openfoodfacts.org), licença ODbL.';
 
@@ -105,9 +113,21 @@ export function createState() {
       foods: [],
     },
   ];
+  /** Termo aceito e três fotos em duas datas (dá para comparar de frente). */
+  const progress = {
+    consentAccepted: true,
+    photos: [
+      { id: 'pf1', takenOn: iso(28), angle: 'Front', url: `${STORAGE}/pf1.png` },
+      { id: 'ps1', takenOn: iso(28), angle: 'Side', url: `${STORAGE}/ps1.png` },
+      { id: 'pf2', takenOn: iso(0), angle: 'Front', url: `${STORAGE}/pf2.png` },
+    ],
+  };
   return {
     foods,
     plan,
+    progress,
+    /** Corpo (multipart) de cada envio de foto, para conferir o que saiu do recorte. */
+    uploads: [] as Buffer[],
     meals,
     emailsSent: 0,
     users: [
@@ -426,6 +446,57 @@ function routeFor(roles: Role[], state: FakeState) {
       });
     }
 
+    // Foto de perfil do paciente: guarda o último arquivo enviado (o recorte, em JPEG)
+    if (path === '/patients/me/photo' && method === 'PUT') {
+      state.uploads.push(request.postDataBuffer() ?? Buffer.alloc(0));
+      return json({ photoUrl: `${STORAGE}/perfil.png` });
+    }
+    if (path === '/patients/me/photo' && method === 'DELETE') return empty();
+
+    // Fotos de evolução (paciente), e a mesma lista vista pelo nutricionista
+    const byDay = () =>
+      [...new Set(state.progress.photos.map((photo) => photo.takenOn))]
+        .sort()
+        .reverse()
+        .map((takenOn) => ({
+          takenOn,
+          photos: state.progress.photos.filter((photo) => photo.takenOn === takenOn),
+        }));
+    if (path === '/patients/me/progress-photos/consent') {
+      if (method === 'POST') {
+        state.progress.consentAccepted = true;
+        return empty();
+      }
+      if (method === 'DELETE') {
+        state.progress.consentAccepted = false;
+        state.progress.photos = [];
+        return empty();
+      }
+      return json({
+        version: '1',
+        text: 'As fotos ficam guardadas com acesso restrito. Só você e o seu nutricionista podem vê-las.',
+        accepted: state.progress.consentAccepted,
+        acceptedAtUtc: state.progress.consentAccepted ? '2026-10-01T10:00:00Z' : null,
+      });
+    }
+    if (path === '/patients/me/progress-photos' && method === 'POST') {
+      const id = `pn${state.progress.photos.length + 1}`;
+      const photo = { id, takenOn: iso(0), angle: 'Back', url: `${STORAGE}/${id}.png` };
+      state.progress.photos.push(photo);
+      state.uploads.push(request.postDataBuffer() ?? Buffer.alloc(0));
+      return json(photo);
+    }
+    if (
+      path === '/patients/me/progress-photos' ||
+      path === '/nutritionists/me/patients/p1/progress-photos'
+    )
+      return json(byDay());
+    const progressPhoto = path.match(/^\/patients\/me\/progress-photos\/(\w+)$/);
+    if (progressPhoto && method === 'DELETE') {
+      state.progress.photos = state.progress.photos.filter((p) => p.id !== progressPhoto[1]);
+      return empty();
+    }
+
     return json({ title: 'Não encontrado (API simulada).' }, 404);
   };
 }
@@ -447,6 +518,9 @@ export async function useFakeApi(
 ): Promise<FakeState> {
   await page.route('**/api/v1/**', routeFor(roles, state));
   await page.route('**/health', (route) => route.fulfill({ status: 200, body: 'ok' }));
+  await page.route(`${STORAGE}/**`, (route) =>
+    route.fulfill({ status: 200, contentType: 'image/png', body: PIXEL }),
+  );
   return state;
 }
 

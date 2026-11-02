@@ -106,6 +106,8 @@ O `vercel.json` define o build, a reescrita da SPA (toda rota abre o `index.html
 
 > Se a URL da API mudar, atualize também o `connect-src` da CSP no `vercel.json`.
 
+> As fotos (perfil e evolução) não passam pela API: vêm direto do Supabase Storage, por URL pública (nutricionista) ou assinada, que expira em minutos (paciente). Por isso o `img-src` da CSP libera `https://pjxmuhcuiqpeezzmlooa.supabase.co`, e também `blob:`, usado na prévia da foto antes do envio. Se o projeto do Supabase mudar, atualize o `img-src`.
+
 ## Design system
 
 As cores, a tipografia, os raios e as sombras são tokens em `src/styles.css`, com nomes de uso (`bg-surface`, `text-ink-muted`, `bg-primary`...). Os componentes nunca usam a cor direta, e o modo escuro troca só os tokens. As combinações de texto passam no contraste do WCAG AA.

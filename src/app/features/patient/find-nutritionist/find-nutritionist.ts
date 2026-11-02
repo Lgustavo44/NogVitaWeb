@@ -25,6 +25,7 @@ import {
   patientRequestsResource,
 } from '../patient-api';
 import { NutritionistListItem } from '../patient.models';
+import { Avatar } from '../../../shared/ui/avatar/avatar';
 
 const PAGE_SIZE = 12;
 const MESSAGE_MAX = 500;
@@ -34,6 +35,7 @@ const CRN_REGIONS = Array.from({ length: 12 }, (_, index) => index + 1);
 @Component({
   selector: 'app-find-nutritionist',
   imports: [
+    Avatar,
     Alert,
     Button,
     LoadError,

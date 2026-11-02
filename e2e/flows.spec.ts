@@ -114,6 +114,86 @@ test.describe('paciente', () => {
   });
 });
 
+test.describe('fotos de evolução', () => {
+  test('paciente aceita o termo, envia uma foto e a vê na galeria', async ({ page }) => {
+    const state = createState();
+    state.progress.consentAccepted = false;
+    state.progress.photos = [];
+    await signIn(page, ['Patient'], state);
+    await page.goto('/paciente/peso');
+
+    await page.getByRole('button', { name: 'Aceitar e continuar' }).click();
+    await page.getByRole('button', { name: 'Adicionar primeira foto' }).click();
+    const dialog = page.getByRole('dialog');
+    await dialog.getByRole('button', { name: 'Costas' }).click();
+    await dialog.locator('input[type="file"]').setInputFiles({
+      name: 'costas.png',
+      mimeType: 'image/png',
+      buffer: Buffer.from(
+        'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP4//r9fwAJGAPYrWWRxAAAAABJRU5ErkJggg==',
+        'base64',
+      ),
+    });
+    await expect(dialog.getByRole('group', { name: 'Ajuste da foto de evolução' })).toBeVisible();
+    await dialog.getByRole('button', { name: 'Enviar foto' }).click();
+
+    await expect(page.getByRole('button', { name: /Ver foto de costas de/ })).toBeVisible();
+    await expect(page.getByText('1 de 90 fotos')).toBeVisible();
+    // Foi o recorte (JPEG) que subiu, não o PNG original.
+    expect(state.uploads.at(-1)?.toString('latin1')).toContain('Content-Type: image/jpeg');
+  });
+
+  test('foto de perfil: ajusta o recorte (arrastar e zoom) e envia o JPEG', async ({ page }) => {
+    const state = createState();
+    await signIn(page, ['Patient'], state);
+    await page.goto('/paciente/perfil');
+
+    await page.locator('app-profile-photo-card input[type="file"]').setInputFiles({
+      name: 'eu.png',
+      mimeType: 'image/png',
+      buffer: Buffer.from(
+        'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP4//r9fwAJGAPYrWWRxAAAAABJRU5ErkJggg==',
+        'base64',
+      ),
+    });
+    const dialog = page.getByRole('dialog', { name: 'Ajustar foto de perfil' });
+    const area = dialog.getByRole('group', { name: 'Ajuste da foto de perfil' });
+    await expect(area).toBeVisible();
+
+    // Zoom pela barra e pelo teclado, e arrasto com o mouse.
+    await dialog.getByRole('button', { name: 'Aumentar zoom' }).click();
+    await expect(dialog.getByRole('slider', { name: 'Zoom' })).toHaveAttribute(
+      'aria-valuetext',
+      '120%',
+    );
+    await area.focus();
+    await page.keyboard.press('+');
+    await expect(dialog.getByRole('slider', { name: 'Zoom' })).toHaveAttribute(
+      'aria-valuetext',
+      '130%',
+    );
+    const box = (await area.boundingBox())!;
+    await page.mouse.move(box.x + box.width / 2, box.y + box.height / 2);
+    await page.mouse.down();
+    await page.mouse.move(box.x + box.width / 2 + 40, box.y + box.height / 2 + 20, { steps: 4 });
+    await page.mouse.up();
+
+    await dialog.getByRole('button', { name: 'Salvar foto' }).click();
+    await expect(dialog).toHaveCount(0);
+    expect(state.uploads.at(-1)?.toString('latin1')).toContain('Content-Type: image/jpeg');
+  });
+
+  test('nutricionista vê as fotos do paciente, sem enviar nem apagar', async ({ page }) => {
+    await signIn(page, ['Nutritionist']);
+    await page.goto('/nutricionista/pacientes/p1');
+
+    await expect(page.getByRole('button', { name: /Ver foto de frente de/ })).toHaveCount(2);
+    await expect(page.getByRole('button', { name: /Adicionar foto/ })).toHaveCount(0);
+    await page.getByRole('button', { name: 'Comparar' }).click();
+    await expect(page.getByRole('dialog').getByRole('img')).toHaveCount(2);
+  });
+});
+
 test.describe('admin', () => {
   test('desativa um paciente e o encontra no filtro de desativadas', async ({ page }) => {
     await signIn(page, ['Admin']);

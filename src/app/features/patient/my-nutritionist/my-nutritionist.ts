@@ -22,10 +22,12 @@ import { Modal } from '../../../shared/ui/modal/modal';
 import { PageHeader } from '../../../shared/ui/page-header/page-header';
 import { Toaster } from '../../../shared/ui/toast/toaster';
 import { PatientApi, careRelationshipResource } from '../patient-api';
+import { Avatar } from '../../../shared/ui/avatar/avatar';
 
 @Component({
   selector: 'app-my-nutritionist',
   imports: [
+    Avatar,
     Alert,
     Button,
     DatePipe,

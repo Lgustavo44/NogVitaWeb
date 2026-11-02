@@ -8,12 +8,14 @@ import { LoadError } from '../../../shared/ui/load-error/load-error';
 import { PageHeader } from '../../../shared/ui/page-header/page-header';
 import { debounced } from '../../../shared/util/debounced';
 import { myPatientsResource } from '../nutritionist-api';
+import { Avatar } from '../../../shared/ui/avatar/avatar';
 
 const PAGE_SIZE = 10;
 
 @Component({
   selector: 'app-nutritionist-patients',
   imports: [
+    Avatar,
     Button,
     DatePipe,
     LoadError,
@@ -56,10 +58,5 @@ export class NutritionistPatientsPage {
 
   protected nextPage(): void {
     if (this.page() < this.totalPages()) this.page.update((page) => page + 1);
-  }
-
-  protected initials(name: string): string {
-    const parts = name.trim().split(/\s+/).filter(Boolean);
-    return ((parts[0]?.[0] ?? '') + (parts.at(-1)?.[0] ?? '')).toUpperCase();
   }
 }

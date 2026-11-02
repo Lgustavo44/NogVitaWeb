@@ -18,12 +18,16 @@ import { PageHeader } from '../../../shared/ui/page-header/page-header';
 import { Toaster } from '../../../shared/ui/toast/toaster';
 import { NutritionistApi } from '../nutritionist-api';
 import { NutritionistProfileStore } from '../nutritionist-profile-store';
+import { Avatar } from '../../../shared/ui/avatar/avatar';
+import { ProfilePhotoCard } from '../../../shared/photos/profile-photo-card';
 
 const BIO_MAX = 500;
 
 @Component({
   selector: 'app-nutritionist-profile',
   imports: [
+    ProfilePhotoCard,
+    Avatar,
     Alert,
     Button,
     Field,
@@ -47,10 +51,12 @@ export class NutritionistProfilePage {
   protected readonly profile = inject(NutritionistProfileStore).profile;
   protected readonly bioMax = BIO_MAX;
 
-  /** Volta à bio salva sempre que o perfil (re)carrega. */
-  protected readonly model = linkedSignal(() => ({
-    bio: this.profile.hasValue() ? (this.profile.value().bio ?? '') : '',
-  }));
+  /** A bio salva. Trocar a foto recarrega o perfil, mas não muda isto. */
+  private readonly savedBio = computed(() =>
+    this.profile.hasValue() ? (this.profile.value().bio ?? '') : '',
+  );
+  /** Volta à bio salva quando ela muda (sem apagar o que a pessoa digitou à toa). */
+  protected readonly model = linkedSignal(() => ({ bio: this.savedBio() }));
   protected readonly profileForm = form(
     this.model,
     (path) => {
@@ -70,12 +76,6 @@ export class NutritionistProfilePage {
       ? `CRN-${this.profile.value().crnRegion} ${this.profile.value().crnNumber}`
       : '',
   );
-  protected readonly initials = computed(() => {
-    const parts = this.profile.hasValue() ? this.profile.value().name.split(/\s+/) : [];
-    return (
-      (parts[0]?.[0] ?? '') + (parts.length > 1 ? parts[parts.length - 1][0] : '')
-    ).toUpperCase();
-  });
 
   protected discard(): void {
     this.model.set({ bio: this.profile.hasValue() ? (this.profile.value().bio ?? '') : '' });

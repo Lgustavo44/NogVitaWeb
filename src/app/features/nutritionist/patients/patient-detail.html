@@ -21,12 +21,7 @@
     aria-labelledby="perfil-paciente"
   >
     <div class="flex items-center gap-4">
-      <span
-        class="flex size-14 shrink-0 items-center justify-center rounded-container bg-soft text-title-md font-bold text-on-soft sm:size-16 sm:text-headline-lg"
-        aria-hidden="true"
-      >
-        {{ initials(patient.value().name) }}
-      </span>
+      <app-avatar [name]="patient.value().name" [photoUrl]="patient.value().photoUrl" size="lg" />
       <div class="min-w-0">
         <h1
           id="perfil-paciente"
@@ -112,11 +107,16 @@
   <app-patient-plans [patientId]="patient.value().patientId" />
 
   <app-weight-panel
-    heading="Peso e evolução"
     [recordsPath]="'/nutritionists/me/patients/' + patientId + '/weight-records'"
     deletePath="/nutritionists/me/weight-records"
     perspective="nutritionist"
     (changed)="patient.reload()"
+  />
+
+  <app-progress-photos-panel
+    [photosPath]="'/nutritionists/me/patients/' + patientId + '/progress-photos'"
+    perspective="nutritionist"
+    [weightRecordsPath]="'/nutritionists/me/patients/' + patientId + '/weight-records'"
   />
 
   <!-- Ação destrutiva no fim, com a explicação ao lado (como o "Acesso à plataforma" do admin). -->

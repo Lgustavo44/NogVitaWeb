@@ -57,11 +57,7 @@
           class="flex flex-col gap-4 rounded-container bg-surface p-5 shadow-1 transition-shadow hover:shadow-2"
         >
           <div class="flex items-start gap-4">
-            <span
-              class="flex size-14 shrink-0 items-center justify-center rounded-control bg-soft text-title-md font-bold text-on-soft"
-            >
-              {{ initials(patient.name) }}
-            </span>
+            <app-avatar [name]="patient.name" [photoUrl]="patient.photoUrl" size="lg" />
             <div class="min-w-0">
               <h2 class="truncate text-title-md font-bold text-ink">{{ patient.name }}</h2>
               <p class="mt-1 text-body-sm text-ink-muted">

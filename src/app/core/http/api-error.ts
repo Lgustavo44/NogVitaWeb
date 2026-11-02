@@ -26,6 +26,8 @@ const FALLBACK_MESSAGES: Record<number, string> = {
   401: 'Sua sessão expirou. Entre novamente.',
   403: 'Você não tem permissão para fazer isso.',
   404: 'Não encontramos o que você procurou.',
+  /** O servidor corta o envio antes de responder com ProblemDetails. */
+  413: 'A imagem passa de 5 MB. Escolha uma foto menor.',
   429: 'Muitas tentativas. Espere um minuto e tente de novo.',
   503: 'O serviço está indisponível no momento. Tente de novo em instantes.',
 };

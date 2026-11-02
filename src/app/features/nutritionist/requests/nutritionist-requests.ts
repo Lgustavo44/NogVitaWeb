@@ -18,6 +18,7 @@ import { PageHeader } from '../../../shared/ui/page-header/page-header';
 import { Toaster } from '../../../shared/ui/toast/toaster';
 import { NutritionistApi, nutritionistRequestsResource } from '../nutritionist-api';
 import { NutritionistRequestItem, RequestStatus } from '../nutritionist.models';
+import { Avatar } from '../../../shared/ui/avatar/avatar';
 
 type RequestFilter = RequestStatus | 'All';
 type RequestAction = 'accept' | 'reject';
@@ -40,6 +41,7 @@ const STATUS_LABELS: Record<RequestStatus, string> = {
 @Component({
   selector: 'app-nutritionist-requests',
   imports: [
+    Avatar,
     Button,
     DatePipe,
     LoadError,
@@ -147,10 +149,5 @@ export class NutritionistRequestsPage {
       Rejected: 'bg-danger-soft text-danger-ink',
       Cancelled: 'bg-surface-muted text-ink-muted',
     }[status];
-  }
-
-  protected initials(name: string): string {
-    const parts = name.trim().split(/\s+/).filter(Boolean);
-    return ((parts[0]?.[0] ?? '') + (parts.at(-1)?.[0] ?? '')).toUpperCase();
   }
 }

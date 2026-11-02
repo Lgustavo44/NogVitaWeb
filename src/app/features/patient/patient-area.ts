@@ -18,7 +18,13 @@ import { PatientProfileStore } from './patient-profile-store';
   imports: [AppShell, RouterOutlet],
   providers: [PatientProfileStore],
   template: `
-    <app-shell area="Patient" mobileNav="bottom" [navigation]="navigation" [userName]="userName()">
+    <app-shell
+      area="Patient"
+      mobileNav="bottom"
+      [navigation]="navigation"
+      [userName]="userName()"
+      [userPhotoUrl]="photoUrl()"
+    >
       <router-outlet />
     </app-shell>
   `,
@@ -29,6 +35,9 @@ export class PatientArea {
   protected readonly userName = computed(() =>
     this.profile.hasValue() ? this.profile.value().name : null,
   );
+  protected readonly photoUrl = computed(() =>
+    this.profile.hasValue() ? (this.profile.value().photoUrl ?? null) : null,
+  );
   protected readonly navigation: NavItem[] = [
     { label: 'Início', icon: LucideHouse, link: '/paciente', exact: true, bottom: true },
     {
@@ -38,7 +47,13 @@ export class PatientArea {
       link: '/paciente/plano',
       bottom: true,
     },
-    { label: 'Peso', icon: LucideScale, link: '/paciente/peso', bottom: true },
+    {
+      label: 'Peso e evolução',
+      shortLabel: 'Evolução',
+      icon: LucideScale,
+      link: '/paciente/peso',
+      bottom: true,
+    },
     {
       label: 'Encontrar nutricionista',
       icon: LucideUserSearch,

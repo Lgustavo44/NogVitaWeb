@@ -1,0 +1,286 @@
+<div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+  <h2 class="flex items-center gap-2 text-title-md text-ink">
+    <svg lucideCamera class="size-5 text-link"></svg>
+    Fotos de evolução
+  </h2>
+  @if (photos.hasValue() && days().length > 0) {
+    <div class="flex flex-wrap gap-2">
+      @if (canCompare()) {
+        <button appButton variant="outline" type="button" (click)="comparing.set(true)">
+          <svg lucideColumns2 class="size-5"></svg>
+          Comparar
+        </button>
+      }
+      @if (isPatient()) {
+        <!-- Na página, o primário é "Registrar peso"; aqui fica o tom mais claro. -->
+        <button appButton variant="soft" type="button" [disabled]="full()" (click)="openUpload()">
+          <svg lucidePlus class="size-5"></svg>
+          Adicionar foto
+        </button>
+      }
+    </div>
+  }
+</div>
+
+@if (consent.isLoading() && !consent.hasValue()) {
+  <div
+    class="h-48 rounded-container bg-surface-muted motion-safe:animate-pulse"
+    aria-hidden="true"
+  ></div>
+  <span class="sr-only" role="status">Carregando fotos de evolução…</span>
+} @else if (consent.error()) {
+  <app-load-error [error]="consent.error()" (retry)="consent.reload()" />
+} @else if (needsConsent()) {
+  <!-- Termo: sem ele, a API não guarda nem mostra fotos -->
+  <section
+    class="flex flex-col gap-4 rounded-container bg-surface p-5 shadow-1 sm:p-6"
+    aria-labelledby="termo-fotos-titulo"
+  >
+    <div class="flex items-start gap-3">
+      <span
+        class="flex size-10 shrink-0 items-center justify-center rounded-full bg-soft/40 text-link"
+        aria-hidden="true"
+      >
+        <svg lucideShieldCheck class="size-5"></svg>
+      </span>
+      <div>
+        <h3 id="termo-fotos-titulo" class="text-title-md text-ink">
+          Antes de começar: termo de consentimento
+        </h3>
+        <p class="mt-1 text-body-md text-ink-muted">
+          Fotos do corpo são dados de saúde. Leia como elas são guardadas e quem pode vê-las.
+        </p>
+      </div>
+    </div>
+    <div
+      class="max-h-64 overflow-y-auto rounded-control bg-surface-muted p-4 text-body-md whitespace-pre-line text-ink"
+      role="region"
+      aria-label="Texto do termo de consentimento"
+      tabindex="0"
+    >
+      {{ consent.value()!.text }}
+    </div>
+    @if (consentError(); as message) {
+      <p class="text-body-sm text-danger-ink" role="alert">{{ message }}</p>
+    }
+    <div>
+      <button appButton type="button" [loading]="accepting()" (click)="acceptConsent()">
+        <svg lucideShieldCheck class="size-5"></svg>
+        Aceitar e continuar
+      </button>
+    </div>
+  </section>
+} @else if (photos.isLoading() && !photos.hasValue()) {
+  <div class="grid grid-cols-3 gap-2" aria-hidden="true">
+    @for (item of [1, 2, 3]; track item) {
+      <div class="aspect-[3/4] rounded-container bg-surface-muted motion-safe:animate-pulse"></div>
+    }
+  </div>
+  <span class="sr-only" role="status">Carregando fotos de evolução…</span>
+} @else if (photos.error()) {
+  <app-load-error [error]="photos.error()" (retry)="photos.reload()" />
+} @else if (days().length === 0) {
+  <section
+    class="flex flex-col items-center gap-3 rounded-container bg-surface p-8 text-center shadow-1"
+  >
+    <span
+      class="flex size-12 items-center justify-center rounded-full bg-soft/40 text-link"
+      aria-hidden="true"
+    >
+      <svg lucideImagePlus class="size-6"></svg>
+    </span>
+    @if (isPatient()) {
+      <h3 class="text-title-md text-ink">Registre sua evolução em fotos</h3>
+      <p class="max-w-md text-body-md text-ink-muted">
+        Tire fotos de frente, de lado e de costas, de tempos em tempos, com a mesma luz e o mesmo
+        lugar. Assim dá para comparar as mudanças com o seu nutricionista.
+      </p>
+      <button appButton type="button" (click)="openUpload()">
+        <svg lucidePlus class="size-5"></svg>
+        Adicionar primeira foto
+      </button>
+    } @else {
+      <h3 class="text-title-md text-ink">Nenhuma foto de evolução</h3>
+      <p class="max-w-md text-body-md text-ink-muted">
+        As fotos aparecem aqui quando o paciente aceitar o termo e enviar a primeira.
+      </p>
+    }
+  </section>
+} @else {
+  <section
+    class="flex flex-col gap-6 rounded-container bg-surface p-5 shadow-1"
+    aria-label="Galeria de fotos de evolução"
+  >
+    <ol class="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
+      @for (day of days(); track day.takenOn) {
+        <li class="flex flex-col gap-2">
+          <h3 class="text-label-lg font-semibold text-ink">
+            {{ day.takenOn | date: "d 'de' MMMM 'de' y" }}
+          </h3>
+          <ul class="grid grid-cols-3 gap-2">
+            @for (angle of angles; track angle) {
+              <li>
+                @if (photoOf(day, angle); as photo) {
+                  <button
+                    type="button"
+                    class="group relative block aspect-[3/4] w-full cursor-pointer overflow-hidden rounded-container bg-surface-muted"
+                    [attr.aria-label]="
+                      'Ver foto de ' +
+                      labels[angle].toLowerCase() +
+                      ' de ' +
+                      (day.takenOn | date: 'dd/MM/yyyy')
+                    "
+                    (click)="viewing.set(photo)"
+                  >
+                    <img
+                      [src]="photo.url"
+                      alt=""
+                      class="size-full object-cover transition-transform duration-300 group-hover:scale-[1.03] motion-reduce:transition-none motion-reduce:group-hover:scale-100"
+                      width="300"
+                      height="400"
+                      loading="lazy"
+                      decoding="async"
+                      (error)="refreshUrls()"
+                    />
+                    <span
+                      class="absolute bottom-2 left-2 rounded-pill bg-surface/90 px-2 py-0.5 text-label-md text-ink"
+                      aria-hidden="true"
+                    >
+                      {{ labels[angle] }}
+                    </span>
+                  </button>
+                } @else if (isPatient() && !full()) {
+                  <button
+                    type="button"
+                    class="flex aspect-[3/4] w-full cursor-pointer flex-col items-center justify-center gap-1 rounded-container border-2 border-dashed border-hairline text-label-md text-ink-muted transition-colors hover:border-line hover:text-ink"
+                    [attr.aria-label]="
+                      'Adicionar foto de ' +
+                      labels[angle].toLowerCase() +
+                      ' em ' +
+                      (day.takenOn | date: 'dd/MM/yyyy')
+                    "
+                    (click)="openUpload(day.takenOn, angle)"
+                  >
+                    <svg lucidePlus class="size-5" aria-hidden="true"></svg>
+                    {{ labels[angle] }}
+                  </button>
+                } @else {
+                  <div
+                    class="flex aspect-[3/4] w-full items-center justify-center rounded-container bg-surface-muted text-label-md text-ink-muted"
+                  >
+                    <span aria-hidden="true">—</span>
+                    <span class="sr-only">Sem foto de {{ labels[angle].toLowerCase() }}</span>
+                  </div>
+                }
+              </li>
+            }
+          </ul>
+        </li>
+      }
+    </ol>
+
+    @if (isPatient()) {
+      <div
+        class="flex flex-col gap-2 border-t border-divider pt-4 text-body-sm text-ink-muted sm:flex-row sm:items-center sm:justify-between"
+      >
+        <p class="tabular-nums">
+          {{ total() }} de {{ max }} fotos.
+          @if (full()) {
+            Apague alguma para enviar outra.
+          }
+        </p>
+        <button
+          type="button"
+          class="cursor-pointer self-start text-label-md text-danger-ink underline-offset-2 hover:underline sm:self-auto"
+          (click)="openRevoke()"
+        >
+          Retirar consentimento e apagar fotos
+        </button>
+      </div>
+    }
+  </section>
+}
+
+@if (uploadTarget(); as target) {
+  <app-progress-photo-upload-modal
+    [days]="days()"
+    [initialDate]="target.date"
+    [initialAngle]="target.angle"
+    [busy]="uploading()"
+    [error]="uploadError()"
+    (submitted)="upload($event)"
+    (closed)="closeUpload()"
+  />
+}
+
+@if (viewing(); as photo) {
+  <app-modal
+    [heading]="labels[photo.angle]"
+    [subtitle]="(photo.takenOn | date: 'dd/MM/yyyy') ?? ''"
+    (closed)="viewing.set(null)"
+  >
+    <img
+      [src]="photo.url"
+      [alt]="
+        'Foto de ' +
+        labels[photo.angle].toLowerCase() +
+        ' de ' +
+        (photo.takenOn | date: 'dd/MM/yyyy')
+      "
+      class="mx-auto max-h-[65dvh] w-auto rounded-container bg-surface-muted object-contain"
+      width="600"
+      height="800"
+      (error)="refreshUrls()"
+    />
+    <ng-container modalActions>
+      @if (isPatient()) {
+        <button appButton variant="danger" type="button" (click)="askDelete(photo)">
+          <svg lucideTrash2 class="size-5"></svg>
+          Apagar foto
+        </button>
+      }
+      <button appButton variant="soft" type="button" (click)="viewing.set(null)">Fechar</button>
+    </ng-container>
+  </app-modal>
+}
+
+@if (deleteTarget(); as photo) {
+  <app-confirm-dialog
+    heading="Apagar esta foto?"
+    [subtitle]="labels[photo.angle] + ' · ' + (photo.takenOn | date: 'dd/MM/yyyy')"
+    confirmLabel="Apagar foto"
+    tone="danger"
+    [busy]="deleting()"
+    [error]="deleteError()"
+    (confirmed)="confirmDelete()"
+    (closed)="closeDelete()"
+  >
+    <p>A foto sai da sua galeria e da visão do seu nutricionista. Não dá para desfazer.</p>
+  </app-confirm-dialog>
+}
+
+@if (confirmingRevoke()) {
+  <app-confirm-dialog
+    heading="Retirar o consentimento?"
+    confirmLabel="Retirar e apagar fotos"
+    tone="danger"
+    [busy]="revoking()"
+    [error]="revokeError()"
+    (confirmed)="confirmRevoke()"
+    (closed)="closeRevoke()"
+  >
+    <p>
+      Todas as suas fotos de evolução ({{ total() }}) serão apagadas, e o seu nutricionista deixa de
+      vê-las. Para enviar fotos de novo, será preciso aceitar o termo outra vez.
+    </p>
+  </app-confirm-dialog>
+}
+
+@if (comparing()) {
+  <app-progress-photo-compare-modal
+    [days]="days()"
+    [weightRecordsPath]="weightRecordsPath()"
+    (imageFailed)="refreshUrls()"
+    (closed)="comparing.set(false)"
+  />
+}

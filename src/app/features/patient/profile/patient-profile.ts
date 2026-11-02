@@ -35,6 +35,7 @@ import { Toaster } from '../../../shared/ui/toast/toaster';
 import { PatientApi } from '../patient-api';
 import { PatientProfileStore } from '../patient-profile-store';
 import { PatientProfile, UpdatePatientProfileRequest } from '../patient.models';
+import { ProfilePhotoCard } from '../../../shared/photos/profile-photo-card';
 
 /** O formulário trabalha com texto nos horários ('' = não informado) e altura vazia como null. */
 interface ProfileForm {
@@ -56,6 +57,7 @@ const GOAL_DESCRIPTIONS: Record<Goal, string> = {
 @Component({
   selector: 'app-patient-profile',
   imports: [
+    ProfilePhotoCard,
     Alert,
     Button,
     DatePipe,
@@ -90,10 +92,13 @@ export class PatientProfilePage {
   );
   protected readonly maxBirthDate = adultCutoff();
 
-  /** Volta aos valores salvos sempre que o perfil (re)carrega. */
-  protected readonly model = linkedSignal<ProfileForm>(() =>
-    this.profile.hasValue() ? toForm(this.profile.value()) : EMPTY_FORM,
+  /** Os campos do formulário como estão salvos. Trocar a foto recarrega o perfil, mas não muda isto. */
+  private readonly saved = computed(
+    () => (this.profile.hasValue() ? toForm(this.profile.value()) : EMPTY_FORM),
+    { equal: (a, b) => JSON.stringify(a) === JSON.stringify(b) },
   );
+  /** Volta aos valores salvos quando eles mudam (sem apagar o que a pessoa digitou à toa). */
+  protected readonly model = linkedSignal<ProfileForm>(() => this.saved());
   protected readonly profileForm = form(
     this.model,
     (path) => {

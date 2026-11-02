@@ -101,4 +101,39 @@ test.describe('acessibilidade (axe, WCAG 2.2 AA)', () => {
       .analyze();
     expect(results.violations.map((violation) => violation.id)).toEqual([]);
   });
+
+  test('fotos de evolução: termo, envio e comparação', async ({ page }) => {
+    const state = createState();
+    state.progress.consentAccepted = false;
+    await signIn(page, ['Patient'], state);
+    await page.goto('/paciente/peso');
+    await expect(page.getByRole('heading', { name: /termo de consentimento/ })).toBeVisible();
+    const dialogViolations = async () =>
+      (await new AxeBuilder({ page }).withTags(TAGS).analyze()).violations.map((v) => v.id);
+    expect(await dialogViolations()).toEqual([]);
+
+    await page.getByRole('button', { name: 'Aceitar e continuar' }).click();
+    await page.getByRole('button', { name: 'Adicionar foto', exact: true }).click();
+    await expect(page.getByRole('dialog')).toBeVisible();
+    expect(await dialogViolations()).toEqual([]);
+    // Com a foto escolhida, o recorte (área de corte, zoom, girar) também passa no axe.
+    await page
+      .getByRole('dialog')
+      .locator('input[type="file"]')
+      .setInputFiles({
+        name: 'frente.png',
+        mimeType: 'image/png',
+        buffer: Buffer.from(
+          'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP4//r9fwAJGAPYrWWRxAAAAABJRU5ErkJggg==',
+          'base64',
+        ),
+      });
+    await expect(page.getByRole('group', { name: 'Ajuste da foto de evolução' })).toBeVisible();
+    expect(await dialogViolations()).toEqual([]);
+    await page.getByRole('dialog').getByRole('button', { name: 'Cancelar' }).click();
+
+    await page.getByRole('button', { name: 'Comparar' }).click();
+    await expect(page.getByRole('dialog').getByRole('img')).toHaveCount(2);
+    expect(await dialogViolations()).toEqual([]);
+  });
 });

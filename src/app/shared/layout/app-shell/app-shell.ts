@@ -33,6 +33,7 @@ import { AREAS, Area } from '../../../core/auth/areas';
 import { Auth } from '../../../core/auth/auth';
 import { Role } from '../../../core/auth/auth.models';
 import { CurrentUser } from '../../../core/auth/current-user';
+import { Avatar } from '../../ui/avatar/avatar';
 import { Logo } from '../../ui/logo/logo';
 import { ThemeToggle } from '../../ui/theme-toggle/theme-toggle';
 
@@ -69,6 +70,7 @@ const COLLAPSED_KEY = 'nv-sidebar-collapsed';
 @Component({
   selector: 'app-shell',
   imports: [
+    Avatar,
     CdkMenu,
     CdkMenuItem,
     CdkMenuTrigger,
@@ -102,6 +104,8 @@ export class AppShell {
   readonly userName = input<string | null>(null);
   /** Linha abaixo do nome (ex.: o CRN do nutricionista). Sem ela, mostra o nome da área. */
   readonly userDetail = input<string | null>(null);
+  /** Foto de perfil de quem está logado; sem ela, o avatar mostra as iniciais. */
+  readonly userPhotoUrl = input<string | null>(null);
   /** Título acima dos itens do menu lateral (ex.: "Menu clínico"). */
   readonly menuTitle = input('Menu');
   readonly mobileNav = input<MobileNav>('drawer');
@@ -126,7 +130,6 @@ export class AppShell {
       .map((role) => ({ ...AREAS[role], icon: AREA_ICONS[role] })),
   );
   protected readonly displayName = computed(() => this.userName() ?? this.currentArea().label);
-  protected readonly initials = computed(() => initialsOf(this.displayName()));
   protected readonly bottomItems = computed(() => {
     const marked = this.navigation().filter((item) => item.bottom);
     return (marked.length > 0 ? marked : this.navigation()).slice(0, 5);
@@ -182,13 +185,6 @@ export class AppShell {
   protected logout(): void {
     void this.auth.logout();
   }
-}
-
-function initialsOf(name: string): string {
-  const parts = name.trim().split(/\s+/).filter(Boolean);
-  const first = parts[0]?.[0] ?? '';
-  const last = parts.length > 1 ? parts[parts.length - 1][0] : '';
-  return (first + last).toUpperCase();
 }
 
 function localStorageOf(document: Document): Storage | null {

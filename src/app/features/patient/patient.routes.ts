@@ -29,7 +29,7 @@ export const PATIENT_ROUTES: Routes = [
   },
   {
     path: 'peso',
-    title: 'Meu peso · NogVita',
+    title: 'Peso e evolução · NogVita',
     loadComponent: () => import('./weight/patient-weight').then((m) => m.PatientWeightPage),
   },
   {

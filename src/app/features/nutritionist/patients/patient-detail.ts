@@ -13,10 +13,14 @@ import { Toaster } from '../../../shared/ui/toast/toaster';
 import { WeightPanel } from '../../../shared/weight/weight-panel';
 import { NutritionistApi, followedPatientResource } from '../nutritionist-api';
 import { PatientPlans } from '../plans/patient-plans';
+import { Avatar } from '../../../shared/ui/avatar/avatar';
+import { ProgressPhotosPanel } from '../../../shared/progress-photos/progress-photos-panel';
 
 @Component({
   selector: 'app-patient-detail',
   imports: [
+    ProgressPhotosPanel,
+    Avatar,
     Button,
     DatePipe,
     DecimalPipe,
@@ -75,11 +79,6 @@ export class PatientDetailPage {
     } finally {
       this.ending.set(false);
     }
-  }
-
-  protected initials(name: string): string {
-    const parts = name.trim().split(/\s+/).filter(Boolean);
-    return ((parts[0]?.[0] ?? '') + (parts.at(-1)?.[0] ?? '')).toUpperCase();
   }
 
   protected time(value: string | null): string {

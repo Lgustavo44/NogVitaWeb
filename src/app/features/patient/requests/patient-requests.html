@@ -85,12 +85,11 @@
       </div>
       <div class="grid gap-4 md:grid-cols-[minmax(0,0.8fr)_minmax(0,1.2fr)]">
         <div class="flex items-center gap-3 rounded-container bg-surface-muted p-4">
-          <span
-            class="flex size-12 shrink-0 items-center justify-center rounded-full bg-soft text-title-md text-on-soft"
-            aria-hidden="true"
-          >
-            {{ request.nutritionistName.charAt(0) }}
-          </span>
+          <app-avatar
+            [name]="request.nutritionistName"
+            [photoUrl]="request.nutritionistPhotoUrl"
+            size="md"
+          />
           <p class="min-w-0 truncate text-title-md text-ink">{{ request.nutritionistName }}</p>
         </div>
         <div class="flex flex-col gap-1.5">

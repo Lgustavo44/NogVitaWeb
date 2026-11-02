@@ -196,12 +196,7 @@
       <div class="ml-auto flex shrink-0 items-center gap-1 sm:gap-2">
         <app-theme-toggle />
         <div class="hidden items-center gap-2 border-l border-divider pl-3 sm:flex">
-          <span
-            class="flex size-9 items-center justify-center rounded-full bg-soft text-label-lg font-semibold text-on-soft"
-            aria-hidden="true"
-          >
-            {{ initials() }}
-          </span>
+          <app-avatar [name]="displayName()" [photoUrl]="userPhotoUrl()" size="md" />
           <span class="min-w-0">
             <span class="block max-w-40 truncate text-label-lg text-ink">{{ displayName() }}</span>
             <span class="block truncate text-body-sm text-ink-muted">{{ subtitle() }}</span>

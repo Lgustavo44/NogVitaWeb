@@ -20,6 +20,15 @@
     corrigir algum deles, fale com o suporte.
   </app-alert>
 
+  <!-- Fora do formulário: trocar a foto não conta como "alteração não salva". -->
+  <app-profile-photo-card
+    [name]="profile.value().name"
+    [photoUrl]="profile.value().photoUrl"
+    path="/patients/me/photo"
+    hint="Aparece para o seu nutricionista."
+    (changed)="profile.reload()"
+  />
+
   <form [formRoot]="profileForm" class="flex flex-col gap-6">
     <div class="grid gap-6 lg:grid-cols-[minmax(0,1.4fr)_minmax(0,1fr)]">
       <div class="flex flex-col gap-6">

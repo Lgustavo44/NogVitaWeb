@@ -23,6 +23,7 @@ import { NutritionistProfileStore } from './nutritionist-profile-store';
       [navigation]="navigation"
       [userName]="userName()"
       [userDetail]="crn()"
+      [userPhotoUrl]="photoUrl()"
     >
       <router-outlet />
     </app-shell>
@@ -33,6 +34,9 @@ export class NutritionistArea {
 
   protected readonly userName = computed(() =>
     this.profile.hasValue() ? this.profile.value().name : null,
+  );
+  protected readonly photoUrl = computed(() =>
+    this.profile.hasValue() ? (this.profile.value().photoUrl ?? null) : null,
   );
   protected readonly crn = computed(() =>
     this.profile.hasValue()

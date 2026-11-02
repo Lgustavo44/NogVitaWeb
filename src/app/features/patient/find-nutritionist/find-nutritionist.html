@@ -91,12 +91,7 @@
       @for (nutritionist of nutritionists.value().items; track nutritionist.userId) {
         <article class="flex flex-col gap-4 rounded-container bg-surface p-5 shadow-1">
           <div class="flex items-center gap-3">
-            <span
-              class="flex size-14 shrink-0 items-center justify-center rounded-full bg-soft text-title-md text-on-soft"
-              aria-hidden="true"
-            >
-              {{ nutritionist.name.charAt(0) }}
-            </span>
+            <app-avatar [name]="nutritionist.name" [photoUrl]="nutritionist.photoUrl" size="lg" />
             <div class="min-w-0">
               <h2 class="truncate text-title-md text-ink">{{ nutritionist.name }}</h2>
               <p class="text-body-sm text-link">
@@ -170,12 +165,7 @@
     (closed)="closeModal()"
   >
     <div class="flex items-center gap-3 rounded-container bg-surface-muted p-4">
-      <span
-        class="flex size-12 shrink-0 items-center justify-center rounded-full bg-soft text-title-md text-on-soft"
-        aria-hidden="true"
-      >
-        {{ nutritionist.name.charAt(0) }}
-      </span>
+      <app-avatar [name]="nutritionist.name" [photoUrl]="nutritionist.photoUrl" size="lg" />
       <div class="min-w-0">
         <p class="text-label-sm text-link uppercase">Profissional selecionado</p>
         <p class="truncate text-title-md text-ink">{{ nutritionist.name }}</p>

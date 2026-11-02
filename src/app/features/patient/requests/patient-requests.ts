@@ -20,6 +20,7 @@ import { PageHeader } from '../../../shared/ui/page-header/page-header';
 import { Toaster } from '../../../shared/ui/toast/toaster';
 import { PatientApi, patientRequestsResource } from '../patient-api';
 import { NutritionistRequestStatus, PatientRequestItem } from '../patient.models';
+import { Avatar } from '../../../shared/ui/avatar/avatar';
 
 type RequestFilter = NutritionistRequestStatus | 'All';
 
@@ -44,6 +45,7 @@ const ALL_REQUESTS = 100;
 @Component({
   selector: 'app-patient-requests',
   imports: [
+    Avatar,
     Alert,
     Button,
     DatePipe,
