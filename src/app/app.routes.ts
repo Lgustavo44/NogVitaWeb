@@ -2,6 +2,8 @@ import { Routes } from '@angular/router';
 import { redirectIfAuthenticated, requireRole, requireSession } from './core/auth/auth.guards';
 import { PublicLayout } from './shared/layout/public-layout/public-layout';
 
+const verifyDocument = () =>
+  import('./features/documents/verify-document').then((m) => m.VerifyDocument);
 const statusPage = () => import('./shared/ui/status-page/status-page').then((m) => m.StatusPage);
 
 export const routes: Routes = [
@@ -51,6 +53,17 @@ export const routes: Routes = [
           import('./features/auth/nutritionist-invitation/nutritionist-invitation').then(
             (m) => m.NutritionistInvitation,
           ),
+      },
+      // Público: o link impresso no rodapé de cada PDF de plano alimentar.
+      {
+        path: 'verificar-documento',
+        title: 'Conferir documento · NogVita',
+        loadComponent: verifyDocument,
+      },
+      {
+        path: 'verificar-documento/:code',
+        title: 'Conferir documento · NogVita',
+        loadComponent: verifyDocument,
       },
       {
         path: 'inicio',

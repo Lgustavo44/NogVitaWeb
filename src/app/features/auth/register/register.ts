@@ -1,3 +1,4 @@
+import { httpResource } from '@angular/common/http';
 import { Component, DestroyRef, computed, inject, signal } from '@angular/core';
 import {
   FieldTree,
@@ -35,15 +36,24 @@ import { PatientRegistrationRequest } from '../../../core/auth/auth.models';
 
 import { BiologicalSex, Goal as PatientGoal } from '../../../shared/domain/patient-enums';
 import { ApiError, toApiError, toFieldErrors } from '../../../core/http/api-error';
+import { apiUrl } from '../../../core/http/api-url';
+import {
+  HEALTH_DATA_CONSENT_TERM_URL,
+  HealthDataConsentTerm,
+} from '../../../shared/health-data-consent/health-data-consent';
+import { HealthDataConsentChecks } from '../../../shared/health-data-consent/health-data-consent-checks';
 import { Alert } from '../../../shared/ui/alert/alert';
 import { Button } from '../../../shared/ui/button/button';
 import { Field } from '../../../shared/ui/field/field';
+import { LoadError } from '../../../shared/ui/load-error/load-error';
 import { FieldInput } from '../../../shared/ui/field/field-input';
 import { Logo } from '../../../shared/ui/logo/logo';
 import { formatCpf, isValidCpf } from '../../../shared/util/cpf';
 
-/** O formulário aceita altura vazia (null) enquanto a pessoa não preenche. */
-type RegisterModel = Omit<PatientRegistrationRequest, 'heightInCm'> & { heightInCm: number | null };
+/** O formulário aceita altura vazia (null) enquanto a pessoa não preenche. A versão do termo vem do servidor. */
+type RegisterModel = Omit<PatientRegistrationRequest, 'heightInCm' | 'healthDataConsentVersion'> & {
+  heightInCm: number | null;
+};
 
 /** Espera entre reenvios do link de confirmação. */
 const RESEND_COOLDOWN_SECONDS = 60;
@@ -57,6 +67,8 @@ const RESEND_COOLDOWN_SECONDS = 60;
     FieldInput,
     FormField,
     FormRoot,
+    HealthDataConsentChecks,
+    LoadError,
     Logo,
     LucideArrowLeft,
     LucideArrowRight,
@@ -121,7 +133,15 @@ export class Register {
     biologicalSex: 'Female',
     heightInCm: null,
     goal: 'WeightLoss',
+    // LGPD: os aceites começam sempre desmarcados.
+    acceptHealthData: false,
+    acceptInternationalTransfer: false,
   });
+
+  /** O texto e a versão do termo dos dados de saúde, mostrados antes do botão "Criar conta". */
+  protected readonly consentTerm = httpResource<HealthDataConsentTerm>(() =>
+    apiUrl(HEALTH_DATA_CONSENT_TERM_URL),
+  );
 
   protected readonly registerForm = form(
     this.model,
@@ -157,8 +177,36 @@ export class Register {
       required(path.password, { message: 'Crie uma senha.' });
       minLength(path.password, 15, { message: 'A senha deve ter pelo menos 15 caracteres.' });
       maxLength(path.password, 128, { message: 'A senha deve ter no máximo 128 caracteres.' });
+      validate(path.acceptHealthData, ({ value }) =>
+        value()
+          ? undefined
+          : {
+              kind: 'consent',
+              message: 'Para criar a conta, autorize o uso dos seus dados de saúde.',
+            },
+      );
+      validate(path.acceptInternationalTransfer, ({ value }) =>
+        value()
+          ? undefined
+          : {
+              kind: 'consent',
+              message:
+                'Para criar a conta, autorize a guarda dos dados em serviços fora do Brasil.',
+            },
+      );
     },
     { name: 'register', submission: { action: (fieldTree) => this.register(fieldTree) } },
+  );
+
+  /** Os aceites são lidos e escritos pelo app-health-data-consent-checks. */
+  protected readonly acceptHealthData = this.registerForm.acceptHealthData().value;
+  protected readonly acceptInternationalTransfer =
+    this.registerForm.acceptInternationalTransfer().value;
+  protected readonly healthDataError = computed(() =>
+    consentError(this.registerForm.acceptHealthData()),
+  );
+  protected readonly internationalTransferError = computed(() =>
+    consentError(this.registerForm.acceptInternationalTransfer()),
   );
 
   protected readonly failure = signal<ApiError | null>(null);
@@ -257,6 +305,8 @@ export class Register {
         // A validação do formulário já garantiu a altura; o "?? 0" só satisfaz o tipo.
         heightInCm: model.heightInCm ?? 0,
         birthDate: toIsoDate(model.birthDate),
+        // Sem o termo carregado o botão fica desabilitado; o "?? ''" só satisfaz o tipo.
+        healthDataConsentVersion: this.consentTerm.value()?.version ?? '',
       };
       const response = await firstValueFrom(this.authApi.registerPatient(request));
       this.successMessage.set(response.message);
@@ -266,6 +316,15 @@ export class Register {
     } catch (error) {
       const apiError = toApiError(error);
       this.failure.set(apiError);
+      // "O termo foi atualizado": mostra o texto novo, e os aceites precisam ser dados de novo.
+      if (apiError.fieldErrors['healthdataconsentversion']) {
+        this.consentTerm.reload();
+        this.model.update((current) => ({
+          ...current,
+          acceptHealthData: false,
+          acceptInternationalTransfer: false,
+        }));
+      }
       return toFieldErrors(apiError, {
         name: fieldTree.name,
         email: fieldTree.email,
@@ -275,9 +334,19 @@ export class Register {
         biologicalSex: fieldTree.biologicalSex,
         heightInCm: fieldTree.heightInCm,
         goal: fieldTree.goal,
+        acceptHealthData: fieldTree.acceptHealthData,
+        acceptInternationalTransfer: fieldTree.acceptInternationalTransfer,
       });
     }
   }
+}
+
+/** O erro do aceite aparece depois de uma tentativa de envio, como nos outros campos. */
+function consentError(state: {
+  touched(): boolean;
+  errors(): readonly { message?: string }[];
+}): string | null {
+  return state.touched() ? (state.errors()[0]?.message ?? null) : null;
 }
 
 function toIsoDate(value: string): string {

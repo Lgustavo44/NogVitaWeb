@@ -239,6 +239,29 @@ function routeFor(roles: Role[], state: FakeState) {
     if (path === '/auth/me') return json({ userId: roles.includes('Admin') ? 'a1' : 'u1', roles });
     if (path === '/auth/logout') return empty();
 
+    // Termo dos dados de saúde: público no cadastro, e já aceito pelo paciente fictício.
+    const consentTerm = {
+      version: '1',
+      healthDataText: 'Autorizo o NogVita a tratar os meus dados de saúde (texto fictício).',
+      internationalTransferText: 'Autorizo a guarda dos meus dados fora do Brasil (texto fictício).',
+    };
+    if (path === '/patients/health-data-consent') return json(consentTerm);
+    if (path === '/patients/me/health-data-consent')
+      return json({ ...consentTerm, accepted: true, acceptedAtUtc: '2026-11-03T10:00:00Z' });
+
+    // Conferência pública de um PDF de plano (sem dado do paciente).
+    if (path.startsWith('/plan-documents/'))
+      return path.endsWith('/ABCDEFGHJKLM') || path.endsWith('/ABCD-EFGH-JKLM')
+        ? json({
+            code: 'ABCD-EFGH-JKLM',
+            issuedAtUtc: '2026-11-03T17:05:00Z',
+            nutritionistName: 'Carla Exemplo',
+            crnRegion: 3,
+            crnNumber: '12345',
+            sha256: 'a'.repeat(64),
+          })
+        : json({ title: 'Documento não encontrado. Confira o código.', status: 404 }, 404);
+
     // Paciente
     if (path === '/patients/me')
       return json({

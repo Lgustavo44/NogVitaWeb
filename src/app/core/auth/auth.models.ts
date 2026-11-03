@@ -29,6 +29,10 @@ export interface PatientRegistrationRequest {
   biologicalSex: BiologicalSex;
   heightInCm: number;
   goal: Goal;
+  /** A `version` do termo de `GET /patients/health-data-consent`, com os dois aceites. */
+  healthDataConsentVersion: string;
+  acceptHealthData: boolean;
+  acceptInternationalTransfer: boolean;
 }
 
 export interface PasswordResetConfirmRequest {

@@ -262,7 +262,40 @@
       </div>
     </section>
 
-    <button appButton type="submit" block [loading]="registerForm().submitting()">
+    <section class="flex flex-col gap-3" aria-labelledby="consentimento-titulo">
+      <div>
+        <h2 id="consentimento-titulo" class="text-title-md text-ink">Seus dados de saúde</h2>
+        <p class="mt-1 text-body-md text-ink-muted">
+          Peso, altura, objetivo e plano alimentar são dados sensíveis. Sem as duas autorizações
+          abaixo não é possível usar o NogVita como paciente.
+        </p>
+      </div>
+      @if (consentTerm.hasValue()) {
+        <app-health-data-consent-checks
+          [term]="consentTerm.value()"
+          [(healthData)]="acceptHealthData"
+          [(internationalTransfer)]="acceptInternationalTransfer"
+          [healthDataError]="healthDataError()"
+          [internationalTransferError]="internationalTransferError()"
+        />
+      } @else if (consentTerm.error()) {
+        <app-load-error [error]="consentTerm.error()" (retry)="consentTerm.reload()" />
+      } @else {
+        <div
+          class="h-40 rounded-container bg-surface-muted motion-safe:animate-pulse"
+          aria-hidden="true"
+        ></div>
+        <span class="sr-only" role="status">Carregando o termo…</span>
+      }
+    </section>
+
+    <button
+      appButton
+      type="submit"
+      block
+      [loading]="registerForm().submitting()"
+      [disabled]="!consentTerm.hasValue()"
+    >
       Criar conta
       <svg lucideArrowRight class="size-5"></svg>
     </button>

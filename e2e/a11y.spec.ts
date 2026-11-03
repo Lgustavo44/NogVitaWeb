@@ -11,6 +11,7 @@ const PUBLIC = [
   '/esqueci-senha',
   '/redefinir-senha',
   '/confirmar-email',
+  '/verificar-documento/ABCD-EFGH-JKLM',
   '/sem-permissao',
   '/rota-que-nao-existe',
 ];
