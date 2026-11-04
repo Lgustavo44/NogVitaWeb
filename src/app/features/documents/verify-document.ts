@@ -20,8 +20,8 @@ interface PlanDocumentVerification {
 }
 
 const KIND_LABELS: Record<PlanDocumentVerification['kind'], string> = {
-  NutritionPlan: 'Plano alimentar',
-  Anamnesis: 'Anamnese',
+  NutritionPlan: 'Plano alimentar emitido',
+  Anamnesis: 'Anamnese emitida',
 };
 
 /** O código impresso no rodapé do PDF: 12 letras e números, com ou sem os traços. */
@@ -77,7 +77,7 @@ const CODE_PATTERN = /^[A-Za-z0-9]{4}-?[A-Za-z0-9]{4}-?[A-Za-z0-9]{4}$/;
             <svg lucideFileCheck class="size-5"></svg>
           </span>
           <h2 id="documento-valido" class="text-title-md text-ink">
-            {{ kindLabels[found.kind] }} emitido pelo NogVita
+            {{ kindLabels[found.kind] }} pelo NogVita
           </h2>
         </div>
         <dl class="grid gap-3 text-body-md sm:grid-cols-2">
