@@ -85,10 +85,10 @@ interface TargetRow {
       }
     </div>
 
-    @if (totals().energyKcal.value > 0) {
+    @if (totals().energyKcal.value > 0 && macros()) {
       <div class="flex flex-col gap-3">
         <h3 class="text-label-md text-ink-muted uppercase">De onde vêm as calorias</h3>
-        <app-macro-split [nutrients]="macros()" />
+        <app-macro-split [nutrients]="macros()!" />
       </div>
     }
   `,
@@ -99,7 +99,7 @@ export class PlanDaySummary {
 
   protected readonly totalRows = computed<TotalRow[]>(() => {
     const totals = this.totals();
-    return [
+    const rows: { label: string; unit: Unit; total: NutrientTotal | null }[] = [
       { label: 'Energia', unit: 'kcal', total: totals.energyKcal },
       { label: 'Carboidratos', unit: 'g', total: totals.carbohydrate },
       { label: 'Proteínas', unit: 'g', total: totals.protein },
@@ -107,6 +107,8 @@ export class PlanDaySummary {
       { label: 'Fibras', unit: 'g', total: totals.fiber },
       { label: 'Sódio', unit: 'mg', total: totals.sodiumMg },
     ];
+    // Macros escondidos para o paciente (E6.7) vêm null: a linha some, sem "0" nem "—".
+    return rows.filter((row): row is TotalRow => row.total !== null);
   });
 
   protected readonly hasIncomplete = computed(() =>
@@ -134,9 +136,10 @@ export class PlanDaySummary {
       }));
   });
 
-  /** A divisão das calorias usa os totais do dia no formato do MacroSplit. */
-  protected readonly macros = computed<NutrientsPer100g>(() => {
+  /** A divisão das calorias usa os totais do dia no formato do MacroSplit; sem macros (E6.7), não há. */
+  protected readonly macros = computed<NutrientsPer100g | null>(() => {
     const totals = this.totals();
+    if (!totals.protein || !totals.carbohydrate || !totals.fat) return null;
     const value = (total: NutrientTotal) => (total.isComplete ? total.value : null);
     return {
       energyKcalPer100g: totals.energyKcal.value,

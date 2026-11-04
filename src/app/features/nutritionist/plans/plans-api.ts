@@ -50,6 +50,11 @@ export class PlansApi {
     return this.http.post<void>(apiUrl(`${PLANS}/${planId}/cancel`), {});
   }
 
+  /** E6.7: se o paciente vê proteínas, carboidratos e gorduras (em qualquer status do plano). */
+  setPatientView(planId: string, patientSeesMacros: boolean): Observable<void> {
+    return this.http.put<void>(apiUrl(`${PLANS}/${planId}/patient-view`), { patientSeesMacros });
+  }
+
   setTarget(planId: string, body: PlanTargetRequest): Observable<void> {
     return this.http.put<void>(apiUrl(`${PLANS}/${planId}/target`), body);
   }

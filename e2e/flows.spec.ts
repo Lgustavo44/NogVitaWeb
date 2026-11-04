@@ -194,6 +194,46 @@ test.describe('fotos de evolução', () => {
   });
 });
 
+test.describe('anamnese e macros', () => {
+  test('paciente responde a anamnese pendente e vê as respostas', async ({ page }) => {
+    const state = createState();
+    await signIn(page, ['Patient'], state);
+    await page.goto('/paciente/anamneses');
+
+    await page.getByRole('link', { name: /Responder/ }).click();
+    await page.getByLabel(/Tem alguma alergia alimentar/).fill('Lactose');
+    await page
+      .getByRole('group', { name: /Pratica atividade física/ })
+      .getByLabel('Sim')
+      .check();
+    await page.getByLabel('4 ou 5').check();
+    await page.getByLabel('Água').check();
+    await page.getByLabel('Café').check();
+    await page.getByRole('button', { name: 'Enviar respostas' }).click();
+
+    await expect(page.getByText('Respondida')).toBeVisible();
+    await expect(page.getByText('Lactose')).toBeVisible();
+    await expect(page.getByText('Água, Café')).toBeVisible();
+    expect(state.anamnesis.answers).toContainEqual({
+      questionId: 'qc',
+      text: null,
+      yesNo: null,
+      options: ['4 ou 5'],
+    });
+  });
+
+  test('nutricionista libera os macros do plano para o paciente', async ({ page }) => {
+    await signIn(page, ['Nutritionist']);
+    await page.goto('/nutricionista/planos/pl1');
+
+    const request = page.waitForRequest(
+      (r) => r.url().endsWith('/patient-view') && r.method() === 'PUT',
+    );
+    await page.getByLabel(/O paciente vê proteínas, carboidratos e gorduras/).check();
+    expect((await request).postDataJSON()).toEqual({ patientSeesMacros: true });
+  });
+});
+
 test.describe('admin', () => {
   test('desativa um paciente e o encontra no filtro de desativadas', async ({ page }) => {
     await signIn(page, ['Admin']);

@@ -40,6 +40,29 @@ export const NUTRITIONIST_ROUTES: Routes = [
     loadComponent: () => import('./plans/plan-editor').then((m) => m.PlanEditorPage),
   },
   {
+    path: 'questionarios',
+    title: 'Questionários de anamnese · NogVita',
+    loadComponent: () =>
+      import('./anamnesis/questionnaires-page').then((m) => m.QuestionnairesPage),
+  },
+  {
+    path: 'questionarios/novo',
+    title: 'Novo questionário · NogVita',
+    loadComponent: () =>
+      import('./anamnesis/questionnaire-editor').then((m) => m.QuestionnaireEditorPage),
+  },
+  {
+    path: 'questionarios/:questionnaireId',
+    title: 'Editar questionário · NogVita',
+    loadComponent: () =>
+      import('./anamnesis/questionnaire-editor').then((m) => m.QuestionnaireEditorPage),
+  },
+  {
+    path: 'anamneses/:anamnesisId',
+    title: 'Anamnese · NogVita',
+    loadComponent: () => import('./anamnesis/anamnesis-page').then((m) => m.AnamnesisPage),
+  },
+  {
     path: 'alimentos',
     title: 'Alimentos · NogVita',
     loadComponent: () => import('./foods/food-search').then((m) => m.FoodSearchPage),

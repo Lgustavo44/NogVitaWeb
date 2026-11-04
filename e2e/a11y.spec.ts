@@ -25,6 +25,8 @@ const AREAS: Record<Role, string[]> = {
     '/paciente/minhas-solicitacoes',
     '/paciente/meu-nutricionista',
     '/paciente/perfil',
+    '/paciente/anamneses',
+    '/paciente/anamneses/an1',
   ],
   Nutritionist: [
     '/nutricionista',
@@ -37,6 +39,9 @@ const AREAS: Record<Role, string[]> = {
     '/nutricionista/alimentos/f1',
     '/nutricionista/alimentos/codigo-de-barras',
     '/nutricionista/perfil',
+    '/nutricionista/questionarios',
+    '/nutricionista/questionarios/q1',
+    '/nutricionista/anamneses/an1',
   ],
   Admin: [
     '/admin',

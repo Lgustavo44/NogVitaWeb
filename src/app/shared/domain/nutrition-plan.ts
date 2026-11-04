@@ -31,6 +31,8 @@ export interface NutritionPlan {
   targetProteinGrams: number | null;
   targetCarbohydrateGrams: number | null;
   targetFatGrams: number | null;
+  /** E6.7: o nutricionista libera os macros para o paciente (padrão: não). */
+  patientSeesMacros?: boolean;
 }
 
 /** Quantidades de uma porção (já calculadas pela API). `null`: a fonte não informa. */
@@ -49,11 +51,12 @@ export interface NutrientTotal {
   isComplete: boolean;
 }
 
+/** Na visão do paciente sem macros liberados (E6.7), proteína, carboidrato e gordura vêm null. */
 export interface NutrientTotals {
   energyKcal: NutrientTotal;
-  protein: NutrientTotal;
-  carbohydrate: NutrientTotal;
-  fat: NutrientTotal;
+  protein: NutrientTotal | null;
+  carbohydrate: NutrientTotal | null;
+  fat: NutrientTotal | null;
   fiber: NutrientTotal;
   sodiumMg: NutrientTotal;
 }
@@ -101,6 +104,8 @@ export interface Meal {
   outsideRoutine: boolean | null;
   foods: MealFood[];
   totals: NutrientTotals;
+  /** false: o paciente não vê os macros desta refeição (E6.7). Para o nutricionista, sempre true. */
+  macrosVisible?: boolean;
 }
 
 export interface NutritionPlanDetail {
@@ -109,6 +114,8 @@ export interface NutritionPlanDetail {
   dailyTotals: NutrientTotals;
   /** Só quando o plano tem meta. */
   target: TargetComparison | null;
+  /** false: a visão do paciente esconde os macros (E6.7). */
+  macrosVisible?: boolean;
 }
 
 export interface PlanRequest {
@@ -155,6 +162,7 @@ export function normalizePlanDetail(raw: NutritionPlanDetail): NutritionPlanDeta
     meals: (raw.meals ?? []).map(normalizeMeal),
     dailyTotals: normalizeTotals(raw.dailyTotals),
     target: raw.target ? normalizeTarget(raw.target) : null,
+    macrosVisible: raw.macrosVisible,
   };
 }
 
@@ -180,13 +188,14 @@ function normalizeAmounts(amounts: NutrientAmounts | undefined): NutrientAmounts
   ) as unknown as NutrientAmounts;
 }
 
-function normalizeTotal(total: NutrientTotal | undefined): NutrientTotal {
+function normalizeTotal(total: NutrientTotal | null | undefined): NutrientTotal {
   return { value: toNutrient(total?.value) ?? 0, isComplete: total?.isComplete ?? true };
 }
 
 function normalizeTotals(totals: NutrientTotals | undefined): NutrientTotals {
   return Object.fromEntries(
-    AMOUNT_KEYS.map((key) => [key, normalizeTotal(totals?.[key])]),
+    // null explícito = escondido pela API (E6.7); ausente vira zero, como antes.
+    AMOUNT_KEYS.map((key) => [key, totals?.[key] === null ? null : normalizeTotal(totals?.[key])]),
   ) as unknown as NutrientTotals;
 }
 

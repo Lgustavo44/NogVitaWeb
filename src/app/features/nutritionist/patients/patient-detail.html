@@ -104,6 +104,8 @@
     </div>
   </section>
 
+  <app-patient-anamneses [patientId]="patient.value().patientId" />
+
   <app-patient-plans [patientId]="patient.value().patientId" />
 
   <app-weight-panel

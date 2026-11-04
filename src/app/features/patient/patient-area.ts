@@ -3,6 +3,7 @@ import { Component, computed, inject } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
 import {
   LucideClipboardList,
+  LucideClipboardPen,
   LucideHouse,
   LucideScale,
   LucideStethoscope,
@@ -80,6 +81,7 @@ export class PatientArea {
       link: '/paciente/peso',
       bottom: true,
     },
+    { label: 'Anamnese', icon: LucideClipboardPen, link: '/paciente/anamneses' },
     {
       label: 'Encontrar nutricionista',
       icon: LucideUserSearch,

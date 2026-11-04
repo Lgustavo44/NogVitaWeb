@@ -15,10 +15,12 @@ import { NutritionistApi, followedPatientResource } from '../nutritionist-api';
 import { PatientPlans } from '../plans/patient-plans';
 import { Avatar } from '../../../shared/ui/avatar/avatar';
 import { ProgressPhotosPanel } from '../../../shared/progress-photos/progress-photos-panel';
+import { PatientAnamneses } from '../anamnesis/patient-anamneses';
 
 @Component({
   selector: 'app-patient-detail',
   imports: [
+    PatientAnamneses,
     ProgressPhotosPanel,
     Avatar,
     Button,

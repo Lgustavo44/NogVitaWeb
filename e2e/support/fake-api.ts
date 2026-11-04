@@ -126,6 +126,49 @@ export function createState() {
     foods,
     plan,
     progress,
+    /** Uma anamnese pendente do paciente p1, com uma pergunta de cada tipo. */
+    anamnesis: {
+      id: 'an1',
+      title: 'Primeira consulta',
+      status: 'Pending' as 'Pending' | 'Submitted',
+      patientId: 'p1',
+      patientName: 'Ana Exemplo',
+      nutritionistId: 'n1',
+      nutritionistName: 'Carla Exemplo',
+      sentAt: '2026-11-01T10:00:00Z',
+      submittedAt: null as string | null,
+      questions: [
+        {
+          id: 'qa',
+          text: 'Tem alguma alergia alimentar?',
+          type: 'Text',
+          required: true,
+          options: [],
+        },
+        {
+          id: 'qb',
+          text: 'Pratica atividade física?',
+          type: 'YesNo',
+          required: false,
+          options: [],
+        },
+        {
+          id: 'qc',
+          text: 'Quantas refeições faz por dia?',
+          type: 'SingleChoice',
+          required: false,
+          options: ['Até 3', '4 ou 5', '6 ou mais'],
+        },
+        {
+          id: 'qd',
+          text: 'Quais bebidas consome com frequência?',
+          type: 'MultipleChoice',
+          required: false,
+          options: ['Água', 'Café', 'Refrigerante'],
+        },
+      ],
+      answers: null as unknown[] | null,
+    },
     /** Corpo (multipart) de cada envio de foto, para conferir o que saiu do recorte. */
     uploads: [] as Buffer[],
     meals,
@@ -243,7 +286,8 @@ function routeFor(roles: Role[], state: FakeState) {
     const consentTerm = {
       version: '1',
       healthDataText: 'Autorizo o NogVita a tratar os meus dados de saúde (texto fictício).',
-      internationalTransferText: 'Autorizo a guarda dos meus dados fora do Brasil (texto fictício).',
+      internationalTransferText:
+        'Autorizo a guarda dos meus dados fora do Brasil (texto fictício).',
     };
     if (path === '/patients/health-data-consent') return json(consentTerm);
     if (path === '/patients/me/health-data-consent')
@@ -475,6 +519,45 @@ function routeFor(roles: Role[], state: FakeState) {
       return json({ photoUrl: `${STORAGE}/perfil.png` });
     }
     if (path === '/patients/me/photo' && method === 'DELETE') return empty();
+
+    // Anamnese (E6.6): questionários do nutricionista e a anamnese an1 do paciente p1
+    const { questions, answers, ...anamnesisSummary } = state.anamnesis;
+    const questionnaire = {
+      id: 'q1',
+      title: 'Primeira consulta',
+      questions: state.anamnesis.questions,
+      createdAt: '2026-11-01T10:00:00Z',
+      updatedAt: null,
+    };
+    if (path === '/nutritionists/me/questionnaires/template')
+      return json({ title: 'Modelo base', questions: questions.map(({ id, ...rest }) => rest) });
+    if (path === '/nutritionists/me/questionnaires')
+      return method === 'POST'
+        ? json({ id: 'q2' }, 201)
+        : json(
+            paged([
+              {
+                id: 'q1',
+                title: 'Primeira consulta',
+                questionCount: 4,
+                updatedAt: '2026-11-01T10:00:00Z',
+              },
+            ]),
+          );
+    if (path === '/nutritionists/me/questionnaires/q1')
+      return method === 'GET' ? json(questionnaire) : empty();
+    if (path === '/nutritionists/me/patients/p1/anamneses')
+      return method === 'POST' ? json({ id: 'an2' }, 201) : json(paged([anamnesisSummary]));
+    if (path === '/nutritionists/me/anamneses/an1' || path === '/patients/me/anamneses/an1')
+      return json({ ...state.anamnesis, questions, answers });
+    if (path === '/patients/me/anamneses') return json(paged([anamnesisSummary]));
+    if (path === '/patients/me/anamneses/an1/answers' && method === 'POST') {
+      state.anamnesis.status = 'Submitted';
+      state.anamnesis.submittedAt = new Date().toISOString();
+      state.anamnesis.answers = (request.postDataJSON() as { answers: unknown[] }).answers;
+      return empty();
+    }
+    if (path === '/nutritionists/me/nutrition-plans/pl1/patient-view') return empty();
 
     // Fotos de evolução (paciente), e a mesma lista vista pelo nutricionista
     const byDay = () =>

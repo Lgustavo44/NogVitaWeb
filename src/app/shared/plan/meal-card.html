@@ -101,11 +101,13 @@
               @if (food.brand) {
                 <span>{{ food.brand }}</span>
               }
-              <span class="tabular-nums">
-                P {{ food.portion.protein | nutrient: 'g' }} · C
-                {{ food.portion.carbohydrate | nutrient: 'g' }} · G
-                {{ food.portion.fat | nutrient: 'g' }}
-              </span>
+              @if (meal().macrosVisible !== false) {
+                <span class="tabular-nums">
+                  P {{ food.portion.protein | nutrient: 'g' }} · C
+                  {{ food.portion.carbohydrate | nutrient: 'g' }} · G
+                  {{ food.portion.fat | nutrient: 'g' }}
+                </span>
+              }
             </span>
           </div>
           <div class="flex shrink-0 flex-col items-end tabular-nums">
@@ -138,10 +140,12 @@
       }
     </ul>
     <p class="text-body-sm text-ink-muted tabular-nums">
-      Total da refeição: {{ meal().totals.energyKcal.value | nutrient: 'kcal' }} · P
-      {{ meal().totals.protein.value | nutrient: 'g' }} · C
-      {{ meal().totals.carbohydrate.value | nutrient: 'g' }} · G
-      {{ meal().totals.fat.value | nutrient: 'g' }}
+      Total da refeição: {{ meal().totals.energyKcal.value | nutrient: 'kcal' }}
+      @if (meal().macrosVisible !== false) {
+        · P {{ meal().totals.protein?.value | nutrient: 'g' }} · C
+        {{ meal().totals.carbohydrate?.value | nutrient: 'g' }} · G
+        {{ meal().totals.fat?.value | nutrient: 'g' }}
+      }
     </p>
   }
 

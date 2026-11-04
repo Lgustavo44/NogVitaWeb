@@ -116,9 +116,29 @@ export class PlanEditorPage {
     computed(() => (this.dialog()?.kind === 'target' ? (this.plan()?.patientId ?? null) : null)),
   );
   protected readonly busy = signal(false);
+  protected readonly savingView = signal(false);
   protected readonly error = signal<string | null>(null);
   protected readonly reordering = signal(false);
   protected readonly downloading = signal(false);
+
+  protected async setPatientView(event: Event): Promise<void> {
+    const checkbox = event.target as HTMLInputElement;
+    this.savingView.set(true);
+    try {
+      await firstValueFrom(this.api.setPatientView(this.planId, checkbox.checked));
+      this.toaster.show(
+        checkbox.checked
+          ? 'O paciente passa a ver os macros.'
+          : 'Os macros ficam escondidos para o paciente.',
+      );
+      this.detail.reload();
+    } catch (error) {
+      checkbox.checked = !checkbox.checked;
+      this.toaster.show(toApiError(error).message, 'danger');
+    } finally {
+      this.savingView.set(false);
+    }
+  }
 
   protected open(dialog: Dialog): void {
     this.error.set(null);

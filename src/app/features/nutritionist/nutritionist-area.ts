@@ -2,6 +2,7 @@ import { Component, computed, inject } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
 import {
   LucideClipboardList,
+  LucideClipboardPen,
   LucideHouse,
   LucideInbox,
   LucideUserRound,
@@ -50,6 +51,7 @@ export class NutritionistArea {
     { label: 'Solicitações', icon: LucideInbox, link: '/nutricionista/solicitacoes' },
     { label: 'Pacientes', icon: LucideUsers, link: '/nutricionista/pacientes' },
     { label: 'Planos alimentares', icon: LucideClipboardList, link: '/nutricionista/planos' },
+    { label: 'Questionários', icon: LucideClipboardPen, link: '/nutricionista/questionarios' },
     { label: 'Alimentos', icon: LucideUtensils, link: '/nutricionista/alimentos' },
     { label: 'Meu perfil', icon: LucideUserRound, link: '/nutricionista/perfil' },
   ];

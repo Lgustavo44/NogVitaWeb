@@ -39,6 +39,18 @@ export const PATIENT_ROUTES: Routes = [
       import('./my-nutritionist/my-nutritionist').then((m) => m.MyNutritionistPage),
   },
   {
+    path: 'anamneses',
+    title: 'Anamnese · NogVita',
+    loadComponent: () =>
+      import('./anamnesis/patient-anamneses-page').then((m) => m.PatientAnamnesesPage),
+  },
+  {
+    path: 'anamneses/:anamnesisId',
+    title: 'Responder anamnese · NogVita',
+    loadComponent: () =>
+      import('./anamnesis/patient-anamnesis-page').then((m) => m.PatientAnamnesisPage),
+  },
+  {
     path: 'minhas-solicitacoes',
     title: 'Minhas solicitações · NogVita',
     loadComponent: () => import('./requests/patient-requests').then((m) => m.PatientRequestsPage),
