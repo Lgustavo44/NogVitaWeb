@@ -4,6 +4,7 @@ import { LucideArrowLeft, LucideSend } from '@lucide/angular';
 import { firstValueFrom } from 'rxjs';
 import { toApiError } from '../../../core/http/api-error';
 import { AnamnesisAnswers } from '../../../shared/anamnesis/anamnesis-answers';
+import { AnamnesisPdfButton } from '../../../shared/anamnesis/anamnesis-pdf-button';
 import {
   ANSWER_TEXT_MAX,
   AnswerDraft,
@@ -19,7 +20,16 @@ import { PatientAnamnesisApi, myAnamnesisResource } from './patient-anamnesis-ap
 /** Responder uma anamnese pendente (uma vez só) ou rever as respostas enviadas. */
 @Component({
   selector: 'app-patient-anamnesis-page',
-  imports: [Alert, AnamnesisAnswers, Button, LoadError, LucideArrowLeft, LucideSend, RouterLink],
+  imports: [
+    Alert,
+    AnamnesisAnswers,
+    AnamnesisPdfButton,
+    Button,
+    LoadError,
+    LucideArrowLeft,
+    LucideSend,
+    RouterLink,
+  ],
   host: { class: 'flex flex-col gap-6' },
   template: `
     <a
@@ -39,6 +49,12 @@ import { PatientAnamnesisApi, myAnamnesisResource } from './patient-anamnesis-ap
       ></div>
       <span class="sr-only" role="status">Carregando anamnese…</span>
     } @else if (anamnesis.value().status === 'Submitted') {
+      <div class="self-end">
+        <app-anamnesis-pdf-button
+          [pdfPath]="'/patients/me/anamneses/' + anamnesis.value().id + '/pdf'"
+          [title]="anamnesis.value().title"
+        />
+      </div>
       <app-anamnesis-answers [anamnesis]="anamnesis.value()" />
     } @else {
       @let current = anamnesis.value();

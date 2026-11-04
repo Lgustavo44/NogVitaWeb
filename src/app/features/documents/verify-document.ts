@@ -11,12 +11,18 @@ import { Logo } from '../../shared/ui/logo/logo';
 /** A conferência pública de um PDF de plano. A API nunca devolve dados do paciente aqui. */
 interface PlanDocumentVerification {
   code: string;
+  kind: 'NutritionPlan' | 'Anamnesis';
   issuedAtUtc: string;
   nutritionistName: string;
   crnRegion: number;
   crnNumber: string;
   sha256: string;
 }
+
+const KIND_LABELS: Record<PlanDocumentVerification['kind'], string> = {
+  NutritionPlan: 'Plano alimentar',
+  Anamnesis: 'Anamnese',
+};
 
 /** O código impresso no rodapé do PDF: 12 letras e números, com ou sem os traços. */
 const CODE_PATTERN = /^[A-Za-z0-9]{4}-?[A-Za-z0-9]{4}-?[A-Za-z0-9]{4}$/;
@@ -31,7 +37,7 @@ const CODE_PATTERN = /^[A-Za-z0-9]{4}-?[A-Za-z0-9]{4}-?[A-Za-z0-9]{4}$/;
       <app-logo class="h-10" priority />
       <h1 class="text-headline-lg text-ink">Conferir documento</h1>
       <p class="text-body-md text-ink-muted">
-        Digite o código verificador impresso no rodapé do PDF do plano alimentar.
+        Digite o código verificador impresso no rodapé do PDF do plano alimentar ou da anamnese.
       </p>
     </div>
 
@@ -71,7 +77,7 @@ const CODE_PATTERN = /^[A-Za-z0-9]{4}-?[A-Za-z0-9]{4}-?[A-Za-z0-9]{4}$/;
             <svg lucideFileCheck class="size-5"></svg>
           </span>
           <h2 id="documento-valido" class="text-title-md text-ink">
-            Documento emitido pelo NogVita
+            {{ kindLabels[found.kind] }} emitido pelo NogVita
           </h2>
         </div>
         <dl class="grid gap-3 text-body-md sm:grid-cols-2">
@@ -100,7 +106,8 @@ const CODE_PATTERN = /^[A-Za-z0-9]{4}-?[A-Za-z0-9]{4}-?[A-Za-z0-9]{4}$/;
           </div>
         </dl>
         <p class="text-body-sm text-ink-muted">
-          O código confirma quem emitiu o plano e quando. Ele não mostra nenhum dado do paciente.
+          O código confirma quem emitiu o documento e quando. Ele não mostra nenhum dado do
+          paciente.
         </p>
       </section>
     } @else if (notFound()) {
@@ -127,6 +134,7 @@ export class VerifyDocument {
   private readonly code = signal(inject(ActivatedRoute).snapshot.paramMap.get('code') ?? '');
 
   protected readonly typed = signal(this.code());
+  protected readonly kindLabels = KIND_LABELS;
 
   protected readonly document = httpResource<PlanDocumentVerification>(() =>
     this.isValidCode(this.code())

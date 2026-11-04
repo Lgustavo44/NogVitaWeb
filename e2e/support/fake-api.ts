@@ -298,6 +298,7 @@ function routeFor(roles: Role[], state: FakeState) {
       return path.endsWith('/ABCDEFGHJKLM') || path.endsWith('/ABCD-EFGH-JKLM')
         ? json({
             code: 'ABCD-EFGH-JKLM',
+            kind: 'NutritionPlan',
             issuedAtUtc: '2026-11-03T17:05:00Z',
             nutritionistName: 'Carla Exemplo',
             crnRegion: 3,

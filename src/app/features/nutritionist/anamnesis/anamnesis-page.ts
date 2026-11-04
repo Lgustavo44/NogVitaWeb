@@ -2,23 +2,33 @@ import { Component, inject, signal } from '@angular/core';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { LucideArrowLeft } from '@lucide/angular';
 import { AnamnesisAnswers } from '../../../shared/anamnesis/anamnesis-answers';
+import { AnamnesisPdfButton } from '../../../shared/anamnesis/anamnesis-pdf-button';
 import { LoadError } from '../../../shared/ui/load-error/load-error';
 import { anamnesisResource } from './anamnesis-api';
 
 /** Uma anamnese enviada a um paciente, com as respostas (só leitura). */
 @Component({
   selector: 'app-anamnesis-page',
-  imports: [AnamnesisAnswers, LoadError, LucideArrowLeft, RouterLink],
+  imports: [AnamnesisAnswers, AnamnesisPdfButton, LoadError, LucideArrowLeft, RouterLink],
   host: { class: 'flex flex-col gap-6' },
   template: `
     @if (anamnesis.hasValue()) {
-      <a
-        [routerLink]="['/nutricionista/pacientes', anamnesis.value().patientId]"
-        class="inline-flex items-center gap-2 self-start text-label-lg text-link hover:underline"
-      >
-        <svg lucideArrowLeft class="size-4"></svg>
-        Voltar para {{ anamnesis.value().patientName }}
-      </a>
+      @let current = anamnesis.value();
+      <div class="flex flex-wrap items-center justify-between gap-3">
+        <a
+          [routerLink]="['/nutricionista/pacientes', current.patientId]"
+          class="inline-flex items-center gap-2 text-label-lg text-link hover:underline"
+        >
+          <svg lucideArrowLeft class="size-4"></svg>
+          Voltar para {{ current.patientName }}
+        </a>
+        @if (current.status === 'Submitted') {
+          <app-anamnesis-pdf-button
+            [pdfPath]="'/nutritionists/me/anamneses/' + current.id + '/pdf'"
+            [title]="current.title"
+          />
+        }
+      </div>
       <app-anamnesis-answers [anamnesis]="anamnesis.value()" />
     } @else if (anamnesis.error()) {
       <app-load-error [error]="anamnesis.error()" (retry)="anamnesis.reload()" />
