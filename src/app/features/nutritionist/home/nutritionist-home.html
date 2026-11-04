@@ -9,47 +9,53 @@
   }
 </app-page-header>
 
-<section class="grid gap-4 sm:grid-cols-2" aria-label="Resumo">
-  <div class="flex items-center gap-4 rounded-container bg-surface p-5 shadow-1">
-    <span
-      class="flex size-11 items-center justify-center rounded-control bg-info-soft text-info-ink"
+<section class="grid gap-4 sm:grid-cols-3" aria-label="Resumo">
+  @for (stat of stats; track stat.label) {
+    <a
+      [routerLink]="stat.link"
+      class="group flex items-center gap-4 rounded-container bg-surface p-5 shadow-1 transition-shadow hover:shadow-2"
     >
-      <svg lucideUsers class="size-5"></svg>
-    </span>
-    <div>
-      <p class="text-body-sm text-ink-muted">Pacientes em acompanhamento</p>
-      @if (patients.hasValue()) {
-        <p class="text-headline-lg text-ink tabular-nums">{{ patients.value().totalItems }}</p>
-      } @else if (patients.isLoading()) {
-        <div
-          class="mt-1 h-7 w-12 rounded-control bg-surface-muted motion-safe:animate-pulse"
-          aria-hidden="true"
-        ></div>
-      } @else {
-        <p class="text-headline-lg text-ink-muted">—</p>
-      }
-    </div>
-  </div>
-  <div class="flex items-center gap-4 rounded-container bg-surface p-5 shadow-1">
-    <span
-      class="flex size-11 items-center justify-center rounded-control bg-warning-soft text-warning-ink"
-    >
-      <svg lucideInbox class="size-5"></svg>
-    </span>
-    <div>
-      <p class="text-body-sm text-ink-muted">Solicitações pendentes</p>
-      @if (requests.hasValue()) {
-        <p class="text-headline-lg text-ink tabular-nums">{{ requests.value().totalItems }}</p>
-      } @else if (requests.isLoading()) {
-        <div
-          class="mt-1 h-7 w-12 rounded-control bg-surface-muted motion-safe:animate-pulse"
-          aria-hidden="true"
-        ></div>
-      } @else {
-        <p class="text-headline-lg text-ink-muted">—</p>
-      }
-    </div>
-  </div>
+      <span
+        class="flex size-11 shrink-0 items-center justify-center rounded-control"
+        [class]="stat.tone"
+      >
+        <svg [lucideIcon]="stat.icon" class="size-5"></svg>
+      </span>
+      <div>
+        <p class="text-body-sm text-ink-muted group-hover:text-link">{{ stat.label }}</p>
+        @if (stat.total() !== null) {
+          <p class="text-headline-lg text-ink tabular-nums">{{ stat.total() }}</p>
+        } @else if (stat.loading()) {
+          <div
+            class="mt-1 h-7 w-12 rounded-control bg-surface-muted motion-safe:animate-pulse"
+            aria-hidden="true"
+          ></div>
+        } @else {
+          <p class="text-headline-lg text-ink-muted">—</p>
+        }
+      </div>
+    </a>
+  }
+</section>
+
+<section class="flex flex-col gap-3" aria-labelledby="atalhos-titulo">
+  <h2 id="atalhos-titulo" class="text-title-md text-ink">Atalhos</h2>
+  <ul class="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+    @for (shortcut of shortcuts; track shortcut.label) {
+      <li>
+        <a
+          [routerLink]="shortcut.link"
+          class="flex h-full items-start gap-3 rounded-container border border-line bg-surface p-4 hover:border-primary hover:bg-surface-muted"
+        >
+          <svg [lucideIcon]="shortcut.icon" class="mt-0.5 size-5 shrink-0 text-link"></svg>
+          <span class="flex flex-col gap-0.5">
+            <span class="text-label-lg text-ink">{{ shortcut.label }}</span>
+            <span class="text-body-sm text-ink-muted">{{ shortcut.hint }}</span>
+          </span>
+        </a>
+      </li>
+    }
+  </ul>
 </section>
 
 <div class="grid gap-6 lg:grid-cols-2">
@@ -74,14 +80,17 @@
     } @else if (requests.hasValue()) {
       <ul class="flex flex-col divide-y divide-divider">
         @for (request of requests.value().items; track request.id) {
-          <li class="flex flex-col gap-0.5 py-3 first:pt-0 last:pb-0">
-            <p class="text-label-lg text-ink">{{ request.patientName }}</p>
-            <p class="text-body-sm text-ink-muted">
-              Pedido em {{ request.createdAt | date: 'dd/MM/yyyy' }}
-            </p>
-            @if (request.message) {
-              <p class="text-body-md text-ink-muted">“{{ request.message }}”</p>
-            }
+          <li class="flex items-start gap-3 py-3 first:pt-0 last:pb-0">
+            <app-avatar [name]="request.patientName" [photoUrl]="request.patientPhotoUrl" />
+            <div class="flex min-w-0 flex-col gap-0.5">
+              <p class="text-label-lg text-ink">{{ request.patientName }}</p>
+              <p class="text-body-sm text-ink-muted">
+                Pedido em {{ request.createdAt | date: 'dd/MM/yyyy' }}
+              </p>
+              @if (request.message) {
+                <p class="line-clamp-2 text-body-md text-ink-muted">“{{ request.message }}”</p>
+              }
+            </div>
           </li>
         } @empty {
           <li class="text-body-md text-ink-muted">Nenhuma solicitação aguardando resposta.</li>
@@ -111,8 +120,9 @@
     } @else if (patients.hasValue()) {
       <ul class="flex flex-col divide-y divide-divider">
         @for (patient of patients.value().items; track patient.patientId) {
-          <li class="flex flex-wrap items-center justify-between gap-2 py-3 first:pt-0 last:pb-0">
-            <div>
+          <li class="flex items-center gap-3 py-3 first:pt-0 last:pb-0">
+            <app-avatar [name]="patient.name" [photoUrl]="patient.photoUrl" />
+            <div class="min-w-0 flex-1">
               <a
                 [routerLink]="['/nutricionista/pacientes', patient.patientId]"
                 class="text-label-lg text-ink hover:text-link hover:underline"
@@ -123,7 +133,9 @@
                 Desde {{ patient.startedAtUtc | date: 'dd/MM/yyyy' }}
               </p>
             </div>
-            <span class="rounded-pill bg-soft/30 px-3 py-1 text-label-md text-soft-ink">
+            <span
+              class="hidden rounded-pill bg-soft/30 px-3 py-1 text-label-md text-soft-ink sm:inline"
+            >
               {{ goalLabel(patient.goal) }}
             </span>
           </li>

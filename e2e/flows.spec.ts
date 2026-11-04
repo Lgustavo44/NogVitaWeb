@@ -198,9 +198,10 @@ test.describe('anamnese e macros', () => {
   test('paciente responde a anamnese pendente e vê as respostas', async ({ page }) => {
     const state = createState();
     await signIn(page, ['Patient'], state);
-    await page.goto('/paciente/anamneses');
-
-    await page.getByRole('link', { name: /Responder/ }).click();
+    // O início avisa da anamnese pendente e leva direto a ela.
+    await page.goto('/paciente');
+    await expect(page.getByText('Você tem uma anamnese para responder')).toBeVisible();
+    await page.getByRole('link', { name: 'Responder agora' }).click();
     await page.getByLabel(/Tem alguma alergia alimentar/).fill('Lactose');
     await page
       .getByRole('group', { name: /Pratica atividade física/ })
@@ -214,6 +215,9 @@ test.describe('anamnese e macros', () => {
     await expect(page.getByText('Respondida')).toBeVisible();
     await expect(page.getByText('Lactose')).toBeVisible();
     await expect(page.getByText('Água, Café')).toBeVisible();
+    await page.goto('/paciente');
+    await expect(page.getByRole('heading', { level: 1 })).toBeVisible();
+    await expect(page.getByText('Você tem uma anamnese para responder')).toHaveCount(0);
     expect(state.anamnesis.answers).toContainEqual({
       questionId: 'qc',
       text: null,

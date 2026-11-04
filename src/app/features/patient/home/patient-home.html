@@ -6,7 +6,217 @@
   <app-day-period-icon headerIcon [period]="period" />
 </app-page-header>
 
+@let pending = pendingAnamneses();
+@if (pending.length) {
+  <app-alert
+    tone="warning"
+    [heading]="
+      pending.length === 1
+        ? 'Você tem uma anamnese para responder'
+        : 'Você tem ' + pending.length + ' anamneses para responder'
+    "
+  >
+    Seu nutricionista enviou perguntas sobre sua saúde e rotina. Responder ajuda a montar o seu
+    plano.
+    <div alertActions class="flex pl-7.5">
+      <a
+        [routerLink]="
+          pending.length === 1 ? ['/paciente/anamneses', pending[0].id] : '/paciente/anamneses'
+        "
+        class="inline-flex min-h-11 items-center font-semibold underline underline-offset-2 hover:no-underline"
+        >{{ pending.length === 1 ? 'Responder agora' : 'Ver anamneses' }}</a
+      >
+    </div>
+  </app-alert>
+}
+
+<!-- Resumo do dia -->
+<section class="grid gap-4 sm:grid-cols-3" aria-label="Resumo">
+  <div class="flex items-center gap-4 rounded-container bg-surface p-5 shadow-1">
+    <span
+      class="flex size-11 shrink-0 items-center justify-center rounded-control bg-info-soft text-info-ink"
+    >
+      <svg lucideScale class="size-5"></svg>
+    </span>
+    <div class="min-w-0">
+      <p class="text-body-sm text-ink-muted">Peso atual</p>
+      @if (weightSummary(); as summary) {
+        <p class="text-headline-lg text-ink tabular-nums">
+          {{ summary.latest.weightKg | number: '1.1-1' }} kg
+        </p>
+        <p class="text-body-sm text-ink-muted">
+          @if (summary.count > 1) {
+            {{ summary.change > 0 ? '+' : '' }}{{ summary.change | number: '1.1-1' }} kg em 90 dias
+          } @else {
+            Em {{ date(summary.latest.recordedOn) | date: 'dd/MM' }}
+          }
+        </p>
+      } @else if (weights.isLoading()) {
+        <div
+          class="mt-1 h-7 w-20 rounded-control bg-surface-muted motion-safe:animate-pulse"
+          aria-hidden="true"
+        ></div>
+      } @else {
+        <p class="text-headline-lg text-ink-muted">—</p>
+        <a routerLink="/paciente/peso" class="text-body-sm text-link hover:underline"
+          >Registrar peso</a
+        >
+      }
+    </div>
+  </div>
+
+  <div class="flex items-center gap-4 rounded-container bg-surface p-5 shadow-1">
+    <span
+      class="flex size-11 shrink-0 items-center justify-center rounded-control bg-success-soft text-success-ink"
+    >
+      <svg lucideFlame class="size-5"></svg>
+    </span>
+    <div class="min-w-0">
+      <p class="text-body-sm text-ink-muted">Calorias por dia</p>
+      @if (plan.hasValue()) {
+        <p class="text-headline-lg text-ink tabular-nums">
+          {{ dailyKcal() | number: '1.0-0' }} kcal
+        </p>
+        <p class="text-body-sm text-ink-muted">
+          {{ plan.value().plan.targetEnergyKcal ? 'Meta do seu plano' : 'Somadas no seu plano' }}
+        </p>
+      } @else if (plan.isLoading()) {
+        <div
+          class="mt-1 h-7 w-20 rounded-control bg-surface-muted motion-safe:animate-pulse"
+          aria-hidden="true"
+        ></div>
+      } @else {
+        <p class="text-headline-lg text-ink-muted">—</p>
+        <p class="text-body-sm text-ink-muted">Sem plano ativo</p>
+      }
+    </div>
+  </div>
+
+  <div class="flex items-center gap-4 rounded-container bg-surface p-5 shadow-1">
+    <span
+      class="flex size-11 shrink-0 items-center justify-center rounded-control bg-warning-soft text-warning-ink"
+    >
+      <svg lucideClock class="size-5"></svg>
+    </span>
+    <div class="min-w-0">
+      <p class="text-body-sm text-ink-muted">Próxima refeição</p>
+      @if (nextMeal(); as next) {
+        <p class="truncate text-headline-lg text-ink">{{ next.meal.name }}</p>
+        <p class="text-body-sm text-ink-muted tabular-nums">
+          {{ next.tomorrow ? 'Amanhã, ' : 'Hoje, ' }}{{ time(next.meal.suggestedTime) }}
+        </p>
+      } @else if (plan.isLoading()) {
+        <div
+          class="mt-1 h-7 w-28 rounded-control bg-surface-muted motion-safe:animate-pulse"
+          aria-hidden="true"
+        ></div>
+      } @else {
+        <p class="text-headline-lg text-ink-muted">—</p>
+        <p class="text-body-sm text-ink-muted">Sem horários no plano</p>
+      }
+    </div>
+  </div>
+</section>
+
 <div class="grid gap-6 lg:grid-cols-2">
+  <!-- Plano atual: as refeições do dia -->
+  <section
+    class="flex flex-col gap-4 rounded-container bg-surface p-5 shadow-1"
+    aria-labelledby="plano-titulo"
+  >
+    <div class="flex items-center justify-between gap-2">
+      <h2 id="plano-titulo" class="flex items-center gap-2 text-title-md text-ink">
+        <svg lucideUtensils class="size-5 text-link"></svg>
+        Refeições de hoje
+      </h2>
+      @if (plan.hasValue()) {
+        <a routerLink="/paciente/plano" class="text-label-lg text-link hover:underline"
+          >Ver plano</a
+        >
+      }
+    </div>
+    @if (plan.isLoading()) {
+      <div
+        class="h-32 rounded-control bg-surface-muted motion-safe:animate-pulse"
+        aria-hidden="true"
+      ></div>
+      <span class="sr-only">Carregando…</span>
+    } @else if (planMissing()) {
+      <p class="text-body-md text-ink-muted">
+        Você não tem um plano ativo. Quando seu nutricionista ativar um plano, ele aparece aqui.
+      </p>
+    } @else if (plan.error()) {
+      <app-load-error [error]="plan.error()" (retry)="plan.reload()" />
+    } @else if (plan.hasValue()) {
+      <p class="text-body-sm text-ink-muted">
+        {{ plan.value().plan.name }} · desde
+        {{ date(plan.value().plan.startDate) | date: 'dd/MM/yyyy' }}
+        @if (plan.value().plan.endDate; as endDate) {
+          até {{ date(endDate) | date: 'dd/MM/yyyy' }}
+        }
+      </p>
+      <ol class="flex flex-col gap-1">
+        @for (meal of plan.value().meals; track meal.id) {
+          @let isNext = nextMeal()?.meal === meal && !nextMeal()?.tomorrow;
+          <li
+            class="flex items-center gap-3 rounded-control px-3 py-2"
+            [class.bg-soft/30]="isNext"
+            [class.bg-surface-muted]="!isNext"
+          >
+            <span class="w-12 shrink-0 text-label-lg text-ink-muted tabular-nums">
+              {{ meal.suggestedTime ? meal.suggestedTime.slice(0, 5) : '—' }}
+            </span>
+            <span class="min-w-0 flex-1 truncate text-label-lg text-ink">
+              {{ meal.name }}
+              @if (isNext) {
+                <span class="text-body-sm text-ink-muted"> · a próxima</span>
+              }
+            </span>
+            <span class="shrink-0 text-body-sm text-ink-muted tabular-nums">
+              {{ meal.totals.energyKcal.value | number: '1.0-0' }} kcal
+            </span>
+          </li>
+        } @empty {
+          <li class="text-body-md text-ink-muted">O plano ainda não tem refeições.</li>
+        }
+      </ol>
+    }
+  </section>
+
+  <!-- Peso: gráfico curto, o completo fica em Peso e evolução -->
+  <section
+    class="flex flex-col gap-4 rounded-container bg-surface p-5 shadow-1"
+    aria-labelledby="peso-titulo"
+  >
+    <div class="flex items-center justify-between gap-2">
+      <h2 id="peso-titulo" class="flex items-center gap-2 text-title-md text-ink">
+        <svg lucideChartLine class="size-5 text-link"></svg>
+        Seu peso nos últimos 90 dias
+      </h2>
+      <a routerLink="/paciente/peso" class="text-label-lg text-link hover:underline">Ver tudo</a>
+    </div>
+    @if (weights.isLoading()) {
+      <div
+        class="h-60 rounded-control bg-surface-muted motion-safe:animate-pulse"
+        aria-hidden="true"
+      ></div>
+      <span class="sr-only">Carregando…</span>
+    } @else if (weights.error()) {
+      <app-load-error [error]="weights.error()" (retry)="weights.reload()" />
+    } @else if (weightItems().length > 1) {
+      <app-weight-chart [records]="weightItems()" />
+    } @else {
+      <p class="text-body-md text-ink-muted">
+        Registre seu peso de vez em quando: com dois registros, a sua evolução aparece aqui.
+      </p>
+      <a
+        routerLink="/paciente/peso"
+        class="inline-flex min-h-11 w-fit items-center rounded-control bg-soft/30 px-5 text-label-lg font-semibold text-soft-ink hover:bg-soft/50"
+        >Registrar peso</a
+      >
+    }
+  </section>
+
   <!-- Nutricionista -->
   <section
     class="flex flex-col gap-4 rounded-container bg-surface p-5 shadow-1"
@@ -33,68 +243,43 @@
     } @else if (care.error()) {
       <app-load-error [error]="care.error()" (retry)="care.reload()" />
     } @else if (care.hasValue()) {
-      <div class="flex flex-col gap-1">
-        <p class="text-title-md text-ink">{{ care.value().nutritionistName }}</p>
-        <p class="text-body-md text-ink-muted">
-          CRN-{{ care.value().crnRegion }} {{ care.value().crnNumber }} · desde
-          {{ care.value().startedAtUtc | date: 'dd/MM/yyyy' }}
-        </p>
-      </div>
-    }
-  </section>
-
-  <!-- Plano atual -->
-  <section
-    class="flex flex-col gap-4 rounded-container bg-surface p-5 shadow-1"
-    aria-labelledby="plano-titulo"
-  >
-    <h2 id="plano-titulo" class="flex items-center gap-2 text-title-md text-ink">
-      <svg lucideUtensils class="size-5 text-link"></svg>
-      Plano alimentar
-    </h2>
-    @if (plan.isLoading()) {
-      <div
-        class="h-16 rounded-control bg-surface-muted motion-safe:animate-pulse"
-        aria-hidden="true"
-      ></div>
-      <span class="sr-only">Carregando…</span>
-    } @else if (planMissing()) {
-      <p class="text-body-md text-ink-muted">
-        Você não tem um plano ativo. Quando seu nutricionista ativar um plano, ele aparece aqui.
-      </p>
-    } @else if (plan.error()) {
-      <app-load-error [error]="plan.error()" (retry)="plan.reload()" />
-    } @else if (plan.hasValue()) {
-      <div class="flex flex-col gap-1">
-        <p class="text-title-md text-ink">{{ plan.value().plan.name }}</p>
-        <p class="text-body-md text-ink-muted">
-          {{ plan.value().meals.length }} refeições · desde
-          {{ date(plan.value().plan.startDate) | date: 'dd/MM/yyyy' }}
-          @if (plan.value().plan.endDate; as endDate) {
-            até {{ date(endDate) | date: 'dd/MM/yyyy' }}
-          }
-        </p>
+      <div class="flex items-center gap-4">
+        <app-avatar
+          [name]="care.value().nutritionistName"
+          [photoUrl]="care.value().nutritionistPhotoUrl"
+          size="lg"
+        />
+        <div class="flex min-w-0 flex-col gap-1">
+          <p class="text-title-md text-ink">{{ care.value().nutritionistName }}</p>
+          <p class="text-body-md text-ink-muted">
+            CRN-{{ care.value().crnRegion }} {{ care.value().crnNumber }} · desde
+            {{ care.value().startedAtUtc | date: 'dd/MM/yyyy' }}
+          </p>
+        </div>
       </div>
       <a
-        routerLink="/paciente/plano"
-        class="inline-flex items-center gap-1 self-start text-label-lg text-link hover:underline"
-        >Ver plano completo</a
+        routerLink="/paciente/meu-nutricionista"
+        class="w-fit text-label-lg text-link hover:underline"
+        >Ver acompanhamento</a
       >
     }
   </section>
 
   <!-- Perfil e rotina -->
   <section
-    class="flex flex-col gap-4 rounded-container bg-surface p-5 shadow-1 lg:col-span-2"
+    class="flex flex-col gap-4 rounded-container bg-surface p-5 shadow-1"
     aria-labelledby="perfil-titulo"
   >
-    <h2 id="perfil-titulo" class="flex items-center gap-2 text-title-md text-ink">
-      <svg lucideTarget class="size-5 text-link"></svg>
-      Seu objetivo e sua rotina
-    </h2>
+    <div class="flex items-center justify-between gap-2">
+      <h2 id="perfil-titulo" class="flex items-center gap-2 text-title-md text-ink">
+        <svg lucideTarget class="size-5 text-link"></svg>
+        Seu objetivo e sua rotina
+      </h2>
+      <a routerLink="/paciente/perfil" class="text-label-lg text-link hover:underline">Editar</a>
+    </div>
     @if (profile.isLoading()) {
-      <div class="grid gap-3 sm:grid-cols-3" aria-hidden="true">
-        @for (item of [1, 2, 3]; track item) {
+      <div class="grid gap-3 sm:grid-cols-2" aria-hidden="true">
+        @for (item of [1, 2, 3, 4]; track item) {
           <div class="h-16 rounded-control bg-surface-muted motion-safe:animate-pulse"></div>
         }
       </div>
@@ -102,51 +287,39 @@
     } @else if (profile.error()) {
       <app-load-error [error]="profile.error()" (retry)="profile.reload()" />
     } @else if (profile.hasValue()) {
-      <dl class="grid grid-cols-2 gap-3 sm:grid-cols-4">
+      <dl class="grid grid-cols-2 gap-3">
         <div class="rounded-control bg-surface-muted p-3">
           <dt class="text-body-sm text-ink-muted">Objetivo</dt>
           <dd class="text-label-lg text-ink">{{ goalLabels[profile.value().goal] }}</dd>
         </div>
         <div class="rounded-control bg-surface-muted p-3">
-          <dt class="text-body-sm text-ink-muted">Idade</dt>
-          <dd class="text-label-lg text-ink">{{ profile.value().age }} anos</dd>
-        </div>
-        <div class="rounded-control bg-surface-muted p-3">
-          <dt class="text-body-sm text-ink-muted">Altura</dt>
-          <dd class="text-label-lg text-ink">{{ profile.value().heightInCm }} cm</dd>
-        </div>
-        <div class="rounded-control bg-surface-muted p-3">
-          <dt class="text-body-sm text-ink-muted">Sexo biológico</dt>
-          <dd class="text-label-lg text-ink">{{ sexLabels[profile.value().biologicalSex] }}</dd>
+          <dt class="text-body-sm text-ink-muted">Idade e altura</dt>
+          <dd class="text-label-lg text-ink">
+            {{ profile.value().age }} anos · {{ profile.value().heightInCm }} cm
+          </dd>
         </div>
       </dl>
-      <div class="flex flex-col gap-2">
-        <h3 class="flex items-center gap-2 text-label-lg text-ink">
-          <svg lucideClock class="size-4 text-ink-muted"></svg>
-          Rotina
-        </h3>
-        <dl class="grid grid-cols-3 gap-3">
-          <div class="rounded-control bg-surface-muted p-3">
-            <dt class="text-body-sm text-ink-muted">Acordar</dt>
-            <dd class="text-label-lg text-ink tabular-nums">
-              {{ time(profile.value().wakeUpTime) }}
-            </dd>
-          </div>
-          <div class="rounded-control bg-surface-muted p-3">
-            <dt class="text-body-sm text-ink-muted">Dormir</dt>
-            <dd class="text-label-lg text-ink tabular-nums">{{ time(profile.value().bedTime) }}</dd>
-          </div>
-          <div class="rounded-control bg-surface-muted p-3">
-            <dt class="text-body-sm text-ink-muted">Treino</dt>
-            <dd class="text-label-lg text-ink tabular-nums">
-              {{ time(profile.value().trainingTime) }}
-            </dd>
-          </div>
-        </dl>
-        <p class="text-body-sm text-ink-muted">
-          Os horários ajudam seu nutricionista a distribuir as refeições ao longo do dia.
-        </p>
-      </div>
+      <dl class="grid grid-cols-3 gap-3">
+        <div class="rounded-control bg-surface-muted p-3">
+          <dt class="text-body-sm text-ink-muted">Acordar</dt>
+          <dd class="text-label-lg text-ink tabular-nums">
+            {{ time(profile.value().wakeUpTime) }}
+          </dd>
+        </div>
+        <div class="rounded-control bg-surface-muted p-3">
+          <dt class="text-body-sm text-ink-muted">Dormir</dt>
+          <dd class="text-label-lg text-ink tabular-nums">{{ time(profile.value().bedTime) }}</dd>
+        </div>
+        <div class="rounded-control bg-surface-muted p-3">
+          <dt class="text-body-sm text-ink-muted">Treino</dt>
+          <dd class="text-label-lg text-ink tabular-nums">
+            {{ time(profile.value().trainingTime) }}
+          </dd>
+        </div>
+      </dl>
+      <p class="text-body-sm text-ink-muted">
+        Os horários ajudam seu nutricionista a distribuir as refeições ao longo do dia.
+      </p>
     }
   </section>
 </div>
