@@ -9,12 +9,13 @@ import {
 } from '@lucide/angular';
 import { CurrentUser } from '../../core/auth/current-user';
 import { AppShell, NavItem } from '../../shared/layout/app-shell/app-shell';
+import { PolicyNotice } from '../../shared/legal/policy-notice';
 import { adminUserResource } from './admin-api';
 
 /** Moldura da administração: o AppShell com o menu do admin. */
 @Component({
   selector: 'app-admin-area',
-  imports: [AppShell, RouterOutlet],
+  imports: [AppShell, PolicyNotice, RouterOutlet],
   template: `
     <app-shell
       area="Admin"
@@ -23,6 +24,7 @@ import { adminUserResource } from './admin-api';
       [navigation]="navigation"
       [userName]="userName()"
     >
+      <app-policy-notice />
       <router-outlet />
     </app-shell>
   `,

@@ -9,12 +9,13 @@ import {
   LucideUtensils,
 } from '@lucide/angular';
 import { AppShell, NavItem } from '../../shared/layout/app-shell/app-shell';
+import { PolicyNotice } from '../../shared/legal/policy-notice';
 import { NutritionistProfileStore } from './nutritionist-profile-store';
 
 /** Moldura da área do nutricionista: o AppShell com o menu clínico. */
 @Component({
   selector: 'app-nutritionist-area',
-  imports: [AppShell, RouterOutlet],
+  imports: [AppShell, PolicyNotice, RouterOutlet],
   providers: [NutritionistProfileStore],
   template: `
     <app-shell
@@ -25,6 +26,7 @@ import { NutritionistProfileStore } from './nutritionist-profile-store';
       [userDetail]="crn()"
       [userPhotoUrl]="photoUrl()"
     >
+      <app-policy-notice />
       <router-outlet />
     </app-shell>
   `,
