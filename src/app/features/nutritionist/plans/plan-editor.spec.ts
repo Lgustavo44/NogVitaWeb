@@ -189,4 +189,30 @@ describe('PlanEditorPage', () => {
 
     expect(element.querySelector('[role="alert"]')?.textContent).toContain('não pode ser alterado');
   });
+
+  it('meta: busca o paciente só ao abrir e mostra o gasto basal estimado', async () => {
+    await load('Draft');
+    controller.expectNone('/api/v1/nutritionists/me/patients/p1');
+
+    button('Definir meta').click();
+    await settle();
+    controller.expectOne('/api/v1/nutritionists/me/patients/p1').flush({
+      patientId: 'p1',
+      name: 'Paciente Exemplo',
+      age: 31,
+      biologicalSex: 'Female',
+      heightInCm: 165,
+      goal: 'WeightLoss',
+      wakeUpTime: null,
+      bedTime: null,
+      trainingTime: null,
+      bodyMassIndex: 26.6,
+      latestWeight: { weightKg: 72.5, recordedOn: '2026-10-30' },
+    });
+    await settle();
+
+    // Mifflin-St Jeor: 10 × 72,5 + 6,25 × 165 − 5 × 31 − 161 = 1.440
+    expect(element.textContent).toContain('≈ 1.440 kcal/dia');
+    expect(element.textContent).toContain('É só uma estimativa');
+  });
 });

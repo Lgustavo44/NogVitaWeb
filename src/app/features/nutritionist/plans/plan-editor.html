@@ -207,6 +207,7 @@
   } @else if (active.kind === 'target') {
     <app-target-form-modal
       [plan]="plan()!"
+      [patient]="targetPatient.hasValue() ? targetPatient.value() : null"
       [busy]="busy()"
       [error]="error()"
       (saved)="saveTarget($event)"

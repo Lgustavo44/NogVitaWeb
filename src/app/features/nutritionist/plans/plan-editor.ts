@@ -34,6 +34,7 @@ import { LoadError } from '../../../shared/ui/load-error/load-error';
 import { Toaster } from '../../../shared/ui/toast/toaster';
 import { parseIsoDate } from '../../../shared/util/dates';
 import { saveBlob, slugify } from '../../../shared/util/download';
+import { followedPatientResource } from '../nutritionist-api';
 import { FoodPickerModal, FoodPortion } from './food-picker-modal';
 import { MealFormModal } from './meal-form-modal';
 import { PlanFormModal } from './plan-form-modal';
@@ -110,6 +111,10 @@ export class PlanEditorPage {
   );
 
   protected readonly dialog = signal<Dialog | null>(null);
+  /** O paciente só com o modal da meta aberto: alimenta a estimativa do gasto basal. */
+  protected readonly targetPatient = followedPatientResource(
+    computed(() => (this.dialog()?.kind === 'target' ? (this.plan()?.patientId ?? null) : null)),
+  );
   protected readonly busy = signal(false);
   protected readonly error = signal<string | null>(null);
   protected readonly reordering = signal(false);

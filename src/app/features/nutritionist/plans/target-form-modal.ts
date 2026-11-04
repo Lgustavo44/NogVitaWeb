@@ -1,7 +1,10 @@
-import { Component, booleanAttribute, input, linkedSignal, output } from '@angular/core';
+import { DecimalPipe } from '@angular/common';
+import { Component, booleanAttribute, computed, input, linkedSignal, output } from '@angular/core';
 import { FormField, FormRoot, form, min, required } from '@angular/forms/signals';
 import { LucideTarget } from '@lucide/angular';
+import { basalMetabolicRate } from '../../../shared/domain/energy';
 import { NutritionPlan, PlanTargetRequest } from '../../../shared/domain/nutrition-plan';
+import { FollowedPatient } from '../nutritionist.models';
 import { Alert } from '../../../shared/ui/alert/alert';
 import { Button } from '../../../shared/ui/button/button';
 import { Field } from '../../../shared/ui/field/field';
@@ -18,7 +21,17 @@ interface TargetForm {
 /** Meta diária: calorias obrigatórias; proteína, carboidrato e gordura opcionais. */
 @Component({
   selector: 'app-target-form-modal',
-  imports: [Alert, Button, Field, FieldInput, FormField, FormRoot, LucideTarget, Modal],
+  imports: [
+    Alert,
+    Button,
+    DecimalPipe,
+    Field,
+    FieldInput,
+    FormField,
+    FormRoot,
+    LucideTarget,
+    Modal,
+  ],
   template: `
     <app-modal
       heading="Meta diária"
@@ -42,6 +55,15 @@ interface TargetForm {
             >kcal</span
           >
         </app-field>
+        @if (estimate(); as basal) {
+          <p class="rounded-control bg-surface-muted p-3 text-body-sm text-ink-muted">
+            Gasto basal estimado (Mifflin-St Jeor):
+            <strong class="text-ink">≈ {{ basal.kcal | number: '1.0-0' }} kcal/dia</strong>, com
+            {{ basal.weightKg | number: '1.0-1' }} kg, {{ basal.heightCm }} cm e
+            {{ basal.age }} anos. É só uma estimativa e não inclui as atividades: a meta é você quem
+            define.
+          </p>
+        }
         <p class="text-body-sm text-ink-muted">
           Macronutrientes (opcionais): em branco, ficam fora da comparação.
         </p>
@@ -96,10 +118,25 @@ interface TargetForm {
 export class TargetFormModal {
   /** Para começar com a meta atual. */
   readonly plan = input.required<NutritionPlan>();
+  /** Para a estimativa do gasto basal; sem ele (ou sem peso registrado), a dica não aparece. */
+  readonly patient = input<FollowedPatient | null>(null);
   readonly busy = input(false, { transform: booleanAttribute });
   readonly error = input<string | null>(null);
   readonly saved = output<PlanTargetRequest>();
   readonly closed = output();
+
+  protected readonly estimate = computed(() => {
+    const patient = this.patient();
+    const weightKg = patient?.latestWeight?.weightKg;
+    if (!patient || !weightKg) return null;
+    const { biologicalSex, heightInCm: heightCm, age } = patient;
+    return {
+      kcal: basalMetabolicRate(biologicalSex, weightKg, heightCm, age),
+      weightKg,
+      heightCm,
+      age,
+    };
+  });
 
   protected readonly model = linkedSignal<TargetForm>(() => {
     const plan = this.plan();
